@@ -7,16 +7,14 @@
 
 use crate::{
     bq_analytics::{GetTimeStamp, HasVersion, NamedTable},
-    db::{
-        models::{
-            ans_models::{
-                ans_lookup::{AnsLookup, CurrentAnsLookup},
-                ans_utils::{get_token_name, NameRecordV2, SubdomainExtV2},
-            },
-            token_v2_models::v2_token_utils::TokenStandard,
+    db::models::{
+        ans_models::{
+            ans_lookup::{AnsLookup, CurrentAnsLookup},
+            ans_utils::{get_token_name, NameRecordV2, SubdomainExtV2},
         },
-        schema::{ans_lookup_v2, current_ans_lookup_v2},
+        token_v2_models::v2_token_utils::TokenStandard,
     },
+    schema::{ans_lookup_v2, current_ans_lookup_v2},
     utils::util::standardize_address,
 };
 use ahash::AHashMap;

@@ -9,7 +9,7 @@
 
 use super::signatures::Signature;
 use crate::{
-    db::schema::user_transactions,
+    schema::user_transactions,
     utils::util::{
         get_entry_function_contract_address_from_user_request,
         get_entry_function_from_user_request, get_entry_function_function_name_from_user_request,
