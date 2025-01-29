@@ -9,18 +9,14 @@ use super::raw_v2_fungible_asset_balances::{
     get_paired_metadata_address, get_primary_fungible_store_address,
 };
 use crate::{
-    db::{
-        common::models::{
-            object_models::v2_object_utils::ObjectAggregatedDataMapping,
-            token_v2_models::v2_token_utils::TokenStandard,
+    db::models::{
+        coin_models::{
+            coin_activities::CoinActivity,
+            coin_utils::{CoinEvent, EventGuidResource},
         },
-        postgres::models::{
-            coin_models::{
-                coin_activities::CoinActivity,
-                coin_utils::{CoinEvent, EventGuidResource},
-            },
-            fungible_asset_models::v2_fungible_asset_utils::{FeeStatement, FungibleAssetEvent},
-        },
+        fungible_asset_models::v2_fungible_asset_utils::{FeeStatement, FungibleAssetEvent},
+        object_models::v2_object_utils::ObjectAggregatedDataMapping,
+        token_v2_models::v2_token_utils::TokenStandard,
     },
     utils::util::standardize_address,
 };
