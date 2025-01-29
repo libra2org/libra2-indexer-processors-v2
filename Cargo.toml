@@ -12,8 +12,8 @@ edition = "2021"
 homepage = "https://aptoslabs.com"
 license = "Apache-2.0"
 publish = false
-repository = "https://github.com/aptos-labs/aptos-indexer-processors"
-rust-version = "1.81"  # Change from 1.78 to 1.81 or higher
+repository = "https://github.com/aptos-labs/aptos-indexer-processors-v2"
+rust-version = "1.81"
 
 [workspace.dependencies]
 processor = { path = "processor" }

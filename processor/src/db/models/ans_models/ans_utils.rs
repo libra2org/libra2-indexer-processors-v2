@@ -33,6 +33,8 @@ impl OptionalString {
     }
 }
 
+// TODO: There is duplicated struct defined (https://github.com/aptos-labs/aptos-indexer-processors/blob/22f92fc3d7c8269cf16714eee9e86c6054d99b10/rust/processor/src/db/postgres/models/fungible_asset_models/v2_fungible_asset_utils.rs#L107)
+// Remove this or the other one
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct OptionalBigDecimal {
     vec: Vec<BigDecimalWrapper>,
