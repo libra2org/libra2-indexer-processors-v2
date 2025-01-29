@@ -11,6 +11,8 @@ use aptos_protos::transaction::v1::{
 use field_count::FieldCount;
 use serde::{Deserialize, Serialize};
 
+// TODO: Remove this model, and use the new model instead.
+
 #[derive(Clone, Debug, Deserialize, FieldCount, Identifiable, Insertable, Serialize)]
 #[diesel(primary_key(transaction_version, write_set_change_index))]
 #[diesel(table_name = move_resources)]

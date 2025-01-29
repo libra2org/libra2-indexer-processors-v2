@@ -8,7 +8,7 @@
 use super::v2_object_utils::{CurrentObjectPK, ObjectAggregatedDataMapping};
 use crate::{
     bq_analytics::{GetTimeStamp, HasVersion, NamedTable},
-    db::models::old_default_models::move_resources::MoveResource,
+    db::models::old_default_models::postgres_move_resources::MoveResource,
     schema::{current_objects, objects},
     utils::{
         database::{DbContext, DbPoolConnection},
