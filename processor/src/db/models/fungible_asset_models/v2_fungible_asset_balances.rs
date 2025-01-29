@@ -20,6 +20,10 @@ use crate::{
         },
         resources::FromWriteResource,
     },
+    schema::{
+        current_fungible_asset_balances, current_fungible_asset_balances_legacy,
+        fungible_asset_balances,
+    },
     utils::util::{
         hex_to_raw_bytes, sha3_256, standardize_address, APTOS_COIN_TYPE_STR,
         APT_METADATA_ADDRESS_HEX, APT_METADATA_ADDRESS_RAW,
@@ -566,6 +570,96 @@ impl CurrentUnifiedFungibleAssetBalanceConvertible for ParquetCurrentUnifiedFung
             is_frozen: base_item.is_frozen,
             amount_v1: base_item.amount_v1.map(|x| x.to_string()),
             amount_v2: base_item.amount_v2.map(|x| x.to_string()),
+            last_transaction_version_v1: base_item.last_transaction_version_v1,
+            last_transaction_version_v2: base_item.last_transaction_version_v2,
+            last_transaction_timestamp_v1: base_item.last_transaction_timestamp_v1,
+            last_transaction_timestamp_v2: base_item.last_transaction_timestamp_v2,
+        }
+    }
+}
+
+// Postgres Models
+
+#[derive(Clone, Debug, Deserialize, FieldCount, Identifiable, Insertable, Serialize)]
+#[diesel(primary_key(transaction_version, write_set_change_index))]
+#[diesel(table_name = fungible_asset_balances)]
+pub struct PostgresFungibleAssetBalance {
+    pub transaction_version: i64,
+    pub write_set_change_index: i64,
+    pub storage_id: String,
+    pub owner_address: String,
+    pub asset_type: String,
+    pub is_primary: bool,
+    pub is_frozen: bool,
+    pub amount: BigDecimal,
+    pub transaction_timestamp: chrono::NaiveDateTime,
+    pub token_standard: String,
+}
+
+impl FungibleAssetBalanceConvertible for PostgresFungibleAssetBalance {
+    fn from_base(base_item: FungibleAssetBalance) -> Self {
+        Self {
+            transaction_version: base_item.transaction_version,
+            write_set_change_index: base_item.write_set_change_index,
+            storage_id: base_item.storage_id,
+            owner_address: base_item.owner_address,
+            asset_type: base_item.asset_type,
+            is_primary: base_item.is_primary,
+            is_frozen: base_item.is_frozen,
+            amount: base_item.amount,
+            transaction_timestamp: base_item.transaction_timestamp,
+            token_standard: base_item.token_standard,
+        }
+    }
+}
+
+#[derive(Clone, Debug, Deserialize, FieldCount, Identifiable, Insertable, Serialize)]
+#[diesel(primary_key(storage_id))]
+#[diesel(table_name = current_fungible_asset_balances_legacy)]
+pub struct PostgresCurrentFungibleAssetBalance {
+    pub storage_id: String,
+    pub owner_address: String,
+    pub asset_type: String,
+    pub is_primary: bool,
+    pub is_frozen: bool,
+    pub amount: BigDecimal,
+    pub last_transaction_version: i64,
+    pub last_transaction_timestamp: chrono::NaiveDateTime,
+    pub token_standard: String,
+}
+
+/// Note that this used to be called current_unified_fungible_asset_balances_to_be_renamed
+/// and was renamed to current_fungible_asset_balances to facilitate migration
+#[derive(Clone, Debug, Deserialize, FieldCount, Identifiable, Insertable, Serialize, Default)]
+#[diesel(primary_key(storage_id))]
+#[diesel(table_name = current_fungible_asset_balances)]
+pub struct PostgresCurrentUnifiedFungibleAssetBalance {
+    pub storage_id: String,
+    pub owner_address: String,
+    // metadata address for (paired) Fungible Asset
+    pub asset_type_v1: Option<String>,
+    pub asset_type_v2: Option<String>,
+    pub is_primary: bool,
+    pub is_frozen: bool,
+    pub amount_v1: Option<BigDecimal>,
+    pub amount_v2: Option<BigDecimal>,
+    pub last_transaction_version_v1: Option<i64>,
+    pub last_transaction_version_v2: Option<i64>,
+    pub last_transaction_timestamp_v1: Option<chrono::NaiveDateTime>,
+    pub last_transaction_timestamp_v2: Option<chrono::NaiveDateTime>,
+}
+
+impl CurrentUnifiedFungibleAssetBalanceConvertible for PostgresCurrentUnifiedFungibleAssetBalance {
+    fn from_base(base_item: CurrentUnifiedFungibleAssetBalance) -> Self {
+        Self {
+            storage_id: base_item.storage_id,
+            owner_address: base_item.owner_address,
+            asset_type_v1: base_item.asset_type_v1,
+            asset_type_v2: base_item.asset_type_v2,
+            is_primary: base_item.is_primary,
+            is_frozen: base_item.is_frozen,
+            amount_v1: base_item.amount_v1,
+            amount_v2: base_item.amount_v2,
             last_transaction_version_v1: base_item.last_transaction_version_v1,
             last_transaction_version_v2: base_item.last_transaction_version_v2,
             last_transaction_timestamp_v1: base_item.last_transaction_timestamp_v1,

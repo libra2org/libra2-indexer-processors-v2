@@ -19,6 +19,7 @@ use crate::{
         object_models::v2_object_utils::ObjectAggregatedDataMapping,
         token_v2_models::v2_token_utils::TokenStandard,
     },
+    schema::fungible_asset_activities,
     utils::util::{bigdecimal_to_u64, standardize_address},
 };
 use ahash::AHashMap;
@@ -346,6 +347,53 @@ impl FungibleAssetActivityConvertible for ParquetFungibleAssetActivity {
             token_standard: base_item.token_standard,
             block_timestamp: base_item.transaction_timestamp,
             storage_refund_octa: bigdecimal_to_u64(&base_item.storage_refund_amount),
+        }
+    }
+}
+
+// Postgres Model
+
+#[derive(Clone, Debug, Deserialize, FieldCount, Identifiable, Insertable, Serialize)]
+#[diesel(primary_key(transaction_version, event_index))]
+#[diesel(table_name = fungible_asset_activities)]
+pub struct PostgresFungibleAssetActivity {
+    pub transaction_version: i64,
+    pub event_index: i64,
+    pub owner_address: Option<String>,
+    pub storage_id: String,
+    pub asset_type: Option<String>,
+    pub is_frozen: Option<bool>,
+    pub amount: Option<BigDecimal>,
+    pub type_: String,
+    pub is_gas_fee: bool,
+    pub gas_fee_payer_address: Option<String>,
+    pub is_transaction_success: bool,
+    pub entry_function_id_str: Option<String>,
+    pub block_height: i64,
+    pub token_standard: String,
+    pub transaction_timestamp: chrono::NaiveDateTime,
+    pub storage_refund_amount: BigDecimal,
+}
+
+impl FungibleAssetActivityConvertible for PostgresFungibleAssetActivity {
+    fn from_base(base_item: FungibleAssetActivity) -> Self {
+        Self {
+            transaction_version: base_item.transaction_version,
+            event_index: base_item.event_index,
+            owner_address: base_item.owner_address,
+            storage_id: base_item.storage_id,
+            asset_type: base_item.asset_type,
+            is_frozen: base_item.is_frozen,
+            amount: base_item.amount,
+            type_: base_item.event_type,
+            is_gas_fee: base_item.is_gas_fee,
+            gas_fee_payer_address: base_item.gas_fee_payer_address,
+            is_transaction_success: base_item.is_transaction_success,
+            entry_function_id_str: base_item.entry_function_id_str,
+            block_height: base_item.block_height,
+            token_standard: base_item.token_standard,
+            transaction_timestamp: base_item.transaction_timestamp,
+            storage_refund_amount: base_item.storage_refund_amount,
         }
     }
 }
