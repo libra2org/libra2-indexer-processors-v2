@@ -6,6 +6,7 @@
 #![allow(clippy::unused_unit)]
 
 use crate::{
+    bq_analytics::{GetTimeStamp, HasVersion, NamedTable},
     db::{
         models::{
             coin_models::coin_utils::{CoinInfoType, CoinResource},
@@ -18,16 +19,19 @@ use crate::{
     utils::util::standardize_address,
 };
 use ahash::AHashMap;
+use allocative_derive::Allocative;
 use aptos_protos::transaction::v1::{DeleteResource, WriteResource};
 use bigdecimal::BigDecimal;
+use parquet_derive::ParquetRecordWriter;
 use serde::{Deserialize, Serialize};
+
 // This is the asset type
 pub type FungibleAssetMetadataPK = String;
 pub type FungibleAssetMetadataMapping =
-    AHashMap<FungibleAssetMetadataPK, RawFungibleAssetMetadataModel>;
+    AHashMap<FungibleAssetMetadataPK, FungibleAssetMetadataModel>;
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
-pub struct RawFungibleAssetMetadataModel {
+pub struct FungibleAssetMetadataModel {
     pub asset_type: String,
     pub creator_address: String,
     pub name: String,
@@ -45,7 +49,7 @@ pub struct RawFungibleAssetMetadataModel {
     pub maximum_v2: Option<BigDecimal>,
 }
 
-impl RawFungibleAssetMetadataModel {
+impl FungibleAssetMetadataModel {
     /// Fungible asset is part of an object and we need to get the object first to get owner address
     pub fn get_v2_from_write_resource(
         write_resource: &WriteResource,
@@ -191,5 +195,65 @@ impl RawFungibleAssetMetadataModel {
 }
 
 pub trait FungibleAssetMetadataConvertible {
-    fn from_raw(raw_item: RawFungibleAssetMetadataModel) -> Self;
+    fn from_base(base_item: FungibleAssetMetadataModel) -> Self;
+}
+
+// Parquet Model
+
+#[derive(Allocative, Clone, Debug, Default, Deserialize, ParquetRecordWriter, Serialize)]
+pub struct ParquetFungibleAssetMetadataModel {
+    pub asset_type: String,
+    pub creator_address: String,
+    pub name: String,
+    pub symbol: String,
+    pub decimals: i32,
+    pub icon_uri: Option<String>,
+    pub project_uri: Option<String>,
+    pub last_transaction_version: i64,
+    #[allocative(skip)]
+    pub last_transaction_timestamp: chrono::NaiveDateTime,
+    pub supply_aggregator_table_handle_v1: Option<String>,
+    pub supply_aggregator_table_key_v1: Option<String>,
+    pub token_standard: String,
+    pub is_token_v2: Option<bool>,
+    pub supply_v2: Option<String>, // it is a string representation of the u128
+    pub maximum_v2: Option<String>, // it is a string representation of the u128
+}
+
+impl NamedTable for ParquetFungibleAssetMetadataModel {
+    const TABLE_NAME: &'static str = "fungible_asset_metadata";
+}
+
+impl HasVersion for ParquetFungibleAssetMetadataModel {
+    fn version(&self) -> i64 {
+        self.last_transaction_version
+    }
+}
+
+impl GetTimeStamp for ParquetFungibleAssetMetadataModel {
+    fn get_timestamp(&self) -> chrono::NaiveDateTime {
+        self.last_transaction_timestamp
+    }
+}
+
+impl FungibleAssetMetadataConvertible for ParquetFungibleAssetMetadataModel {
+    fn from_base(base_item: FungibleAssetMetadataModel) -> Self {
+        Self {
+            asset_type: base_item.asset_type,
+            creator_address: base_item.creator_address,
+            name: base_item.name,
+            symbol: base_item.symbol,
+            decimals: base_item.decimals,
+            icon_uri: base_item.icon_uri,
+            project_uri: base_item.project_uri,
+            last_transaction_version: base_item.last_transaction_version,
+            last_transaction_timestamp: base_item.last_transaction_timestamp,
+            supply_aggregator_table_handle_v1: base_item.supply_aggregator_table_handle_v1,
+            supply_aggregator_table_key_v1: base_item.supply_aggregator_table_key_v1,
+            token_standard: base_item.token_standard,
+            is_token_v2: base_item.is_token_v2,
+            supply_v2: base_item.supply_v2.map(|x| x.to_string()),
+            maximum_v2: base_item.maximum_v2.map(|x| x.to_string()),
+        }
+    }
 }
