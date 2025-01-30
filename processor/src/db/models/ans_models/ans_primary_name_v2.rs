@@ -7,16 +7,14 @@
 use super::ans_lookup_v2::TokenStandardType;
 use crate::{
     bq_analytics::{GetTimeStamp, HasVersion, NamedTable},
-    db::{
-        models::{
-            ans_models::{
-                ans_lookup::{AnsPrimaryName, CurrentAnsPrimaryName},
-                ans_utils::SetReverseLookupEvent,
-            },
-            token_v2_models::v2_token_utils::TokenStandard,
+    db::models::{
+        ans_models::{
+            ans_lookup::{AnsPrimaryName, CurrentAnsPrimaryName},
+            ans_utils::SetReverseLookupEvent,
         },
-        schema::{ans_primary_name_v2, current_ans_primary_name_v2},
+        token_v2_models::v2_token_utils::TokenStandard,
     },
+    schema::{ans_primary_name_v2, current_ans_primary_name_v2},
 };
 use allocative_derive::Allocative;
 use aptos_protos::transaction::v1::Event;

@@ -6,3 +6,11 @@ pub mod utils;
 
 #[macro_use]
 extern crate diesel;
+
+// for parquet_derive
+extern crate canonical_json;
+extern crate parquet;
+extern crate parquet_derive;
+
+#[path = "db/schema.rs"]
+pub mod schema;
