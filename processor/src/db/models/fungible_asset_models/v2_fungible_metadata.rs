@@ -16,12 +16,14 @@ use crate::{
         },
         resources::FromWriteResource,
     },
+    schema::fungible_asset_metadata,
     utils::util::standardize_address,
 };
 use ahash::AHashMap;
 use allocative_derive::Allocative;
 use aptos_protos::transaction::v1::{DeleteResource, WriteResource};
 use bigdecimal::BigDecimal;
+use field_count::FieldCount;
 use parquet_derive::ParquetRecordWriter;
 use serde::{Deserialize, Serialize};
 
@@ -254,6 +256,51 @@ impl FungibleAssetMetadataConvertible for ParquetFungibleAssetMetadataModel {
             is_token_v2: base_item.is_token_v2,
             supply_v2: base_item.supply_v2.map(|x| x.to_string()),
             maximum_v2: base_item.maximum_v2.map(|x| x.to_string()),
+        }
+    }
+}
+
+// Postgres Model
+
+#[derive(Clone, Debug, Deserialize, FieldCount, Identifiable, Insertable, Serialize)]
+#[diesel(primary_key(asset_type))]
+#[diesel(table_name = fungible_asset_metadata)]
+pub struct PostgresFungibleAssetMetadataModel {
+    pub asset_type: String,
+    pub creator_address: String,
+    pub name: String,
+    pub symbol: String,
+    pub decimals: i32,
+    pub icon_uri: Option<String>,
+    pub project_uri: Option<String>,
+    pub last_transaction_version: i64,
+    pub last_transaction_timestamp: chrono::NaiveDateTime,
+    pub supply_aggregator_table_handle_v1: Option<String>,
+    pub supply_aggregator_table_key_v1: Option<String>,
+    pub token_standard: String,
+    pub is_token_v2: Option<bool>,
+    pub supply_v2: Option<BigDecimal>,
+    pub maximum_v2: Option<BigDecimal>,
+}
+
+impl FungibleAssetMetadataConvertible for PostgresFungibleAssetMetadataModel {
+    fn from_base(base_item: FungibleAssetMetadataModel) -> Self {
+        Self {
+            asset_type: base_item.asset_type,
+            creator_address: base_item.creator_address,
+            name: base_item.name,
+            symbol: base_item.symbol,
+            decimals: base_item.decimals,
+            icon_uri: base_item.icon_uri,
+            project_uri: base_item.project_uri,
+            last_transaction_version: base_item.last_transaction_version,
+            last_transaction_timestamp: base_item.last_transaction_timestamp,
+            supply_aggregator_table_handle_v1: base_item.supply_aggregator_table_handle_v1,
+            supply_aggregator_table_key_v1: base_item.supply_aggregator_table_key_v1,
+            token_standard: base_item.token_standard,
+            is_token_v2: base_item.is_token_v2,
+            supply_v2: base_item.supply_v2,
+            maximum_v2: base_item.maximum_v2,
         }
     }
 }
