@@ -13,7 +13,7 @@ use super::{
 use crate::{
     db::models::{
         fungible_asset_models::{
-            raw_v2_fungible_asset_activities::{
+            v2_fungible_asset_activities::{
                 CoinType, CurrentCoinBalancePK, EventToCoinType, BURN_GAS_EVENT_CREATION_NUM,
                 BURN_GAS_EVENT_INDEX, GAS_FEE_EVENT,
             },

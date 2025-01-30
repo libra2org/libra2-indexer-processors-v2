@@ -5,13 +5,14 @@
 #![allow(clippy::extra_unused_lifetimes)]
 #![allow(clippy::unused_unit)]
 
-use super::raw_v2_fungible_asset_activities::AddressToCoinType;
+use super::v2_fungible_asset_activities::AddressToCoinType;
 use crate::{
+    bq_analytics::{GetTimeStamp, HasVersion, NamedTable},
     db::{
         models::{
             coin_models::coin_utils::{CoinInfoType, CoinResource},
             fungible_asset_models::{
-                raw_v2_fungible_asset_activities::EventToCoinType,
+                v2_fungible_asset_activities::EventToCoinType,
                 v2_fungible_asset_utils::FungibleAssetStore,
             },
             object_models::v2_object_utils::ObjectAggregatedDataMapping,
@@ -25,15 +26,21 @@ use crate::{
     },
 };
 use ahash::AHashMap;
+use allocative_derive::Allocative;
 use aptos_protos::transaction::v1::{DeleteResource, WriteResource};
 use bigdecimal::{BigDecimal, Zero};
+use field_count::FieldCount;
 use lazy_static::lazy_static;
+use parquet_derive::ParquetRecordWriter;
 use serde::{Deserialize, Serialize};
 use std::str::FromStr;
 
+lazy_static! {
+    pub static ref DEFAULT_AMOUNT_VALUE: String = "0".to_string();
+}
+
 // Storage id
-pub type CurrentUnifiedFungibleAssetMapping =
-    AHashMap<String, RawCurrentUnifiedFungibleAssetBalance>;
+pub type CurrentUnifiedFungibleAssetMapping = AHashMap<String, CurrentUnifiedFungibleAssetBalance>;
 
 lazy_static!(
      pub static ref METADATA_TO_COIN_TYPE_MAPPING: AHashMap<&'static str, &'static str> = vec![
@@ -123,7 +130,7 @@ lazy_static!(
     );
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
-pub struct RawFungibleAssetBalance {
+pub struct FungibleAssetBalance {
     pub transaction_version: i64,
     pub write_set_change_index: i64,
     pub storage_id: String,
@@ -137,13 +144,13 @@ pub struct RawFungibleAssetBalance {
 }
 
 pub trait FungibleAssetBalanceConvertible {
-    fn from_raw(raw_item: RawFungibleAssetBalance) -> Self;
+    fn from_base(base_item: FungibleAssetBalance) -> Self;
 }
 
 /// Note that this used to be called current_unified_fungible_asset_balances_to_be_renamed
 /// and was renamed to current_fungible_asset_balances to facilitate migration
 #[derive(Clone, Debug, Deserialize, Serialize, Default)]
-pub struct RawCurrentUnifiedFungibleAssetBalance {
+pub struct CurrentUnifiedFungibleAssetBalance {
     pub storage_id: String,
     pub owner_address: String,
     // metadata address for (paired) Fungible Asset
@@ -160,7 +167,7 @@ pub struct RawCurrentUnifiedFungibleAssetBalance {
 }
 
 pub trait CurrentUnifiedFungibleAssetBalanceConvertible {
-    fn from_raw(raw_item: RawCurrentUnifiedFungibleAssetBalance) -> Self;
+    fn from_base(base_item: CurrentUnifiedFungibleAssetBalance) -> Self;
 }
 
 pub fn get_paired_metadata_address(coin_type_name: &str) -> String {
@@ -184,9 +191,9 @@ pub fn get_primary_fungible_store_address(
     Ok(standardize_address(&hex::encode(sha3_256(&preimage))))
 }
 
-impl RawCurrentUnifiedFungibleAssetBalance {
+impl CurrentUnifiedFungibleAssetBalance {
     pub fn from_fungible_asset_balances(
-        fungible_asset_balances: &[RawFungibleAssetBalance],
+        fungible_asset_balances: &[FungibleAssetBalance],
     ) -> (
         CurrentUnifiedFungibleAssetMapping,
         CurrentUnifiedFungibleAssetMapping,
@@ -211,8 +218,8 @@ impl RawCurrentUnifiedFungibleAssetBalance {
     }
 }
 
-impl From<&RawFungibleAssetBalance> for RawCurrentUnifiedFungibleAssetBalance {
-    fn from(fab: &RawFungibleAssetBalance) -> Self {
+impl From<&FungibleAssetBalance> for CurrentUnifiedFungibleAssetBalance {
+    fn from(fab: &FungibleAssetBalance) -> Self {
         // Determine if this is a V2 token standard
         let is_v2 = matches!(
             TokenStandard::from_str(&fab.token_standard).expect("Invalid token standard"),
@@ -274,7 +281,7 @@ impl From<&RawFungibleAssetBalance> for RawCurrentUnifiedFungibleAssetBalance {
     }
 }
 
-impl RawFungibleAssetBalance {
+impl FungibleAssetBalance {
     /// Basically just need to index FA Store, but we'll need to look up FA metadata
     pub fn get_v2_from_write_resource(
         write_resource: &WriteResource,
@@ -423,6 +430,150 @@ impl RawFungibleAssetBalance {
     }
 }
 
+// Parquet Models
+#[derive(
+    Allocative, Clone, Debug, Default, Deserialize, FieldCount, ParquetRecordWriter, Serialize,
+)]
+pub struct ParquetFungibleAssetBalance {
+    pub txn_version: i64,
+    pub write_set_change_index: i64,
+    pub storage_id: String,
+    pub owner_address: String,
+    pub asset_type: String,
+    pub is_primary: bool,
+    pub is_frozen: bool,
+    pub amount: String, // it is a string representation of the u128
+    #[allocative(skip)]
+    pub block_timestamp: chrono::NaiveDateTime,
+    pub token_standard: String,
+}
+
+impl NamedTable for ParquetFungibleAssetBalance {
+    const TABLE_NAME: &'static str = "fungible_asset_balances";
+}
+
+impl HasVersion for ParquetFungibleAssetBalance {
+    fn version(&self) -> i64 {
+        self.txn_version
+    }
+}
+
+impl GetTimeStamp for ParquetFungibleAssetBalance {
+    fn get_timestamp(&self) -> chrono::NaiveDateTime {
+        self.block_timestamp
+    }
+}
+
+impl FungibleAssetBalanceConvertible for ParquetFungibleAssetBalance {
+    fn from_base(base_item: FungibleAssetBalance) -> Self {
+        Self {
+            txn_version: base_item.transaction_version,
+            write_set_change_index: base_item.write_set_change_index,
+            storage_id: base_item.storage_id,
+            owner_address: base_item.owner_address,
+            asset_type: base_item.asset_type,
+            is_primary: base_item.is_primary,
+            is_frozen: base_item.is_frozen,
+            amount: base_item.amount.to_string(),
+            block_timestamp: base_item.transaction_timestamp,
+            token_standard: base_item.token_standard,
+        }
+    }
+}
+
+#[derive(
+    Allocative, Clone, Debug, Default, Deserialize, FieldCount, ParquetRecordWriter, Serialize,
+)]
+pub struct ParquetCurrentFungibleAssetBalance {
+    pub storage_id: String,
+    pub owner_address: String,
+    pub asset_type: String,
+    pub is_primary: bool,
+    pub is_frozen: bool,
+    pub amount: String, // it is a string representation of the u128
+    pub last_transaction_version: i64,
+    #[allocative(skip)]
+    pub last_transaction_timestamp: chrono::NaiveDateTime,
+    pub token_standard: String,
+}
+
+impl NamedTable for ParquetCurrentFungibleAssetBalance {
+    const TABLE_NAME: &'static str = "current_fungible_asset_balances_legacy";
+}
+
+impl HasVersion for ParquetCurrentFungibleAssetBalance {
+    fn version(&self) -> i64 {
+        self.last_transaction_version
+    }
+}
+
+impl GetTimeStamp for ParquetCurrentFungibleAssetBalance {
+    fn get_timestamp(&self) -> chrono::NaiveDateTime {
+        self.last_transaction_timestamp
+    }
+}
+
+/// Note that this used to be called current_unified_fungible_asset_balances_to_be_renamed
+/// and was renamed to current_fungible_asset_balances to facilitate migration
+#[derive(
+    Allocative, Clone, Debug, Default, Deserialize, FieldCount, ParquetRecordWriter, Serialize,
+)]
+pub struct ParquetCurrentUnifiedFungibleAssetBalance {
+    pub storage_id: String,
+    pub owner_address: String,
+    // metadata address for (paired) Fungible Asset
+    pub asset_type_v1: Option<String>,
+    pub asset_type_v2: Option<String>,
+    pub is_primary: bool,
+    pub is_frozen: bool,
+    pub amount_v1: Option<String>, // it is a string representation of the u128
+    pub amount_v2: Option<String>, // it is a string representation of the u128
+    pub last_transaction_version_v1: Option<i64>,
+    pub last_transaction_version_v2: Option<i64>,
+    #[allocative(skip)]
+    pub last_transaction_timestamp_v1: Option<chrono::NaiveDateTime>,
+    #[allocative(skip)]
+    pub last_transaction_timestamp_v2: Option<chrono::NaiveDateTime>,
+}
+
+impl NamedTable for ParquetCurrentUnifiedFungibleAssetBalance {
+    const TABLE_NAME: &'static str = "current_fungible_asset_balances";
+}
+
+/// This will be deprecated.
+impl HasVersion for ParquetCurrentUnifiedFungibleAssetBalance {
+    fn version(&self) -> i64 {
+        -1
+    }
+}
+
+/// This will be deprecated.
+impl GetTimeStamp for ParquetCurrentUnifiedFungibleAssetBalance {
+    fn get_timestamp(&self) -> chrono::NaiveDateTime {
+        #[allow(deprecated)]
+        chrono::NaiveDateTime::from_timestamp(0, 0)
+    }
+}
+
+impl CurrentUnifiedFungibleAssetBalanceConvertible for ParquetCurrentUnifiedFungibleAssetBalance {
+    fn from_base(base_item: CurrentUnifiedFungibleAssetBalance) -> Self {
+        Self {
+            storage_id: base_item.storage_id,
+            owner_address: base_item.owner_address,
+            asset_type_v1: base_item.asset_type_v1,
+            asset_type_v2: base_item.asset_type_v2,
+            is_primary: base_item.is_primary,
+            is_frozen: base_item.is_frozen,
+            amount_v1: base_item.amount_v1.map(|x| x.to_string()),
+            amount_v2: base_item.amount_v2.map(|x| x.to_string()),
+            last_transaction_version_v1: base_item.last_transaction_version_v1,
+            last_transaction_version_v2: base_item.last_transaction_version_v2,
+            last_transaction_timestamp_v1: base_item.last_transaction_timestamp_v1,
+            last_transaction_timestamp_v2: base_item.last_transaction_timestamp_v2,
+        }
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -434,7 +585,7 @@ mod tests {
         let fungible_store_address =
             "0x5d2c93f23a3964409e8755a179417c4ef842166f6cc41e1416e2c705a02861a6";
 
-        assert!(RawFungibleAssetBalance::is_primary(
+        assert!(FungibleAssetBalance::is_primary(
             owner_address,
             metadata_address,
             fungible_store_address,
@@ -447,7 +598,7 @@ mod tests {
         let metadata_address = "0x5dade62351d0b07340ff41763451e05ca2193de583bb3d762193462161888309";
         let fungible_store_address = "something random";
 
-        assert!(!RawFungibleAssetBalance::is_primary(
+        assert!(!FungibleAssetBalance::is_primary(
             owner_address,
             metadata_address,
             fungible_store_address,
@@ -461,7 +612,7 @@ mod tests {
         let fungible_store_address =
             "0xd4af0c43c6228357d7a09da77bf244cd4a1b97a0eb8ef3df43823ff4a807d0b9";
 
-        assert!(RawFungibleAssetBalance::is_primary(
+        assert!(FungibleAssetBalance::is_primary(
             owner_address,
             metadata_address,
             fungible_store_address,

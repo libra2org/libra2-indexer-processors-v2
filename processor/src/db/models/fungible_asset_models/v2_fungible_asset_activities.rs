@@ -5,10 +5,11 @@
 #![allow(clippy::extra_unused_lifetimes)]
 #![allow(clippy::unused_unit)]
 
-use super::raw_v2_fungible_asset_balances::{
+use super::v2_fungible_asset_balances::{
     get_paired_metadata_address, get_primary_fungible_store_address,
 };
 use crate::{
+    bq_analytics::{GetTimeStamp, HasVersion, NamedTable},
     db::models::{
         coin_models::{
             coin_activities::CoinActivity,
@@ -18,13 +19,17 @@ use crate::{
         object_models::v2_object_utils::ObjectAggregatedDataMapping,
         token_v2_models::v2_token_utils::TokenStandard,
     },
-    utils::util::standardize_address,
+    utils::util::{bigdecimal_to_u64, standardize_address},
 };
 use ahash::AHashMap;
+use allocative::Allocative;
 use anyhow::Context;
 use aptos_protos::transaction::v1::{Event, TransactionInfo, UserTransactionRequest};
 use bigdecimal::{BigDecimal, Zero};
+use field_count::FieldCount;
+use parquet_derive::ParquetRecordWriter;
 use serde::{Deserialize, Serialize};
+
 pub const GAS_FEE_EVENT: &str = "0x1::aptos_coin::GasFeeEvent";
 // We will never have a negative number on chain so this will avoid collision in postgres
 pub const BURN_GAS_EVENT_CREATION_NUM: i64 = -1;
@@ -38,7 +43,7 @@ pub type EventToCoinType = AHashMap<EventGuidResource, CoinType>;
 pub type AddressToCoinType = AHashMap<String, String>;
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
-pub struct RawFungibleAssetActivity {
+pub struct FungibleAssetActivity {
     pub transaction_version: i64,
     pub event_index: i64,
     pub owner_address: Option<String>,
@@ -57,7 +62,7 @@ pub struct RawFungibleAssetActivity {
     pub storage_refund_amount: BigDecimal,
 }
 
-impl RawFungibleAssetActivity {
+impl FungibleAssetActivity {
     pub fn get_v2_from_event(
         event: &Event,
         txn_version: i64,
@@ -278,5 +283,69 @@ impl RawFungibleAssetActivity {
 }
 
 pub trait FungibleAssetActivityConvertible {
-    fn from_raw(raw_item: RawFungibleAssetActivity) -> Self;
+    fn from_base(base_item: FungibleAssetActivity) -> Self;
+}
+
+// Parquet Model
+
+#[derive(
+    Allocative, Clone, Debug, Default, Deserialize, FieldCount, ParquetRecordWriter, Serialize,
+)]
+pub struct ParquetFungibleAssetActivity {
+    pub txn_version: i64,
+    pub event_index: i64,
+    pub owner_address: Option<String>,
+    pub storage_id: String,
+    pub asset_type: Option<String>,
+    pub is_frozen: Option<bool>,
+    pub amount: Option<String>, // it is a string representation of the u128
+    pub event_type: String,
+    pub is_gas_fee: bool,
+    pub gas_fee_payer_address: Option<String>,
+    pub is_transaction_success: bool,
+    pub entry_function_id_str: Option<String>,
+    pub block_height: i64,
+    pub token_standard: String,
+    #[allocative(skip)]
+    pub block_timestamp: chrono::NaiveDateTime,
+    pub storage_refund_octa: u64,
+}
+
+impl NamedTable for ParquetFungibleAssetActivity {
+    const TABLE_NAME: &'static str = "fungible_asset_activities";
+}
+
+impl HasVersion for ParquetFungibleAssetActivity {
+    fn version(&self) -> i64 {
+        self.txn_version
+    }
+}
+
+impl GetTimeStamp for ParquetFungibleAssetActivity {
+    fn get_timestamp(&self) -> chrono::NaiveDateTime {
+        self.block_timestamp
+    }
+}
+
+impl FungibleAssetActivityConvertible for ParquetFungibleAssetActivity {
+    fn from_base(base_item: FungibleAssetActivity) -> Self {
+        Self {
+            txn_version: base_item.transaction_version,
+            event_index: base_item.event_index,
+            owner_address: base_item.owner_address,
+            storage_id: base_item.storage_id,
+            asset_type: base_item.asset_type,
+            is_frozen: base_item.is_frozen,
+            amount: base_item.amount.map(|v| v.to_string()),
+            event_type: base_item.event_type,
+            is_gas_fee: base_item.is_gas_fee,
+            gas_fee_payer_address: base_item.gas_fee_payer_address,
+            is_transaction_success: base_item.is_transaction_success,
+            entry_function_id_str: base_item.entry_function_id_str,
+            block_height: base_item.block_height,
+            token_standard: base_item.token_standard,
+            block_timestamp: base_item.transaction_timestamp,
+            storage_refund_octa: bigdecimal_to_u64(&base_item.storage_refund_amount),
+        }
+    }
 }
