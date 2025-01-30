@@ -3,7 +3,7 @@
 
 use crate::{
     db::models::{
-        old_default_models::move_resources::MoveResource, token_models::token_utils::Table,
+        old_default_models::postgres_move_resources::MoveResource, token_models::token_utils::Table,
     },
     utils::util::{deserialize_from_string, standardize_address},
 };

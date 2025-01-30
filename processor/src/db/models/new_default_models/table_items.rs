@@ -1,7 +1,7 @@
 use crate::{
     db::models::{
         new_default_models::current_table_items::CurrentTableItem,
-        old_default_models::move_tables::PostgresTableItem,
+        old_default_models::postgres_move_tables::PostgresTableItem,
     },
     utils::util::{hash_str, standardize_address},
 };

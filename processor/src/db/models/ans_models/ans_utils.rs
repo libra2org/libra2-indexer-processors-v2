@@ -5,7 +5,7 @@
 #![allow(clippy::extra_unused_lifetimes)]
 
 use crate::{
-    db::models::old_default_models::move_resources::MoveResource,
+    db::models::old_default_models::postgres_move_resources::MoveResource,
     utils::util::{
         bigdecimal_to_u64, deserialize_from_string, parse_timestamp_secs, standardize_address,
         truncate_str,

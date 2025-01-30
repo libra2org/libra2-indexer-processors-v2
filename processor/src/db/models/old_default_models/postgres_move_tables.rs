@@ -14,6 +14,8 @@ use crate::{
 use field_count::FieldCount;
 use serde::{Deserialize, Serialize};
 
+// TODO: Move this model to the new default models when refactoring
+
 #[derive(Clone, Debug, Deserialize, FieldCount, Identifiable, Insertable, Serialize)]
 #[diesel(primary_key(table_handle, key_hash))]
 #[diesel(table_name = current_table_items)]

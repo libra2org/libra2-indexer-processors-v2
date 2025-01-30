@@ -6,7 +6,7 @@ use crate::{
     bq_analytics::{GetTimeStamp, HasVersion, NamedTable},
     db::models::{
         new_default_models::table_items::TableItem,
-        old_default_models::move_tables::PostgresTableItem,
+        old_default_models::postgres_move_tables::PostgresTableItem,
         stake_models::delegator_pools::{
             DelegatorPool, DelegatorPoolBalanceMetadata, PoolBalanceMetadata,
         },
