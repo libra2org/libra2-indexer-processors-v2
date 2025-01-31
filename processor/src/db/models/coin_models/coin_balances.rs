@@ -51,7 +51,7 @@ impl CoinBalance {
         txn_timestamp: chrono::NaiveDateTime,
         wsc_index: i64,
     ) -> anyhow::Result<Option<(Self, CurrentCoinBalance, EventToCoinType)>> {
-        match &CoinResource::from_write_resource(write_resource, txn_version)? {
+        match &CoinResource::from_write_resource(write_resource, txn_version, txn_timestamp)? {
             Some(CoinResource::CoinStoreResource(inner)) => {
                 let coin_info_type = &CoinInfoType::from_move_type(
                     &write_resource.r#type.as_ref().unwrap().generic_type_params[0],

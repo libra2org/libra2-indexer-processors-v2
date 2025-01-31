@@ -358,10 +358,12 @@ impl CurrentDelegatorBalance {
     pub fn get_active_pool_to_staking_pool_mapping(
         write_resource: &WriteResource,
         txn_version: i64,
+        block_timestamp: chrono::NaiveDateTime,
     ) -> anyhow::Result<Option<ShareToStakingPoolMapping>> {
         if let Some(balance) = DelegatorPool::get_delegated_pool_metadata_from_write_resource(
             write_resource,
             txn_version,
+            block_timestamp,
         )? {
             Ok(Some(AHashMap::from([(
                 balance.active_share_table_handle.clone(),
@@ -377,10 +379,12 @@ impl CurrentDelegatorBalance {
     pub fn get_inactive_pool_to_staking_pool_mapping(
         write_resource: &WriteResource,
         txn_version: i64,
+        block_timestamp: chrono::NaiveDateTime,
     ) -> anyhow::Result<Option<ShareToStakingPoolMapping>> {
         if let Some(balance) = DelegatorPool::get_delegated_pool_metadata_from_write_resource(
             write_resource,
             txn_version,
+            block_timestamp,
         )? {
             Ok(Some(AHashMap::from([(
                 balance.inactive_share_table_handle.clone(),
@@ -454,9 +458,12 @@ impl CurrentDelegatorBalance {
         // Do a first pass to get the mapping of active_share table handles to staking pool resource        let txn_version = transaction.version as i64;
         for wsc in changes {
             if let Change::WriteResource(write_resource) = wsc.change.as_ref().unwrap() {
-                if let Some(map) =
-                    Self::get_inactive_pool_to_staking_pool_mapping(write_resource, txn_version)
-                        .unwrap()
+                if let Some(map) = Self::get_inactive_pool_to_staking_pool_mapping(
+                    write_resource,
+                    txn_version,
+                    txn_timestamp,
+                )
+                .unwrap()
                 {
                     inactive_pool_to_staking_pool.extend(map);
                 }

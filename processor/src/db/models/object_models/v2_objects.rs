@@ -8,7 +8,7 @@
 use super::v2_object_utils::{CurrentObjectPK, ObjectAggregatedDataMapping};
 use crate::{
     bq_analytics::{GetTimeStamp, HasVersion, NamedTable},
-    db::models::old_default_models::postgres_move_resources::MoveResource,
+    db::models::new_default_models::move_resources::MoveResource,
     schema::{current_objects, objects},
     utils::{
         database::{DbContext, DbPoolConnection},
@@ -24,6 +24,7 @@ use diesel_async::RunQueryDsl;
 use field_count::FieldCount;
 use parquet_derive::ParquetRecordWriter;
 use serde::{Deserialize, Serialize};
+use tracing::error;
 
 const DELETED_RESOURCE_OWNER_ADDRESS: &str = "Unknown";
 
@@ -138,12 +139,26 @@ impl Object {
         block_timestamp: chrono::NaiveDateTime,
     ) -> anyhow::Result<Option<(Self, CurrentObject)>> {
         if delete_resource.type_str == "0x1::object::ObjectGroup" {
-            let resource = MoveResource::from_delete_resource(
+            let resource = match MoveResource::from_delete_resource(
                 delete_resource,
                 0, // Placeholder, this isn't used anyway
                 txn_version,
                 0, // Placeholder, this isn't used anyway
-            );
+                block_timestamp,
+            ) {
+                Ok(Some(resource)) => resource,
+                Ok(None) => {
+                    error!("No resource found for transaction version {}", txn_version);
+                    return Ok(None);
+                },
+                Err(e) => {
+                    return Err(anyhow::anyhow!(
+                        "Error getting resource from delete resource: {}",
+                        e
+                    ))
+                },
+            };
+
             // Add a logid here to handle None conn
             if db_context.is_none() {
                 // This is a hack to prevent the program for parquet
@@ -151,7 +166,7 @@ impl Object {
                     Self {
                         transaction_version: txn_version,
                         write_set_change_index,
-                        object_address: resource.address.clone(),
+                        object_address: resource.resource_address.clone(),
                         owner_address: DELETED_RESOURCE_OWNER_ADDRESS.to_string(),
                         state_key_hash: resource.state_key_hash.clone(),
                         guid_creation_num: BigDecimal::default(),
@@ -161,7 +176,7 @@ impl Object {
                         block_timestamp,
                     },
                     CurrentObject {
-                        object_address: resource.address.clone(),
+                        object_address: resource.resource_address.clone(),
                         owner_address: DELETED_RESOURCE_OWNER_ADDRESS.to_string(),
                         state_key_hash: resource.state_key_hash.clone(),
                         last_guid_creation_num: BigDecimal::default(),
@@ -173,12 +188,14 @@ impl Object {
                     },
                 )))
             } else {
-                let previous_object = if let Some(object) = object_mapping.get(&resource.address) {
+                let previous_object = if let Some(object) =
+                    object_mapping.get(&resource.resource_address)
+                {
                     object.clone()
                 } else if let Some(db_context) = db_context {
                     match Self::get_current_object(
                         &mut db_context.conn,
-                        &resource.address,
+                        &resource.resource_address,
                         db_context.query_retries,
                         db_context.query_retry_delay_ms,
                     )
@@ -188,9 +205,9 @@ impl Object {
                         Err(_) => {
                             tracing::error!(
                             transaction_version = txn_version,
-                            lookup_key = &resource.address,
+                            lookup_key = &resource.resource_address,
                             "Missing current_object for object_address: {}. You probably should backfill db.",
-                            resource.address,
+                            resource.resource_address,
                         );
                             return Ok(None);
                         },
@@ -198,7 +215,7 @@ impl Object {
                 } else {
                     tracing::error!(
                         transaction_version = txn_version,
-                        lookup_key = &resource.address,
+                        lookup_key = &resource.resource_address,
                         "Connection to DB is missing. You may need to investigate",
                     );
                     return Ok(None);
@@ -207,7 +224,7 @@ impl Object {
                     Self {
                         transaction_version: txn_version,
                         write_set_change_index,
-                        object_address: resource.address.clone(),
+                        object_address: resource.resource_address.clone(),
                         owner_address: previous_object.owner_address.clone(),
                         state_key_hash: resource.state_key_hash.clone(),
                         guid_creation_num: previous_object.last_guid_creation_num.clone(),
@@ -217,7 +234,7 @@ impl Object {
                         block_timestamp,
                     },
                     CurrentObject {
-                        object_address: resource.address,
+                        object_address: resource.resource_address.clone(),
                         owner_address: previous_object.owner_address.clone(),
                         state_key_hash: resource.state_key_hash,
                         last_guid_creation_num: previous_object.last_guid_creation_num.clone(),
