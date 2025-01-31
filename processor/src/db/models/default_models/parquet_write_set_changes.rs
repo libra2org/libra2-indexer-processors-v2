@@ -5,11 +5,13 @@
 
 use super::{
     parquet_move_modules::MoveModule,
-    parquet_move_tables::{ParquetCurrentTableItem, ParquetTableItem, ParquetTableMetadata},
+    table_items::{
+        ParquetCurrentTableItem, ParquetTableItem, ParquetTableMetadata, TableItem, TableMetadata,
+    },
 };
 use crate::{
     bq_analytics::{GetTimeStamp, HasVersion, NamedTable},
-    db::models::new_default_models::move_resources::MoveResource,
+    db::models::default_models::move_resources::MoveResource,
     utils::util::{standardize_address, standardize_address_from_bytes},
 };
 use allocative_derive::Allocative;
@@ -171,7 +173,7 @@ impl WriteSetChange {
                     })
             },
             WriteSetChangeEnum::WriteTableItem(inner) => {
-                let (ti, cti) = ParquetTableItem::from_write_table_item(
+                let (ti, cti) = TableItem::from_write_table_item(
                     inner,
                     write_set_change_index,
                     txn_version,
@@ -191,14 +193,14 @@ impl WriteSetChange {
                         block_timestamp,
                     },
                     WriteSetChangeDetail::Table(
-                        ti,
-                        cti,
-                        Some(ParquetTableMetadata::from_write_table_item(inner)),
+                        ti.into(),
+                        cti.into(),
+                        Some(TableMetadata::from_write_table_item(inner).into()),
                     ),
                 )))
             },
             WriteSetChangeEnum::DeleteTableItem(inner) => {
-                let (ti, cti) = ParquetTableItem::from_delete_table_item(
+                let (ti, cti) = TableItem::from_delete_table_item(
                     inner,
                     write_set_change_index,
                     txn_version,
@@ -217,7 +219,7 @@ impl WriteSetChange {
                         write_set_change_index,
                         block_timestamp,
                     },
-                    WriteSetChangeDetail::Table(ti, cti, None),
+                    WriteSetChangeDetail::Table(ti.into(), cti.into(), None),
                 )))
             },
         }

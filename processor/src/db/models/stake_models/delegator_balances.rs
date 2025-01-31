@@ -5,8 +5,7 @@
 use crate::{
     bq_analytics::{GetTimeStamp, HasVersion, NamedTable},
     db::models::{
-        new_default_models::table_items::TableItem,
-        old_default_models::postgres_move_tables::PostgresTableItem,
+        default_models::table_items::{PostgresTableItem, TableItem},
         stake_models::delegator_pools::{
             DelegatorPool, DelegatorPoolBalanceMetadata, PoolBalanceMetadata,
         },
@@ -101,16 +100,18 @@ impl CurrentDelegatorBalance {
             let delegator_address = standardize_address(&write_table_item.key.to_string());
 
             // Convert to TableItem model. Some fields are just placeholders
-            let table_item_model: PostgresTableItem =
-                TableItem::postgres_table_item_from_write_item(
+            let table_item = {
+                let (base_table_item, _) = TableItem::from_write_table_item(
                     write_table_item,
                     0,
                     txn_version,
                     0,
                     block_timestamp,
                 );
+                PostgresTableItem::from(base_table_item)
+            };
 
-            let shares: BigDecimal = table_item_model
+            let shares: BigDecimal = table_item
                 .decoded_value
                 .as_ref()
                 .unwrap()
@@ -119,7 +120,7 @@ impl CurrentDelegatorBalance {
                 .parse::<BigDecimal>()
                 .context(format!(
                     "cannot parse string as u128: {:?}, version {}",
-                    table_item_model.decoded_value.as_ref(),
+                    table_item.decoded_value.as_ref(),
                     txn_version
                 ))?;
             let shares = shares / &pool_balance.scaling_factor;
@@ -198,16 +199,18 @@ impl CurrentDelegatorBalance {
             };
             let delegator_address = standardize_address(&write_table_item.key.to_string());
             // Convert to TableItem model. Some fields are just placeholders
-            let table_item_model: PostgresTableItem =
-                TableItem::postgres_table_item_from_write_item(
+            let table_item = {
+                let (table_item, _) = TableItem::from_write_table_item(
                     write_table_item,
                     0,
                     txn_version,
                     0,
                     block_timestamp,
                 );
+                PostgresTableItem::from(table_item)
+            };
 
-            let shares: BigDecimal = table_item_model
+            let shares: BigDecimal = table_item
                 .decoded_value
                 .as_ref()
                 .unwrap()
@@ -216,7 +219,7 @@ impl CurrentDelegatorBalance {
                 .parse::<BigDecimal>()
                 .context(format!(
                     "cannot parse string as u128: {:?}, version {}",
-                    table_item_model.decoded_value.as_ref(),
+                    table_item.decoded_value.as_ref(),
                     txn_version
                 ))?;
             let shares = shares / &pool_balance.scaling_factor;

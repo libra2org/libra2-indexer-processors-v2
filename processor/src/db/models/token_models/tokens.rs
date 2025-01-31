@@ -13,7 +13,7 @@ use super::{
 };
 use crate::{
     // TODO: update this to use the new move resources after refactoring
-    db::models::new_default_models::move_resources::MoveResource,
+    db::models::default_models::move_resources::MoveResource,
     schema::tokens,
     utils::{
         counters::PROCESSOR_UNKNOWN_TYPE_COUNT,
