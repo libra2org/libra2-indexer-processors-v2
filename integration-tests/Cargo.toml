@@ -1,0 +1,40 @@
+[package]
+name = "integration-tests"
+description = "Indexer GRPC processor integration tests."
+version = "1.0.0"
+
+# Workspace inherited keys
+authors = ["Aptos Labs <opensource@aptoslabs.com>"]
+edition = "2021"
+homepage = "https://aptoslabs.com"
+license = "Apache-2.0"
+publish = false
+repository = "https://github.com/aptos-labs/aptos-core"
+rust-version = { workspace = true }
+
+[dependencies]
+ahash = { workspace = true }
+anyhow = { workspace = true }
+aptos-indexer-processor-sdk = { workspace = true }
+aptos-indexer-test-transactions  = { workspace = true }
+aptos-indexer-testing-framework = { workspace = true }
+aptos-protos = { workspace = true }
+assert-json-diff = { workspace = true }
+bigdecimal = { workspace = true }
+chrono = { workspace = true }
+diesel = { workspace = true }
+field_count = { workspace = true }
+processor = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+testcontainers = { workspace = true }
+tokio = { workspace = true }
+
+[dev-dependencies]
+ahash = { workspace = true }
+aptos-indexer-processor-sdk = { workspace = true }
+futures = { workspace = true }
+processor = { workspace = true }
+tempfile = { workspace = true }
+tonic = { workspace = true }
+url = { workspace = true }
