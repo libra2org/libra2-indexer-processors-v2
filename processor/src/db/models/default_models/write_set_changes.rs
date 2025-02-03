@@ -10,7 +10,7 @@ use super::{
     },
 };
 use crate::{
-    bq_analytics::{GetTimeStamp, HasVersion, NamedTable},
+    bq_analytics::{HasVersion, NamedTable},
     db::models::default_models::move_resources::MoveResource,
     utils::util::{standardize_address, standardize_address_from_bytes},
 };
@@ -20,13 +20,14 @@ use aptos_protos::transaction::v1::{
     write_set_change::{Change as WriteSetChangeEnum, Type as WriteSetChangeTypeEnum},
     WriteSetChange as WriteSetChangePB,
 };
-use field_count::FieldCount;
 use parquet_derive::ParquetRecordWriter;
 use serde::{Deserialize, Serialize};
 
-#[derive(
-    Allocative, Clone, Debug, Default, Deserialize, FieldCount, Serialize, ParquetRecordWriter,
-)]
+/**
+ * Base model for the write_set_changes table.
+ * At the time of writing, this is only used for parquet. So, we kept the same column names and types as the parquet model.
+ */
+#[derive(Clone, Debug, Default, Deserialize, Serialize)]
 pub struct WriteSetChange {
     pub txn_version: i64,
     pub write_set_change_index: i64,
@@ -34,24 +35,7 @@ pub struct WriteSetChange {
     pub change_type: String,
     pub resource_address: String,
     pub block_height: i64,
-    #[allocative(skip)]
     pub block_timestamp: chrono::NaiveDateTime,
-}
-
-impl NamedTable for WriteSetChange {
-    const TABLE_NAME: &'static str = "write_set_changes";
-}
-
-impl HasVersion for WriteSetChange {
-    fn version(&self) -> i64 {
-        self.txn_version
-    }
-}
-
-impl GetTimeStamp for WriteSetChange {
-    fn get_timestamp(&self) -> chrono::NaiveDateTime {
-        self.block_timestamp
-    }
 }
 
 impl WriteSetChange {
@@ -289,3 +273,39 @@ pub enum WriteSetChangeDetail {
 
 // Prevent conflicts with other things named `WriteSetChange`
 pub type WriteSetChangeModel = WriteSetChange;
+
+#[derive(Allocative, Clone, Debug, Default, Deserialize, Serialize, ParquetRecordWriter)]
+pub struct ParquetWriteSetChange {
+    pub txn_version: i64,
+    pub write_set_change_index: i64,
+    pub state_key_hash: String,
+    pub change_type: String,
+    pub resource_address: String,
+    pub block_height: i64,
+    #[allocative(skip)]
+    pub block_timestamp: chrono::NaiveDateTime,
+}
+
+impl NamedTable for ParquetWriteSetChange {
+    const TABLE_NAME: &'static str = "write_set_changes";
+}
+
+impl HasVersion for ParquetWriteSetChange {
+    fn version(&self) -> i64 {
+        self.txn_version
+    }
+}
+
+impl From<WriteSetChange> for ParquetWriteSetChange {
+    fn from(write_set_change: WriteSetChange) -> Self {
+        ParquetWriteSetChange {
+            txn_version: write_set_change.txn_version,
+            write_set_change_index: write_set_change.write_set_change_index,
+            state_key_hash: write_set_change.state_key_hash,
+            change_type: write_set_change.change_type,
+            resource_address: write_set_change.resource_address,
+            block_height: write_set_change.block_height,
+            block_timestamp: write_set_change.block_timestamp,
+        }
+    }
+}
