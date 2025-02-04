@@ -4,7 +4,7 @@
 #![allow(clippy::extra_unused_lifetimes)]
 
 use crate::{
-    bq_analytics::{GetTimeStamp, HasVersion, NamedTable},
+    bq_analytics::{HasVersion, NamedTable},
     db::models::stake_models::stake_utils::StakeEvent,
     schema::delegated_staking_activities,
     utils::{
@@ -168,12 +168,6 @@ impl HasVersion for ParquetDelegatedStakingActivity {
 
 impl NamedTable for ParquetDelegatedStakingActivity {
     const TABLE_NAME: &'static str = "delegated_staking_activities";
-}
-
-impl GetTimeStamp for ParquetDelegatedStakingActivity {
-    fn get_timestamp(&self) -> chrono::NaiveDateTime {
-        self.block_timestamp
-    }
 }
 
 impl DelegatedStakingActivityConvertible for ParquetDelegatedStakingActivity {

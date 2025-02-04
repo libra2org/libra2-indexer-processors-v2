@@ -6,7 +6,7 @@
 #![allow(clippy::unused_unit)]
 
 use crate::{
-    bq_analytics::{GetTimeStamp, HasVersion, NamedTable},
+    bq_analytics::{HasVersion, NamedTable},
     db::models::{
         ans_models::{
             ans_lookup::{AnsLookup, CurrentAnsLookup},
@@ -101,13 +101,6 @@ impl HasVersion for ParquetAnsLookupV2 {
     }
 }
 
-impl GetTimeStamp for ParquetAnsLookupV2 {
-    fn get_timestamp(&self) -> chrono::NaiveDateTime {
-        #[warn(deprecated)]
-        chrono::NaiveDateTime::default()
-    }
-}
-
 impl AnsLookupV2Convertible for ParquetAnsLookupV2 {
     fn from_raw(raw_item: RawAnsLookupV2) -> Self {
         ParquetAnsLookupV2 {
@@ -146,13 +139,6 @@ impl NamedTable for ParquetCurrentAnsLookupV2 {
 impl HasVersion for ParquetCurrentAnsLookupV2 {
     fn version(&self) -> i64 {
         self.last_transaction_version
-    }
-}
-
-impl GetTimeStamp for ParquetCurrentAnsLookupV2 {
-    fn get_timestamp(&self) -> chrono::NaiveDateTime {
-        #[warn(deprecated)]
-        chrono::NaiveDateTime::default()
     }
 }
 

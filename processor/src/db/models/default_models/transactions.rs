@@ -13,7 +13,6 @@ use crate::{
         util::{get_clean_payload, get_clean_writeset, get_payload_type, standardize_address},
     },
 };
-use ahash::AHashMap;
 use allocative_derive::Allocative;
 use aptos_protos::transaction::v1::{
     transaction::{TransactionType, TxnData},
@@ -322,7 +321,6 @@ impl Transaction {
 
     pub fn from_transactions(
         transactions: &[TransactionPB],
-        transaction_version_to_struct_count: &mut AHashMap<i64, i64>,
     ) -> (
         Vec<Self>,
         Vec<WriteSetChangeModel>,
@@ -335,19 +333,7 @@ impl Transaction {
         for txn in transactions {
             let (txn, mut wsc_list, mut wsc_detail_list) = Self::from_transaction(txn);
             txns.push(txn.clone());
-            // TODO: Remove once fully migrated
-            transaction_version_to_struct_count
-                .entry(txn.txn_version)
-                .and_modify(|e| *e += 1)
-                .or_insert(1);
 
-            // TODO: Remove once fully migrated
-            if !wsc_list.is_empty() {
-                transaction_version_to_struct_count
-                    .entry(txn.txn_version)
-                    .and_modify(|e| *e += wsc_list.len() as i64)
-                    .or_insert(wsc_list.len() as i64);
-            }
             wscs.append(&mut wsc_list);
 
             wsc_details.append(&mut wsc_detail_list);

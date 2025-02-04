@@ -1,7 +1,11 @@
 use crate::{
     db::models::default_models::{
         block_metadata_transactions::BlockMetadataTransactionModel,
+        move_modules::ParquetMoveModule,
+        move_resources::ParquetMoveResource,
         table_items::{CurrentTableItem, TableItem, TableMetadata},
+        transactions::{ParquetTransaction, TransactionModel},
+        write_set_changes::{ParquetWriteSetChange, WriteSetChangeDetail},
     },
     utils::counters::PROCESSOR_UNKNOWN_TYPE_COUNT,
 };
@@ -140,5 +144,50 @@ pub fn process_transactions(
         table_items,
         current_table_items,
         table_metadata,
+    )
+}
+
+// Parquet specific function to process transactions
+
+// Function to process transactions and convert them to Parquet format
+pub fn process_transactions_parquet(
+    transactions: Vec<Transaction>,
+) -> (
+    Vec<ParquetMoveResource>,
+    Vec<ParquetWriteSetChange>,
+    Vec<ParquetTransaction>,
+    Vec<ParquetMoveModule>,
+) {
+    let (txns, write_set_changes, wsc_details) = TransactionModel::from_transactions(&transactions);
+
+    let mut move_modules = vec![];
+    let mut move_resources = vec![];
+
+    for detail in wsc_details {
+        match detail {
+            WriteSetChangeDetail::Module(module) => {
+                move_modules.push(module);
+            },
+            WriteSetChangeDetail::Resource(resource) => {
+                move_resources.push(resource);
+            },
+            _ => {},
+        }
+    }
+
+    (
+        move_resources
+            .into_iter()
+            .map(ParquetMoveResource::from)
+            .collect(),
+        write_set_changes
+            .into_iter()
+            .map(ParquetWriteSetChange::from)
+            .collect(),
+        txns.into_iter().map(ParquetTransaction::from).collect(),
+        move_modules
+            .into_iter()
+            .map(ParquetMoveModule::from)
+            .collect(),
     )
 }

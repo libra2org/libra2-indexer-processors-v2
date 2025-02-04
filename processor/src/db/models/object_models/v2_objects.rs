@@ -7,7 +7,7 @@
 
 use super::v2_object_utils::{CurrentObjectPK, ObjectAggregatedDataMapping};
 use crate::{
-    bq_analytics::{GetTimeStamp, HasVersion, NamedTable},
+    bq_analytics::{HasVersion, NamedTable},
     db::models::default_models::move_resources::MoveResource,
     schema::{current_objects, objects},
     utils::{
@@ -330,12 +330,6 @@ impl HasVersion for ParquetObject {
     }
 }
 
-impl GetTimeStamp for ParquetObject {
-    fn get_timestamp(&self) -> chrono::NaiveDateTime {
-        self.block_timestamp
-    }
-}
-
 impl ObjectConvertible for ParquetObject {
     fn from_raw(base_item: Object) -> Self {
         Self {
@@ -376,12 +370,6 @@ impl NamedTable for ParquetCurrentObject {
 impl HasVersion for ParquetCurrentObject {
     fn version(&self) -> i64 {
         self.last_transaction_version
-    }
-}
-
-impl GetTimeStamp for ParquetCurrentObject {
-    fn get_timestamp(&self) -> chrono::NaiveDateTime {
-        self.block_timestamp
     }
 }
 

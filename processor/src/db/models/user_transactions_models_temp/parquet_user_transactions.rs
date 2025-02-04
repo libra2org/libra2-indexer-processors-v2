@@ -9,7 +9,7 @@
 
 use super::parquet_signatures::Signature;
 use crate::{
-    bq_analytics::{GetTimeStamp, HasVersion, NamedTable},
+    bq_analytics::{HasVersion, NamedTable},
     db::models::fungible_asset_models::v2_fungible_asset_utils::FeeStatement,
     utils::util::{get_entry_function_from_user_request, parse_timestamp, standardize_address},
 };
@@ -52,12 +52,6 @@ impl NamedTable for UserTransaction {
 impl HasVersion for UserTransaction {
     fn version(&self) -> i64 {
         self.txn_version
-    }
-}
-
-impl GetTimeStamp for UserTransaction {
-    fn get_timestamp(&self) -> chrono::NaiveDateTime {
-        self.block_timestamp
     }
 }
 

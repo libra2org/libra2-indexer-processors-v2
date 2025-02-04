@@ -85,11 +85,6 @@ pub trait HasParquetSchema {
     fn schema() -> Arc<parquet::schema::types::Type>;
 }
 
-/// TODO: Deprecate once fully migrated to SDK
-pub trait GetTimeStamp {
-    fn get_timestamp(&self) -> chrono::NaiveDateTime;
-}
-
 /// Auto-implement this for all types that implement `Default` and `RecordWriter`
 impl<ParquetType> HasParquetSchema for ParquetType
 where

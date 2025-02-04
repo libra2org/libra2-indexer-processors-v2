@@ -6,7 +6,7 @@
 #![allow(clippy::unused_unit)]
 
 use crate::{
-    bq_analytics::{GetTimeStamp, HasVersion, NamedTable},
+    bq_analytics::{HasVersion, NamedTable},
     db::models::token_models::token_utils::TokenWriteSet,
     schema::current_token_royalty_v1,
 };
@@ -124,12 +124,6 @@ impl NamedTable for ParquetCurrentTokenRoyaltyV1 {
 impl HasVersion for ParquetCurrentTokenRoyaltyV1 {
     fn version(&self) -> i64 {
         self.last_transaction_version
-    }
-}
-
-impl GetTimeStamp for ParquetCurrentTokenRoyaltyV1 {
-    fn get_timestamp(&self) -> chrono::NaiveDateTime {
-        self.last_transaction_timestamp
     }
 }
 

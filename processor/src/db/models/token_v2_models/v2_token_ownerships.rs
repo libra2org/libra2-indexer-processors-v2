@@ -6,7 +6,7 @@
 #![allow(clippy::unused_unit)]
 
 use crate::{
-    bq_analytics::{GetTimeStamp, HasVersion, NamedTable},
+    bq_analytics::{HasVersion, NamedTable},
     db::{
         models::{
             object_models::v2_object_utils::{ObjectAggregatedDataMapping, ObjectWithMetadata},
@@ -692,12 +692,6 @@ impl HasVersion for ParquetTokenOwnershipV2 {
     }
 }
 
-impl GetTimeStamp for ParquetTokenOwnershipV2 {
-    fn get_timestamp(&self) -> chrono::NaiveDateTime {
-        self.block_timestamp
-    }
-}
-
 impl TokenOwnershipV2Convertible for ParquetTokenOwnershipV2 {
     fn from_base(base_item: TokenOwnershipV2) -> Self {
         Self {
@@ -747,12 +741,6 @@ impl NamedTable for ParquetCurrentTokenOwnershipV2 {
 impl HasVersion for ParquetCurrentTokenOwnershipV2 {
     fn version(&self) -> i64 {
         self.last_transaction_version
-    }
-}
-
-impl GetTimeStamp for ParquetCurrentTokenOwnershipV2 {
-    fn get_timestamp(&self) -> chrono::NaiveDateTime {
-        self.last_transaction_timestamp
     }
 }
 

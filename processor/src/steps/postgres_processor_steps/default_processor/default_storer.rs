@@ -10,7 +10,11 @@ use crate::{
             insert_table_items_query, insert_table_metadata_query,
         },
     },
-    utils::database::{execute_in_chunks, get_config_table_chunk_size, ArcDbPool},
+    steps::postgres_processor_steps::filter_data,
+    utils::{
+        database::{execute_in_chunks, get_config_table_chunk_size, ArcDbPool},
+        table_flags::TableFlags,
+    },
 };
 use ahash::AHashMap;
 use anyhow::Result;
@@ -27,13 +31,19 @@ where
 {
     conn_pool: ArcDbPool,
     processor_config: DefaultProcessorConfig,
+    tables_to_write: TableFlags,
 }
 
 impl DefaultStorer {
-    pub fn new(conn_pool: ArcDbPool, processor_config: DefaultProcessorConfig) -> Self {
+    pub fn new(
+        conn_pool: ArcDbPool,
+        processor_config: DefaultProcessorConfig,
+        tables_to_write: TableFlags,
+    ) -> Self {
         Self {
             conn_pool,
             processor_config,
+            tables_to_write,
         }
     }
 }
@@ -80,6 +90,23 @@ impl Processable for DefaultStorer {
     ) -> Result<Option<TransactionContext<()>>, ProcessorError> {
         let (block_metadata_transactions, table_items, current_table_items, table_metadata) =
             input.data;
+
+        let block_metadata_transactions = filter_data(
+            &self.tables_to_write,
+            TableFlags::BLOCK_METADATA_TRANSACTIONS,
+            block_metadata_transactions,
+        );
+        let table_items = filter_data(&self.tables_to_write, TableFlags::TABLE_ITEMS, table_items);
+        let current_table_items = filter_data(
+            &self.tables_to_write,
+            TableFlags::CURRENT_TABLE_ITEMS,
+            current_table_items,
+        );
+        let table_metadata = filter_data(
+            &self.tables_to_write,
+            TableFlags::TABLE_METADATA,
+            table_metadata,
+        );
 
         let per_table_chunk_sizes: AHashMap<String, usize> =
             self.processor_config.per_table_chunk_sizes.clone();

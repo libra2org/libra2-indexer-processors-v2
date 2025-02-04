@@ -228,9 +228,6 @@ mod tests {
     use super::*;
     use crate::{
         config::{
-
-
-
             db_config::{DbConfig, PostgresConfig},
             indexer_processor_config::{BackfillConfig, IndexerProcessorConfig},
             processor_config::{DefaultProcessorConfig, ProcessorConfig},
@@ -239,7 +236,6 @@ mod tests {
             backfill_processor_status::{BackfillProcessorStatus, BackfillStatus},
             processor_status::ProcessorStatus,
         },
-        schema::processor_status,
         utils::database::{new_db_pool, run_migrations},
     };
     use ahash::AHashMap;
@@ -259,7 +255,7 @@ mod tests {
         let default_processor_config = DefaultProcessorConfig {
             per_table_chunk_sizes: AHashMap::new(),
             channel_size: 100,
-            deprecated_tables: HashSet::new(),
+            tables_to_write: HashSet::new(),
         };
         let processor_config = ProcessorConfig::DefaultProcessor(default_processor_config);
         let postgres_config = PostgresConfig {
@@ -501,7 +497,7 @@ mod tests {
     //     run_migrations(db.get_db_url(), conn_pool.clone()).await;
 
     //     // Insert processor statuses with different last_success_version values
-    //     diesel::insert_into(crate::schema::processor_status::table)
+    //     diesel::insert_into(processor_status::table)
     //         .values(vec![ProcessorStatus {
     //             processor: "processor_1".to_string(),
     //             last_success_version: 15,

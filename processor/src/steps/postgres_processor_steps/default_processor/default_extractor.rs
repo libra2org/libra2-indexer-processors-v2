@@ -3,8 +3,7 @@ use crate::{
         block_metadata_transactions::PostgresBlockMetadataTransaction,
         table_items::{PostgresCurrentTableItem, PostgresTableItem, PostgresTableMetadata},
     },
-    parsing::default_processor::process_transactions,
-    utils::table_flags::TableFlags,
+    parsing::default_processor_helpers::process_transactions,
 };
 use aptos_indexer_processor_sdk::{
     aptos_protos::transaction::v1::Transaction,
@@ -16,10 +15,7 @@ use async_trait::async_trait;
 
 pub struct DefaultExtractor
 where
-    Self: Sized + Send + 'static,
-{
-    pub deprecated_table_flags: TableFlags,
-}
+    Self: Sized + Send + 'static, {}
 
 #[async_trait]
 impl Processable for DefaultExtractor {

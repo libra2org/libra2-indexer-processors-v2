@@ -1,11 +1,11 @@
-use crate::schema::{backfill_processor_status, processor_status};
 use crate::{
     config::{db_config::DbConfig, indexer_processor_config::IndexerProcessorConfig},
     db::{
         backfill_processor_status::{BackfillProcessorStatus, BackfillStatus},
         processor_status::ProcessorStatus,
     },
-    // steps::common::parquet_version_tracker_step::ParquetProcessorStatusSaver, // TODO: add back when migrate parquet
+    schema::{backfill_processor_status, processor_status},
+    steps::common::parquet_version_tracker_step::ParquetProcessorStatusSaver,
     utils::{
         database::{execute_with_better_error, ArcDbPool},
         parquet_processor_table_mapping::format_table_name,
@@ -79,21 +79,20 @@ impl ProcessorStatusSaver for ProcessorStatusSaverEnum {
     }
 }
 
-// TODO: add back when migrate parquet
-// #[async_trait]
-// impl ParquetProcessorStatusSaver for ProcessorStatusSaverEnum {
-//     async fn save_parquet_processor_status(
-//         &self,
-//         last_success_batch: &TransactionContext<()>,
-//         table_name: &str,
-//     ) -> Result<(), ProcessorError> {
-//         self.save_processor_status_with_optional_table_names(
-//             last_success_batch,
-//             Some(table_name.to_string()),
-//         )
-//         .await
-//     }
-// }
+#[async_trait]
+impl ParquetProcessorStatusSaver for ProcessorStatusSaverEnum {
+    async fn save_parquet_processor_status(
+        &self,
+        last_success_batch: &TransactionContext<()>,
+        table_name: &str,
+    ) -> Result<(), ProcessorError> {
+        self.save_processor_status_with_optional_table_names(
+            last_success_batch,
+            Some(table_name.to_string()),
+        )
+        .await
+    }
+}
 
 impl ProcessorStatusSaverEnum {
     async fn save_processor_status_with_optional_table_names(

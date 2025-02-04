@@ -25,7 +25,7 @@ pub fn setup_stake_processor_config(
         default_config: DefaultProcessorConfig {
             per_table_chunk_sizes: AHashMap::new(),
             channel_size: 100,
-            deprecated_tables: HashSet::new(),
+            tables_to_write: HashSet::new(),
         },
         // Avoid doing long lookups in tests
         query_retries: 1,
