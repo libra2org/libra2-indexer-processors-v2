@@ -7,7 +7,7 @@
 
 use super::parquet_write_set_changes::{WriteSetChangeDetail, WriteSetChangeModel};
 use crate::{
-    bq_analytics::{GetTimeStamp, HasVersion, NamedTable},
+    bq_analytics::{HasVersion, NamedTable},
     utils::{
         counters::PROCESSOR_UNKNOWN_TYPE_COUNT,
         util::{get_clean_payload, get_clean_writeset, get_payload_type, standardize_address},
@@ -23,9 +23,7 @@ use field_count::FieldCount;
 use parquet_derive::ParquetRecordWriter;
 use serde::{Deserialize, Serialize};
 
-#[derive(
-    Allocative, Clone, Debug, Default, Deserialize, FieldCount, Serialize, ParquetRecordWriter,
-)]
+#[derive(Clone, Debug, Default, Deserialize, Serialize)]
 pub struct Transaction {
     pub txn_version: i64,
     pub block_height: i64,
@@ -44,24 +42,7 @@ pub struct Transaction {
     pub state_checkpoint_hash: Option<String>,
     pub accumulator_root_hash: String,
     pub txn_total_bytes: i64,
-    #[allocative(skip)]
     pub block_timestamp: chrono::NaiveDateTime,
-}
-
-impl NamedTable for Transaction {
-    const TABLE_NAME: &'static str = "transactions";
-}
-
-impl HasVersion for Transaction {
-    fn version(&self) -> i64 {
-        self.txn_version
-    }
-}
-
-impl GetTimeStamp for Transaction {
-    fn get_timestamp(&self) -> chrono::NaiveDateTime {
-        self.block_timestamp
-    }
 }
 
 impl Transaction {
@@ -377,3 +358,65 @@ impl Transaction {
 
 // Prevent conflicts with other things named `Transaction`
 pub type TransactionModel = Transaction;
+
+#[derive(
+    Allocative, Clone, Debug, Default, Deserialize, FieldCount, Serialize, ParquetRecordWriter,
+)]
+pub struct ParquetTransaction {
+    pub txn_version: i64,
+    pub block_height: i64,
+    pub epoch: i64,
+    pub txn_type: String,
+    pub payload: Option<String>,
+    pub payload_type: Option<String>,
+    pub gas_used: u64,
+    pub success: bool,
+    pub vm_status: String,
+    pub num_events: i64,
+    pub num_write_set_changes: i64,
+    pub txn_hash: String,
+    pub state_change_hash: String,
+    pub event_root_hash: String,
+    pub state_checkpoint_hash: Option<String>,
+    pub accumulator_root_hash: String,
+    pub txn_total_bytes: i64,
+    #[allocative(skip)]
+    pub block_timestamp: chrono::NaiveDateTime,
+}
+
+// TODO: revisit and remove this if we can.
+impl NamedTable for ParquetTransaction {
+    const TABLE_NAME: &'static str = "transactions";
+}
+
+// TODO: revisit and remove this if we can.
+impl HasVersion for ParquetTransaction {
+    fn version(&self) -> i64 {
+        self.txn_version
+    }
+}
+
+impl From<Transaction> for ParquetTransaction {
+    fn from(transaction: Transaction) -> Self {
+        ParquetTransaction {
+            txn_version: transaction.txn_version,
+            block_height: transaction.block_height,
+            epoch: transaction.epoch,
+            txn_type: transaction.txn_type,
+            payload: transaction.payload,
+            payload_type: transaction.payload_type,
+            gas_used: transaction.gas_used,
+            success: transaction.success,
+            vm_status: transaction.vm_status,
+            num_events: transaction.num_events,
+            num_write_set_changes: transaction.num_write_set_changes,
+            txn_hash: transaction.txn_hash,
+            state_change_hash: transaction.state_change_hash,
+            event_root_hash: transaction.event_root_hash,
+            state_checkpoint_hash: transaction.state_checkpoint_hash,
+            accumulator_root_hash: transaction.accumulator_root_hash,
+            txn_total_bytes: transaction.txn_total_bytes,
+            block_timestamp: transaction.block_timestamp,
+        }
+    }
+}
