@@ -1,6 +1,6 @@
 use ahash::AHashMap;
 use aptos_indexer_testing_framework::sdk_test_context::SdkTestContext;
-use sdk_processor::config::{
+use processor::config::{
     db_config::{DbConfig, PostgresConfig},
     indexer_processor_config::IndexerProcessorConfig,
     processor_config::{DefaultProcessorConfig, ProcessorConfig},
@@ -54,7 +54,7 @@ mod tests {
         IMPORTED_MAINNET_TXNS_513424821_DEFAULT_BLOCK_METADATA_TRANSACTIONS,
     };
     use aptos_indexer_testing_framework::{cli_parser::get_test_config, database::TestDatabase};
-    use sdk_processor::processors::default_processor::DefaultProcessor;
+    use processor::processors::default_processor::DefaultProcessor;
 
     #[tokio::test(flavor = "multi_thread", worker_threads = 2)]
     async fn mainnet_table_items() {

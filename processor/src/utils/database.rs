@@ -1,11 +1,14 @@
 // Copyright © Aptos Foundation
 // SPDX-License-Identifier: Apache-2.0
 
-use crate::utils::util::remove_null_bytes;
+//! Database-related functions
+#![allow(clippy::extra_unused_lifetimes)]
+
 use ahash::AHashMap;
+use aptos_indexer_processor_sdk::utils::{convert::remove_null_bytes, errors::ProcessorError};
 use diesel::{
-    query_builder::{AstPass, Query, QueryFragment},
-    ConnectionResult, QueryId, QueryResult,
+    query_builder::{AstPass, Query, QueryFragment, QueryId},
+    ConnectionResult, QueryResult,
 };
 use diesel_async::{
     pooled_connection::{
@@ -17,6 +20,7 @@ use diesel_async::{
 use diesel_migrations::{embed_migrations, EmbeddedMigrations, MigrationHarness};
 use futures_util::{future::BoxFuture, FutureExt};
 use std::sync::Arc;
+use tracing::{info, warn};
 
 pub type Backend = diesel::pg::Pg;
 
@@ -25,7 +29,7 @@ pub type DbPool = Pool<MyDbConnection>;
 pub type ArcDbPool = Arc<DbPool>;
 pub type DbPoolConnection<'a> = PooledConnection<'a, MyDbConnection>;
 
-pub const MIGRATIONS: EmbeddedMigrations = embed_migrations!("src/db/migrations");
+pub const MIGRATIONS: EmbeddedMigrations = embed_migrations!("./src/db/migrations");
 
 pub const DEFAULT_MAX_POOL_SIZE: u32 = 150;
 
@@ -40,8 +44,7 @@ pub struct UpsertFilterLatestTransactionQuery<T> {
     where_clause: Option<&'static str>,
 }
 
-/// the max is actually u16::MAX but we see that when the size is too big we get
-/// an overflow error so reducing it a bit
+// the max is actually u16::MAX but we see that when the size is too big we get an overflow error so reducing it a bit
 pub const MAX_DIESEL_PARAM_SIZE: usize = (u16::MAX / 2) as usize;
 
 /// This function will clean the data for postgres. Currently it has support for removing
@@ -128,7 +131,7 @@ pub async fn execute_in_chunks<U, T>(
     build_query: fn(Vec<T>) -> (U, Option<&'static str>),
     items_to_insert: &[T],
     chunk_size: usize,
-) -> Result<(), diesel::result::Error>
+) -> Result<(), ProcessorError>
 where
     U: QueryFragment<Backend> + diesel::query_builder::QueryId + Send + 'static,
     T: serde::Serialize + for<'de> serde::Deserialize<'de> + Clone + Send + 'static,
@@ -160,7 +163,7 @@ pub async fn execute_with_better_error<U>(
     pool: ArcDbPool,
     query: U,
     mut additional_where_clause: Option<&'static str>,
-) -> QueryResult<usize>
+) -> Result<usize, ProcessorError>
 where
     U: QueryFragment<Backend> + diesel::query_builder::QueryId + Send,
 {
@@ -175,19 +178,23 @@ where
         where_clause: additional_where_clause,
     };
     let debug_string = diesel::debug_query::<Backend, _>(&final_query).to_string();
-    tracing::debug!("Executing query: {:?}", debug_string);
     let conn = &mut pool.get().await.map_err(|e| {
-        tracing::warn!("Error getting connection from pool: {:?}", e);
-        diesel::result::Error::DatabaseError(
-            diesel::result::DatabaseErrorKind::UnableToSendCommand,
-            Box::new(e.to_string()),
-        )
+        warn!("Error getting connection from pool: {:?}", e);
+        ProcessorError::DBStoreError {
+            message: format!("{:#}", e),
+            query: Some(debug_string.clone()),
+        }
     })?;
-    let res = final_query.execute(conn).await;
-    if let Err(ref e) = res {
-        tracing::warn!("Error running query: {:?}\n{:?}", e, debug_string);
-    }
-    res
+    final_query
+        .execute(conn)
+        .await
+        .inspect_err(|e| {
+            warn!("Error running query: {:?}\n{:?}", e, debug_string);
+        })
+        .map_err(|e| ProcessorError::DBStoreError {
+            message: format!("{:#}", e),
+            query: Some(debug_string),
+        })
 }
 
 /// Returns the entry for the config hashmap, or the default field count for the insert.
@@ -237,7 +244,7 @@ async fn execute_or_retry_cleaned<U, T>(
     items: Vec<T>,
     query: U,
     additional_where_clause: Option<&'static str>,
-) -> Result<(), diesel::result::Error>
+) -> Result<(), ProcessorError>
 where
     U: QueryFragment<Backend> + diesel::query_builder::QueryId + Send,
     T: serde::Serialize + for<'de> serde::Deserialize<'de> + Clone,
@@ -263,6 +270,49 @@ where
 pub fn run_pending_migrations<DB: diesel::backend::Backend>(conn: &mut impl MigrationHarness<DB>) {
     conn.run_pending_migrations(MIGRATIONS)
         .expect("[Parser] Migrations failed!");
+}
+
+// For the normal processor build we just use standard Diesel with the postgres
+// feature enabled (which uses libpq under the hood, hence why we named the feature
+// this way).
+#[cfg(feature = "libpq")]
+pub async fn run_migrations(postgres_connection_string: String, _conn_pool: ArcDbPool) {
+    use diesel::{Connection, PgConnection};
+
+    info!("Running migrations: {:?}", postgres_connection_string);
+    let migration_time = std::time::Instant::now();
+    let mut conn =
+        PgConnection::establish(&postgres_connection_string).expect("migrations failed!");
+    run_pending_migrations(&mut conn);
+    info!(
+        duration_in_secs = migration_time.elapsed().as_secs_f64(),
+        "[Parser] Finished migrations"
+    );
+}
+
+// If the libpq feature isn't enabled, we use diesel async instead. This is used by
+// the CLI for the local testnet, where we cannot tolerate the libpq dependency.
+#[cfg(not(feature = "libpq"))]
+pub async fn run_migrations(postgres_connection_string: String, conn_pool: ArcDbPool) {
+    use diesel_async::async_connection_wrapper::AsyncConnectionWrapper;
+
+    info!("Running migrations: {:?}", postgres_connection_string);
+    let conn = conn_pool
+        // We need to use this since AsyncConnectionWrapper doesn't know how to
+        // work with a pooled connection.
+        .dedicated_connection()
+        .await
+        .expect("[Parser] Failed to get connection");
+    // We use spawn_blocking since run_pending_migrations is a blocking function.
+    tokio::task::spawn_blocking(move || {
+        // This lets us use the connection like a normal diesel connection. See more:
+        // https://docs.rs/diesel-async/latest/diesel_async/async_connection_wrapper/type.AsyncConnectionWrapper.html
+        let mut conn: AsyncConnectionWrapper<diesel_async::AsyncPgConnection> =
+            AsyncConnectionWrapper::from(conn);
+        run_pending_migrations(&mut conn);
+    })
+    .await
+    .expect("[Parser] Failed to run migrations");
 }
 
 /// Section below is required to modify the query.
