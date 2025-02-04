@@ -3,7 +3,7 @@
 
 use crate::{
     db::models::{
-        old_default_models::postgres_move_resources::MoveResource, token_models::token_utils::Table,
+        new_default_models::move_resources::MoveResource, token_models::token_utils::Table,
     },
     utils::util::{deserialize_from_string, standardize_address},
 };
@@ -11,6 +11,7 @@ use anyhow::{Context, Result};
 use aptos_protos::transaction::v1::WriteResource;
 use bigdecimal::BigDecimal;
 use serde::{Deserialize, Serialize};
+use tracing::error;
 
 const STAKE_ADDR: &str = "0x0000000000000000000000000000000000000000000000000000000000000001";
 
@@ -168,17 +169,32 @@ impl StakeResource {
     pub fn from_write_resource(
         write_resource: &WriteResource,
         txn_version: i64,
+        block_timestamp: chrono::NaiveDateTime,
     ) -> Result<Option<Self>> {
         let type_str = MoveResource::get_outer_type_from_write_resource(write_resource);
         if !Self::is_resource_supported(type_str.as_str()) {
             return Ok(None);
         }
-        let resource = MoveResource::from_write_resource(
+        let resource = match MoveResource::from_write_resource(
             write_resource,
             0, // Placeholder, this isn't used anyway
             txn_version,
             0, // Placeholder, this isn't used anyway
-        );
+            block_timestamp,
+        ) {
+            Ok(Some(res)) => res,
+            Ok(None) => {
+                error!("No resource found for transaction version {}", txn_version);
+                return Ok(None);
+            },
+            Err(e) => {
+                error!(
+                    "Error processing write resource for transaction version {}: {}",
+                    txn_version, e
+                );
+                return Err(e);
+            },
+        };
         Ok(Some(Self::from_resource(
             &type_str,
             resource.data.as_ref().unwrap(),
@@ -327,14 +343,29 @@ impl DelegationVoteGovernanceRecordsResource {
     pub fn from_write_resource(
         write_resource: &WriteResource,
         txn_version: i64,
+        block_timestamp: chrono::NaiveDateTime,
     ) -> Result<Option<Self>> {
         let type_str = MoveResource::get_outer_type_from_write_resource(write_resource);
-        let resource = MoveResource::from_write_resource(
+        let resource = match MoveResource::from_write_resource(
             write_resource,
             0, // Placeholder, this isn't used anyway
             txn_version,
             0, // Placeholder, this isn't used anyway
-        );
+            block_timestamp,
+        ) {
+            Ok(Some(res)) => res,
+            Ok(None) => {
+                error!("No resource found for transaction version {}", txn_version);
+                return Ok(None);
+            },
+            Err(e) => {
+                error!(
+                    "Error processing write resource for transaction version {}: {}",
+                    txn_version, e
+                );
+                return Err(e);
+            },
+        };
         Self::from_resource(&type_str, resource.data.as_ref().unwrap(), txn_version)
     }
 }

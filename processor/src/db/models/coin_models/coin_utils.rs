@@ -5,7 +5,7 @@
 #![allow(clippy::extra_unused_lifetimes)]
 
 use crate::{
-    db::{models::old_default_models::postgres_move_resources::MoveResource, resources::COIN_ADDR},
+    db::{models::new_default_models::move_resources::MoveResource, resources::COIN_ADDR},
     utils::util::{deserialize_from_string, hash_str, standardize_address, truncate_str},
 };
 use anyhow::{bail, Context, Result};
@@ -290,17 +290,29 @@ impl CoinResource {
     pub fn from_write_resource(
         write_resource: &WriteResource,
         txn_version: i64,
+        block_timestamp: chrono::NaiveDateTime,
     ) -> Result<Option<CoinResource>> {
         let type_str = MoveResource::get_outer_type_from_write_resource(write_resource);
         if !CoinResource::is_resource_supported(type_str.as_str()) {
             return Ok(None);
         }
-        let resource = MoveResource::from_write_resource(
+        let resource = match MoveResource::from_write_resource(
             write_resource,
             0, // Placeholder, this isn't used anyway
             txn_version,
             0, // Placeholder, this isn't used anyway
-        );
+            block_timestamp,
+        ) {
+            Ok(Some(res)) => res,
+            Ok(None) => {
+                error!("No resource found for transaction version {}", txn_version);
+                return Ok(None);
+            },
+            Err(e) => {
+                error!("Error processing write resource: {}", e);
+                return Err(anyhow::anyhow!("Error processing write resource: {}", e));
+            },
+        };
         Ok(Some(Self::from_resource(
             &type_str,
             resource.data.as_ref().unwrap(),

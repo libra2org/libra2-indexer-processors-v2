@@ -9,8 +9,8 @@ use crate::{
     bq_analytics::{GetTimeStamp, HasVersion, NamedTable},
     db::{
         models::{
+            new_default_models::move_resources::MoveResource,
             object_models::v2_object_utils::ObjectAggregatedDataMapping,
-            old_default_models::postgres_move_resources::MoveResource,
             token_models::token_utils::NAME_LENGTH, DEFAULT_NONE,
         },
         resources::{COIN_ADDR, TOKEN_ADDR, TOKEN_V2_ADDR},
@@ -75,14 +75,33 @@ impl CurrentTokenV2Metadata {
                     return Ok(None);
                 }
 
-                let resource = MoveResource::from_write_resource(write_resource, 0, txn_version, 0);
+                let resource = match MoveResource::from_write_resource(
+                    write_resource,
+                    0,
+                    txn_version,
+                    0,
+                    txn_timestamp,
+                ) {
+                    Ok(Some(res)) => res,
+                    Ok(None) => {
+                        error!("No resource found for transaction version {}", txn_version);
+                        return Ok(None);
+                    },
+                    Err(e) => {
+                        error!(
+                            "Error processing write resource for transaction version {}: {}",
+                            txn_version, e
+                        );
+                        return Err(e);
+                    },
+                };
 
                 let state_key_hash = object_data.object.get_state_key_hash();
                 if state_key_hash != resource.state_key_hash {
                     return Ok(None);
                 }
 
-                let resource_type = truncate_str(&resource.type_, NAME_LENGTH);
+                let resource_type = truncate_str(&resource.resource_type, NAME_LENGTH);
                 return Ok(Some(CurrentTokenV2Metadata {
                     object_address,
                     resource_type,

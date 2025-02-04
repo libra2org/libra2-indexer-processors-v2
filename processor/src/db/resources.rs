@@ -6,8 +6,8 @@ use crate::db::models::{
         ConcurrentFungibleAssetBalance, ConcurrentFungibleAssetSupply, FungibleAssetMetadata,
         FungibleAssetStore, FungibleAssetSupply,
     },
+    new_default_models::move_resources::MoveResource,
     object_models::v2_object_utils::{ObjectCore, Untransferable},
-    old_default_models::postgres_move_resources::MoveResource,
     token_v2_models::v2_token_utils::{
         AptosCollection, Collection, ConcurrentSupply, FixedSupply, PropertyMapModel,
         TokenIdentifiers, TokenV2, UnlimitedSupply,

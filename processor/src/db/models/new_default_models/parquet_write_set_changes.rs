@@ -5,11 +5,11 @@
 
 use super::{
     parquet_move_modules::MoveModule,
-    parquet_move_resources::MoveResource,
     parquet_move_tables::{ParquetCurrentTableItem, ParquetTableItem, ParquetTableMetadata},
 };
 use crate::{
     bq_analytics::{GetTimeStamp, HasVersion, NamedTable},
+    db::models::new_default_models::move_resources::MoveResource,
     utils::util::{standardize_address, standardize_address_from_bytes},
 };
 use allocative_derive::Allocative;

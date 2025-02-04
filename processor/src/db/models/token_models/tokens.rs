@@ -13,7 +13,7 @@ use super::{
 };
 use crate::{
     // TODO: update this to use the new move resources after refactoring
-    db::models::old_default_models::postgres_move_resources::MoveResource,
+    db::models::new_default_models::move_resources::MoveResource,
     schema::tokens,
     utils::{
         counters::PROCESSOR_UNKNOWN_TYPE_COUNT,
@@ -29,6 +29,7 @@ use aptos_protos::transaction::v1::{
 use bigdecimal::{BigDecimal, Zero};
 use field_count::FieldCount;
 use serde::{Deserialize, Serialize};
+use tracing::error;
 
 type TableHandle = String;
 type Address = String;
@@ -351,6 +352,12 @@ impl TableMetadataForToken {
             if let Some(TxnData::User(_)) = transaction.txn_data.as_ref() {
                 let txn_version = transaction.version as i64;
 
+                let timestamp = transaction
+                    .timestamp
+                    .as_ref()
+                    .expect("Transaction timestamp doesn't exist!");
+                let block_timestamp = parse_timestamp(timestamp, txn_version);
+
                 let transaction_info = transaction
                     .info
                     .as_ref()
@@ -362,6 +369,7 @@ impl TableMetadataForToken {
                         let maybe_map = TableMetadataForToken::get_table_handle_to_owner(
                             write_resource,
                             txn_version,
+                            block_timestamp,
                         )
                         .unwrap();
                         if let Some(map) = maybe_map {
@@ -378,20 +386,35 @@ impl TableMetadataForToken {
     fn get_table_handle_to_owner(
         write_resource: &WriteResource,
         txn_version: i64,
+        block_timestamp: chrono::NaiveDateTime,
     ) -> anyhow::Result<Option<TableHandleToOwner>> {
         let type_str = MoveResource::get_outer_type_from_write_resource(write_resource);
         if !TokenResource::is_resource_supported(type_str.as_str()) {
             return Ok(None);
         }
-        let resource = MoveResource::from_write_resource(
+        let resource = match MoveResource::from_write_resource(
             write_resource,
             0, // Placeholder, this isn't used anyway
             txn_version,
             0, // Placeholder, this isn't used anyway
-        );
+            block_timestamp,
+        ) {
+            Ok(Some(res)) => res,
+            Ok(None) => {
+                error!("No resource found for transaction version {}", txn_version);
+                return Ok(None);
+            },
+            Err(e) => {
+                error!(
+                    "Error processing write resource for transaction version {}: {}",
+                    txn_version, e
+                );
+                return Err(e);
+            },
+        };
 
         let value = TableMetadataForToken {
-            owner_address: resource.address.clone(),
+            owner_address: resource.resource_address.clone(),
             table_type: write_resource.type_str.clone(),
         };
         let table_handle: TableHandle = match TokenResource::from_resource(

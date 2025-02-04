@@ -383,7 +383,7 @@ impl FungibleAssetBalance {
         txn_timestamp: chrono::NaiveDateTime,
     ) -> anyhow::Result<Option<(Self, EventToCoinType)>> {
         if let Some(CoinResource::CoinStoreResource(inner)) =
-            &CoinResource::from_write_resource(write_resource, txn_version)?
+            &CoinResource::from_write_resource(write_resource, txn_version, txn_timestamp)?
         {
             let coin_info_type = &CoinInfoType::from_move_type(
                 &write_resource.r#type.as_ref().unwrap().generic_type_params[0],

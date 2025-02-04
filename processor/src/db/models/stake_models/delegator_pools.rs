@@ -10,7 +10,10 @@ use crate::{
         current_delegated_staking_pool_balances, delegated_staking_pool_balances,
         delegated_staking_pools,
     },
-    utils::{counters::PROCESSOR_UNKNOWN_TYPE_COUNT, util::standardize_address},
+    utils::{
+        counters::PROCESSOR_UNKNOWN_TYPE_COUNT,
+        util::{parse_timestamp, standardize_address},
+    },
 };
 use ahash::AHashMap;
 use aptos_protos::transaction::v1::{
@@ -128,6 +131,12 @@ impl DelegatorPool {
             },
         };
         let txn_version = transaction.version as i64;
+        let timestamp = transaction
+            .timestamp
+            .as_ref()
+            .expect("Transaction timestamp doesn't exist!");
+
+        let block_timestamp = parse_timestamp(timestamp, txn_version);
 
         // Do a first pass to get the mapping of active_share table handles to staking pool addresses
         if let TxnData::User(_) = txn_data {
@@ -139,7 +148,7 @@ impl DelegatorPool {
             for wsc in changes {
                 if let Change::WriteResource(write_resource) = wsc.change.as_ref().unwrap() {
                     let maybe_write_resource =
-                        Self::from_write_resource(write_resource, txn_version)?;
+                        Self::from_write_resource(write_resource, txn_version, block_timestamp)?;
                     if let Some((pool, pool_balances, current_pool_balances)) = maybe_write_resource
                     {
                         let staking_pool_address = pool.staking_pool_address.clone();
@@ -161,9 +170,10 @@ impl DelegatorPool {
     pub fn get_delegated_pool_metadata_from_write_resource(
         write_resource: &WriteResource,
         txn_version: i64,
+        block_timestamp: chrono::NaiveDateTime,
     ) -> anyhow::Result<Option<DelegatorPoolBalanceMetadata>> {
         if let Some(StakeResource::DelegationPool(inner)) =
-            StakeResource::from_write_resource(write_resource, txn_version)?
+            StakeResource::from_write_resource(write_resource, txn_version, block_timestamp)?
         {
             let staking_pool_address = standardize_address(&write_resource.address.to_string());
             let total_coins = inner.active_shares.total_coins;
@@ -213,10 +223,13 @@ impl DelegatorPool {
     pub fn from_write_resource(
         write_resource: &WriteResource,
         txn_version: i64,
+        block_timestamp: chrono::NaiveDateTime,
     ) -> anyhow::Result<Option<(Self, DelegatorPoolBalance, CurrentDelegatorPoolBalance)>> {
-        if let Some(balance) =
-            &Self::get_delegated_pool_metadata_from_write_resource(write_resource, txn_version)?
-        {
+        if let Some(balance) = &Self::get_delegated_pool_metadata_from_write_resource(
+            write_resource,
+            txn_version,
+            block_timestamp,
+        )? {
             let staking_pool_address = balance.staking_pool_address.clone();
             let total_coins = balance.total_coins.clone();
             let total_shares = balance.total_shares.clone();

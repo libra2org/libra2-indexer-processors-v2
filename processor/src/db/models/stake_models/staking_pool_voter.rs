@@ -41,9 +41,11 @@ impl CurrentStakingPoolVoter {
         let block_timestamp = parse_timestamp(timestamp, txn_version);
         for wsc in &transaction.info.as_ref().unwrap().changes {
             if let Change::WriteResource(write_resource) = wsc.change.as_ref().unwrap() {
-                if let Some(StakeResource::StakePool(inner)) =
-                    StakeResource::from_write_resource(write_resource, txn_version)?
-                {
+                if let Some(StakeResource::StakePool(inner)) = StakeResource::from_write_resource(
+                    write_resource,
+                    txn_version,
+                    block_timestamp,
+                )? {
                     let staking_pool_address =
                         standardize_address(&write_resource.address.to_string());
                     staking_pool_voters.insert(staking_pool_address.clone(), Self {
