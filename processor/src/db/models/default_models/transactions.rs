@@ -5,7 +5,7 @@
 #![allow(clippy::extra_unused_lifetimes)]
 #![allow(clippy::unused_unit)]
 
-use super::parquet_write_set_changes::{WriteSetChangeDetail, WriteSetChangeModel};
+use super::write_set_changes::{WriteSetChangeDetail, WriteSetChangeModel};
 use crate::{
     bq_analytics::{HasVersion, NamedTable},
     utils::{
