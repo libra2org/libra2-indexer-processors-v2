@@ -44,6 +44,7 @@ use crate::{
         // transaction_metadata_model::write_set_size_info::WriteSetSize,
         // user_transaction_models::user_transactions::UserTransaction,
     },
+    processors::token_v2_processor::TokenV2ProcessorConfig,
 };
 use crate::{
     //     parquet_processors::parquet_ans_processor::ParquetAnsProcessorConfig,
@@ -99,7 +100,7 @@ pub enum ProcessorConfig {
     // FungibleAssetProcessor(DefaultProcessorConfig), // TODO: Add this back when we migrate the processor
     // UserTransactionProcessor(DefaultProcessorConfig), // TODO: Add this back when we migrate the processor
     // StakeProcessor(StakeProcessorConfig), // TODO: Add this back when we migrate the processor
-    // TokenV2Processor(TokenV2ProcessorConfig), // TODO: Add this back when we migrate the processor
+    TokenV2Processor(TokenV2ProcessorConfig),
     // ObjectsProcessor(ObjectsProcessorConfig), // TODO: Add this back when we migrate the processor
     // MonitoringProcessor(DefaultProcessorConfig), // TODO: Add this back when we migrate the processor
     // ParquetProcessor

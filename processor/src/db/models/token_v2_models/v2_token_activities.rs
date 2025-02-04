@@ -9,11 +9,11 @@ use crate::{
     bq_analytics::{HasVersion, NamedTable},
     db::models::{
         object_models::v2_object_utils::ObjectAggregatedDataMapping,
-        token_models::token_utils::{TokenDataIdType, TokenEvent},
-        token_v2_models::{
+        token_models::{
             token_claims::TokenV1Claimed,
-            v2_token_utils::{TokenStandard, V2TokenEvent},
+            token_utils::{TokenDataIdType, TokenEvent},
         },
+        token_v2_models::v2_token_utils::{TokenStandard, V2TokenEvent},
     },
     schema::token_activities_v2,
     utils::util::standardize_address,
@@ -358,11 +358,7 @@ impl TokenActivityV2 {
     }
 }
 
-pub trait TokenActivityV2Convertible {
-    fn from_base(base_item: TokenActivityV2) -> Self;
-}
-
-// Parquet Model
+/// This is a parquet version of TokenActivityV2
 #[derive(
     Allocative, Clone, Debug, Default, Deserialize, FieldCount, ParquetRecordWriter, Serialize,
 )]
@@ -395,30 +391,30 @@ impl HasVersion for ParquetTokenActivityV2 {
     }
 }
 
-impl TokenActivityV2Convertible for ParquetTokenActivityV2 {
-    // TODO: consider returning a Result
-    fn from_base(base_item: TokenActivityV2) -> Self {
+impl From<TokenActivityV2> for ParquetTokenActivityV2 {
+    fn from(raw_item: TokenActivityV2) -> Self {
         Self {
-            txn_version: base_item.transaction_version,
-            event_index: base_item.event_index,
-            event_account_address: base_item.event_account_address,
-            token_data_id: base_item.token_data_id,
-            property_version_v1: base_item.property_version_v1.to_u64().unwrap(),
-            type_: base_item.type_,
-            from_address: base_item.from_address,
-            to_address: base_item.to_address,
-            token_amount: base_item.token_amount.to_string(),
-            before_value: base_item.before_value,
-            after_value: base_item.after_value,
-            entry_function_id_str: base_item.entry_function_id_str,
-            token_standard: base_item.token_standard,
-            is_fungible_v2: base_item.is_fungible_v2,
-            block_timestamp: base_item.transaction_timestamp,
+            txn_version: raw_item.transaction_version,
+            event_index: raw_item.event_index,
+            event_account_address: raw_item.event_account_address,
+            token_data_id: raw_item.token_data_id,
+            property_version_v1: raw_item.property_version_v1.to_u64().unwrap(),
+            type_: raw_item.type_,
+            from_address: raw_item.from_address,
+            to_address: raw_item.to_address,
+            token_amount: raw_item.token_amount.to_string(),
+            before_value: raw_item.before_value,
+            after_value: raw_item.after_value,
+            entry_function_id_str: raw_item.entry_function_id_str,
+            token_standard: raw_item.token_standard,
+            is_fungible_v2: raw_item.is_fungible_v2,
+            block_timestamp: raw_item.transaction_timestamp,
         }
     }
 }
 
-// Postgres Model
+/// This is a postgres version of TokenActivityV2
+
 #[derive(Clone, Debug, Deserialize, FieldCount, Identifiable, Insertable, Serialize)]
 #[diesel(primary_key(transaction_version, event_index))]
 #[diesel(table_name = token_activities_v2)]
@@ -440,24 +436,24 @@ pub struct PostgresTokenActivityV2 {
     pub transaction_timestamp: chrono::NaiveDateTime,
 }
 
-impl TokenActivityV2Convertible for PostgresTokenActivityV2 {
-    fn from_base(base_item: TokenActivityV2) -> Self {
+impl From<TokenActivityV2> for PostgresTokenActivityV2 {
+    fn from(raw_item: TokenActivityV2) -> Self {
         Self {
-            transaction_version: base_item.transaction_version,
-            event_index: base_item.event_index,
-            event_account_address: base_item.event_account_address,
-            token_data_id: base_item.token_data_id,
-            property_version_v1: base_item.property_version_v1,
-            type_: base_item.type_,
-            from_address: base_item.from_address,
-            to_address: base_item.to_address,
-            token_amount: base_item.token_amount,
-            before_value: base_item.before_value,
-            after_value: base_item.after_value,
-            entry_function_id_str: base_item.entry_function_id_str,
-            token_standard: base_item.token_standard,
-            is_fungible_v2: base_item.is_fungible_v2,
-            transaction_timestamp: base_item.transaction_timestamp,
+            transaction_version: raw_item.transaction_version,
+            event_index: raw_item.event_index,
+            event_account_address: raw_item.event_account_address,
+            token_data_id: raw_item.token_data_id,
+            property_version_v1: raw_item.property_version_v1,
+            type_: raw_item.type_,
+            from_address: raw_item.from_address,
+            to_address: raw_item.to_address,
+            token_amount: raw_item.token_amount,
+            before_value: raw_item.before_value,
+            after_value: raw_item.after_value,
+            entry_function_id_str: raw_item.entry_function_id_str,
+            token_standard: raw_item.token_standard,
+            is_fungible_v2: raw_item.is_fungible_v2,
+            transaction_timestamp: raw_item.transaction_timestamp,
         }
     }
 }

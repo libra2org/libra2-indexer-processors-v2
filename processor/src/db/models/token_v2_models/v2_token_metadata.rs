@@ -8,14 +8,13 @@
 use crate::{
     bq_analytics::{HasVersion, NamedTable},
     db::{
+        models::default_models::move_resources::MoveResource,
         models::{
-            default_models::move_resources::MoveResource,
             object_models::v2_object_utils::ObjectAggregatedDataMapping,
             token_models::token_utils::NAME_LENGTH, DEFAULT_NONE,
         },
         resources::{COIN_ADDR, TOKEN_ADDR, TOKEN_V2_ADDR},
     },
-    schema::current_token_v2_metadata,
     utils::util::{standardize_address, truncate_str},
 };
 use allocative_derive::Allocative;
@@ -88,11 +87,8 @@ impl CurrentTokenV2Metadata {
                         return Ok(None);
                     },
                     Err(e) => {
-                        error!(
-                            "Error processing write resource for transaction version {}: {}",
-                            txn_version, e
-                        );
-                        return Err(e);
+                        error!("Error processing write resource: {}", e);
+                        return Err(anyhow::anyhow!("Error processing write resource: {}", e));
                     },
                 };
 
@@ -118,12 +114,7 @@ impl CurrentTokenV2Metadata {
     }
 }
 
-pub trait CurrentTokenV2MetadataConvertible {
-    fn from_base(base_item: CurrentTokenV2Metadata) -> Self;
-}
-
-// Parquet Model
-
+/// This is the parquet version of CurrentTokenV2Metadata
 #[derive(
     Allocative, Clone, Debug, Default, Deserialize, FieldCount, ParquetRecordWriter, Serialize,
 )]
@@ -146,44 +137,18 @@ impl HasVersion for ParquetCurrentTokenV2Metadata {
     }
 }
 
-impl CurrentTokenV2MetadataConvertible for ParquetCurrentTokenV2Metadata {
-    // TODO: consider returning a Result
-    fn from_base(base_item: CurrentTokenV2Metadata) -> Self {
+impl From<CurrentTokenV2Metadata> for ParquetCurrentTokenV2Metadata {
+    fn from(raw_item: CurrentTokenV2Metadata) -> Self {
         Self {
-            object_address: base_item.object_address,
-            resource_type: base_item.resource_type,
-            data: canonical_json::to_string(&base_item.data).unwrap_or_else(|_| {
-                error!("Failed to serialize data to JSON: {:?}", base_item.data);
+            object_address: raw_item.object_address,
+            resource_type: raw_item.resource_type,
+            data: canonical_json::to_string(&raw_item.data).unwrap_or_else(|_| {
+                error!("Failed to serialize data to JSON: {:?}", raw_item.data);
                 DEFAULT_NONE.to_string()
             }),
-            state_key_hash: base_item.state_key_hash,
-            last_transaction_version: base_item.last_transaction_version,
-            last_transaction_timestamp: base_item.last_transaction_timestamp,
-        }
-    }
-}
-
-// Postgres Model
-
-#[derive(Clone, Debug, Deserialize, FieldCount, Identifiable, Insertable, Serialize)]
-#[diesel(primary_key(object_address, resource_type))]
-#[diesel(table_name = current_token_v2_metadata)]
-pub struct PostgresCurrentTokenV2Metadata {
-    pub object_address: String,
-    pub resource_type: String,
-    pub data: Value,
-    pub state_key_hash: String,
-    pub last_transaction_version: i64,
-}
-
-impl CurrentTokenV2MetadataConvertible for PostgresCurrentTokenV2Metadata {
-    fn from_base(base_item: CurrentTokenV2Metadata) -> Self {
-        Self {
-            object_address: base_item.object_address,
-            resource_type: base_item.resource_type,
-            data: base_item.data,
-            state_key_hash: base_item.state_key_hash,
-            last_transaction_version: base_item.last_transaction_version,
+            state_key_hash: raw_item.state_key_hash,
+            last_transaction_version: raw_item.last_transaction_version,
+            last_transaction_timestamp: raw_item.last_transaction_timestamp,
         }
     }
 }

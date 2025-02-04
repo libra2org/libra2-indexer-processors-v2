@@ -19,7 +19,7 @@ use crate::{
         },
         resources::FromWriteResource,
     },
-    schema::{current_token_ownerships_v2, token_ownerships_v2},
+    schema::current_token_ownerships_v2,
     utils::{
         database::{DbContext, DbPoolConnection},
         util::{ensure_not_negative, standardize_address},
@@ -60,10 +60,6 @@ pub struct TokenOwnershipV2 {
     pub non_transferrable_by_owner: Option<bool>,
 }
 
-pub trait TokenOwnershipV2Convertible {
-    fn from_base(base_item: TokenOwnershipV2) -> Self;
-}
-
 #[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
 pub struct CurrentTokenOwnershipV2 {
     pub token_data_id: String,
@@ -95,10 +91,6 @@ impl PartialOrd for CurrentTokenOwnershipV2 {
     fn partial_cmp(&self, other: &Self) -> Option<std::cmp::Ordering> {
         Some(self.cmp(other))
     }
-}
-
-pub trait CurrentTokenOwnershipV2Convertible {
-    fn from_base(base_item: CurrentTokenOwnershipV2) -> Self;
 }
 
 // Facilitate tracking when a token is burned
@@ -660,8 +652,7 @@ impl CurrentTokenOwnershipV2Query {
     }
 }
 
-// Parquet Model
-
+/// This is the parquet version of CurrentTokenOwnershipV2
 #[derive(
     Allocative, Clone, Debug, Default, Deserialize, FieldCount, ParquetRecordWriter, Serialize,
 )]
@@ -692,24 +683,24 @@ impl HasVersion for ParquetTokenOwnershipV2 {
     }
 }
 
-impl TokenOwnershipV2Convertible for ParquetTokenOwnershipV2 {
-    fn from_base(base_item: TokenOwnershipV2) -> Self {
+impl From<TokenOwnershipV2> for ParquetTokenOwnershipV2 {
+    fn from(raw_item: TokenOwnershipV2) -> Self {
         Self {
-            txn_version: base_item.transaction_version,
-            write_set_change_index: base_item.write_set_change_index,
-            token_data_id: base_item.token_data_id,
-            property_version_v1: base_item.property_version_v1.to_u64().unwrap(),
-            owner_address: base_item.owner_address,
-            storage_id: base_item.storage_id,
-            amount: base_item.amount.to_string(),
-            table_type_v1: base_item.table_type_v1,
-            token_properties_mutated_v1: base_item
+            txn_version: raw_item.transaction_version,
+            write_set_change_index: raw_item.write_set_change_index,
+            token_data_id: raw_item.token_data_id,
+            property_version_v1: raw_item.property_version_v1.to_u64().unwrap(),
+            owner_address: raw_item.owner_address,
+            storage_id: raw_item.storage_id,
+            amount: raw_item.amount.to_string(),
+            table_type_v1: raw_item.table_type_v1,
+            token_properties_mutated_v1: raw_item
                 .token_properties_mutated_v1
                 .map(|v| v.to_string()),
-            is_soulbound_v2: base_item.is_soulbound_v2,
-            token_standard: base_item.token_standard,
-            block_timestamp: base_item.transaction_timestamp,
-            non_transferrable_by_owner: base_item.non_transferrable_by_owner,
+            is_soulbound_v2: raw_item.is_soulbound_v2,
+            token_standard: raw_item.token_standard,
+            block_timestamp: raw_item.transaction_timestamp,
+            non_transferrable_by_owner: raw_item.non_transferrable_by_owner,
         }
     }
 }
@@ -745,16 +736,16 @@ impl HasVersion for ParquetCurrentTokenOwnershipV2 {
 }
 
 // Facilitate tracking when a token is burned
-impl CurrentTokenOwnershipV2Convertible for ParquetCurrentTokenOwnershipV2 {
-    fn from_base(base_item: CurrentTokenOwnershipV2) -> Self {
+impl From<CurrentTokenOwnershipV2> for ParquetCurrentTokenOwnershipV2 {
+    fn from(raw_item: CurrentTokenOwnershipV2) -> Self {
         Self {
-            token_data_id: base_item.token_data_id,
-            property_version_v1: base_item.property_version_v1.to_u64().unwrap(),
-            owner_address: base_item.owner_address,
-            storage_id: base_item.storage_id,
-            amount: base_item.amount.to_string(),
-            table_type_v1: base_item.table_type_v1,
-            token_properties_mutated_v1: base_item
+            token_data_id: raw_item.token_data_id,
+            property_version_v1: raw_item.property_version_v1.to_u64().unwrap(),
+            owner_address: raw_item.owner_address,
+            storage_id: raw_item.storage_id,
+            amount: raw_item.amount.to_string(),
+            table_type_v1: raw_item.table_type_v1,
+            token_properties_mutated_v1: raw_item
                 .token_properties_mutated_v1
                 .and_then(|v| {
                     canonical_json::to_string(&v)
@@ -765,58 +756,17 @@ impl CurrentTokenOwnershipV2Convertible for ParquetCurrentTokenOwnershipV2 {
                         .ok()
                 })
                 .or_else(|| Some(DEFAULT_NONE.to_string())),
-            is_soulbound_v2: base_item.is_soulbound_v2,
-            token_standard: base_item.token_standard,
-            is_fungible_v2: base_item.is_fungible_v2,
-            last_transaction_version: base_item.last_transaction_version,
-            last_transaction_timestamp: base_item.last_transaction_timestamp,
-            non_transferrable_by_owner: base_item.non_transferrable_by_owner,
+            is_soulbound_v2: raw_item.is_soulbound_v2,
+            token_standard: raw_item.token_standard,
+            is_fungible_v2: raw_item.is_fungible_v2,
+            last_transaction_version: raw_item.last_transaction_version,
+            last_transaction_timestamp: raw_item.last_transaction_timestamp,
+            non_transferrable_by_owner: raw_item.non_transferrable_by_owner,
         }
     }
 }
 
-// Postgres Model
-
-#[derive(Clone, Debug, Deserialize, FieldCount, Identifiable, Insertable, Serialize)]
-#[diesel(primary_key(transaction_version, write_set_change_index))]
-#[diesel(table_name = token_ownerships_v2)]
-pub struct PostgresTokenOwnershipV2 {
-    pub transaction_version: i64,
-    pub write_set_change_index: i64,
-    pub token_data_id: String,
-    pub property_version_v1: BigDecimal,
-    pub owner_address: Option<String>,
-    pub storage_id: String,
-    pub amount: BigDecimal,
-    pub table_type_v1: Option<String>,
-    pub token_properties_mutated_v1: Option<serde_json::Value>,
-    pub is_soulbound_v2: Option<bool>,
-    pub token_standard: String,
-    pub is_fungible_v2: Option<bool>,
-    pub transaction_timestamp: chrono::NaiveDateTime,
-    pub non_transferrable_by_owner: Option<bool>,
-}
-
-impl TokenOwnershipV2Convertible for PostgresTokenOwnershipV2 {
-    fn from_base(base_item: TokenOwnershipV2) -> Self {
-        Self {
-            transaction_version: base_item.transaction_version,
-            write_set_change_index: base_item.write_set_change_index,
-            token_data_id: base_item.token_data_id,
-            property_version_v1: base_item.property_version_v1,
-            owner_address: base_item.owner_address,
-            storage_id: base_item.storage_id,
-            amount: base_item.amount,
-            table_type_v1: base_item.table_type_v1,
-            token_properties_mutated_v1: base_item.token_properties_mutated_v1,
-            is_soulbound_v2: base_item.is_soulbound_v2,
-            token_standard: base_item.token_standard,
-            is_fungible_v2: base_item.is_fungible_v2,
-            transaction_timestamp: base_item.transaction_timestamp,
-            non_transferrable_by_owner: base_item.non_transferrable_by_owner,
-        }
-    }
-}
+/// This is the postgres version of CurrentTokenOwnershipV2
 #[derive(
     Clone, Debug, Deserialize, Eq, FieldCount, Identifiable, Insertable, PartialEq, Serialize,
 )]
@@ -854,22 +804,22 @@ impl PartialOrd for PostgresCurrentTokenOwnershipV2 {
     }
 }
 
-impl CurrentTokenOwnershipV2Convertible for PostgresCurrentTokenOwnershipV2 {
-    fn from_base(base_item: CurrentTokenOwnershipV2) -> Self {
+impl From<CurrentTokenOwnershipV2> for PostgresCurrentTokenOwnershipV2 {
+    fn from(raw_item: CurrentTokenOwnershipV2) -> Self {
         Self {
-            token_data_id: base_item.token_data_id,
-            property_version_v1: base_item.property_version_v1,
-            owner_address: base_item.owner_address,
-            storage_id: base_item.storage_id,
-            amount: base_item.amount,
-            table_type_v1: base_item.table_type_v1,
-            token_properties_mutated_v1: base_item.token_properties_mutated_v1,
-            is_soulbound_v2: base_item.is_soulbound_v2,
-            token_standard: base_item.token_standard,
-            is_fungible_v2: base_item.is_fungible_v2,
-            last_transaction_version: base_item.last_transaction_version,
-            last_transaction_timestamp: base_item.last_transaction_timestamp,
-            non_transferrable_by_owner: base_item.non_transferrable_by_owner,
+            token_data_id: raw_item.token_data_id,
+            property_version_v1: raw_item.property_version_v1,
+            owner_address: raw_item.owner_address,
+            storage_id: raw_item.storage_id,
+            amount: raw_item.amount,
+            table_type_v1: raw_item.table_type_v1,
+            token_properties_mutated_v1: raw_item.token_properties_mutated_v1,
+            is_soulbound_v2: raw_item.is_soulbound_v2,
+            token_standard: raw_item.token_standard,
+            is_fungible_v2: raw_item.is_fungible_v2,
+            last_transaction_version: raw_item.last_transaction_version,
+            last_transaction_timestamp: raw_item.last_transaction_timestamp,
+            non_transferrable_by_owner: raw_item.non_transferrable_by_owner,
         }
     }
 }

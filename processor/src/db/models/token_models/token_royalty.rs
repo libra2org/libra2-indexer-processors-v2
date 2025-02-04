@@ -99,11 +99,7 @@ impl CurrentTokenRoyaltyV1 {
     }
 }
 
-pub trait CurrentTokenRoyaltyV1Convertible {
-    fn from_base(base_item: CurrentTokenRoyaltyV1) -> Self;
-}
-
-// Parquet Model
+/// This is a parquet version of CurrentTokenRoyaltyV1
 #[derive(
     Allocative, Clone, Debug, Default, Deserialize, FieldCount, ParquetRecordWriter, Serialize,
 )]
@@ -127,21 +123,20 @@ impl HasVersion for ParquetCurrentTokenRoyaltyV1 {
     }
 }
 
-impl CurrentTokenRoyaltyV1Convertible for ParquetCurrentTokenRoyaltyV1 {
-    // TODO: consider returning a Result
-    fn from_base(base_item: CurrentTokenRoyaltyV1) -> Self {
+impl From<CurrentTokenRoyaltyV1> for ParquetCurrentTokenRoyaltyV1 {
+    fn from(raw_item: CurrentTokenRoyaltyV1) -> Self {
         Self {
-            token_data_id: base_item.token_data_id,
-            payee_address: base_item.payee_address,
-            royalty_points_numerator: base_item.royalty_points_numerator.to_string(),
-            royalty_points_denominator: base_item.royalty_points_denominator.to_string(),
-            last_transaction_version: base_item.last_transaction_version,
-            last_transaction_timestamp: base_item.last_transaction_timestamp,
+            token_data_id: raw_item.token_data_id,
+            payee_address: raw_item.payee_address,
+            royalty_points_numerator: raw_item.royalty_points_numerator.to_string(),
+            royalty_points_denominator: raw_item.royalty_points_denominator.to_string(),
+            last_transaction_version: raw_item.last_transaction_version,
+            last_transaction_timestamp: raw_item.last_transaction_timestamp,
         }
     }
 }
 
-// Postgres Model
+/// This is a postgres version of CurrentTokenRoyaltyV1
 #[derive(
     Clone, Debug, Deserialize, FieldCount, Identifiable, Insertable, Serialize, PartialEq, Eq,
 )]
@@ -167,15 +162,15 @@ impl PartialOrd for PostgresCurrentTokenRoyaltyV1 {
     }
 }
 
-impl CurrentTokenRoyaltyV1Convertible for PostgresCurrentTokenRoyaltyV1 {
-    fn from_base(base_item: CurrentTokenRoyaltyV1) -> Self {
+impl From<CurrentTokenRoyaltyV1> for PostgresCurrentTokenRoyaltyV1 {
+    fn from(raw_item: CurrentTokenRoyaltyV1) -> Self {
         Self {
-            token_data_id: base_item.token_data_id,
-            payee_address: base_item.payee_address,
-            royalty_points_numerator: base_item.royalty_points_numerator,
-            royalty_points_denominator: base_item.royalty_points_denominator,
-            last_transaction_version: base_item.last_transaction_version,
-            last_transaction_timestamp: base_item.last_transaction_timestamp,
+            token_data_id: raw_item.token_data_id,
+            payee_address: raw_item.payee_address,
+            royalty_points_numerator: raw_item.royalty_points_numerator,
+            royalty_points_denominator: raw_item.royalty_points_denominator,
+            last_transaction_version: raw_item.last_transaction_version,
+            last_transaction_timestamp: raw_item.last_transaction_timestamp,
         }
     }
 }
