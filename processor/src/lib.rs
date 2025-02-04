@@ -14,3 +14,5 @@ extern crate parquet_derive;
 
 #[path = "db/schema.rs"]
 pub mod schema;
+
+pub mod processors;
