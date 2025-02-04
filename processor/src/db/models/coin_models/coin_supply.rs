@@ -6,7 +6,7 @@
 #![allow(clippy::unused_unit)]
 
 use crate::{
-    db::models::new_default_models::table_items::TableItem,
+    db::models::default_models::table_items::{PostgresTableItem, TableItem},
     schema::coin_supply,
     utils::util::{hash_str, APTOS_COIN_TYPE_STR},
 };
@@ -15,7 +15,6 @@ use aptos_protos::transaction::v1::WriteTableItem;
 use bigdecimal::BigDecimal;
 use field_count::FieldCount;
 use serde::{Deserialize, Serialize};
-
 const APTOS_COIN_SUPPLY_TABLE_HANDLE: &str =
     "0x1b854694ae746cdbd8d44186ca4929b2b337df21d1c74633be19b2710552fdca";
 const APTOS_COIN_SUPPLY_TABLE_KEY: &str =
@@ -52,22 +51,24 @@ impl CoinSupply {
                 return Ok(None);
             }
 
-            // Convert to TableItem model. Some fields are just placeholders
-            let table_item_model = TableItem::postgres_table_item_from_write_item(
-                write_table_item,
-                0,
-                txn_version,
-                0,
-                txn_timestamp,
-            );
+            let table_item = {
+                let (table_item, _) = TableItem::from_write_table_item(
+                    write_table_item,
+                    0,
+                    txn_version,
+                    0,
+                    txn_timestamp,
+                );
+                PostgresTableItem::from(table_item)
+            };
 
             // Return early if not aptos coin aggregator key
-            let table_key = table_item_model.decoded_key.as_str().unwrap();
+            let table_key = table_item.decoded_key.as_str().unwrap();
             if table_key != APTOS_COIN_SUPPLY_TABLE_KEY {
                 return Ok(None);
             }
             // Everything matches. Get the coin supply
-            let supply = table_item_model
+            let supply = table_item
                 .decoded_value
                 .as_ref()
                 .unwrap()
@@ -76,7 +77,7 @@ impl CoinSupply {
                 .parse::<BigDecimal>()
                 .context(format!(
                     "cannot parse string as u128: {:?}, version {}",
-                    table_item_model.decoded_value.as_ref(),
+                    table_item.decoded_value.as_ref(),
                     txn_version
                 ))?;
             return Ok(Some(Self {

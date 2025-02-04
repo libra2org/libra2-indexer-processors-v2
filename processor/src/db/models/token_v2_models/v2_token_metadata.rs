@@ -9,7 +9,7 @@ use crate::{
     bq_analytics::{GetTimeStamp, HasVersion, NamedTable},
     db::{
         models::{
-            new_default_models::move_resources::MoveResource,
+            default_models::move_resources::MoveResource,
             object_models::v2_object_utils::ObjectAggregatedDataMapping,
             token_models::token_utils::NAME_LENGTH, DEFAULT_NONE,
         },

@@ -2,11 +2,11 @@
 // SPDX-License-Identifier: Apache-2.0
 
 use crate::db::models::{
+    default_models::move_resources::MoveResource,
     fungible_asset_models::v2_fungible_asset_utils::{
         ConcurrentFungibleAssetBalance, ConcurrentFungibleAssetSupply, FungibleAssetMetadata,
         FungibleAssetStore, FungibleAssetSupply,
     },
-    new_default_models::move_resources::MoveResource,
     object_models::v2_object_utils::{ObjectCore, Untransferable},
     token_v2_models::v2_token_utils::{
         AptosCollection, Collection, ConcurrentSupply, FixedSupply, PropertyMapModel,
