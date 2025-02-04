@@ -15,16 +15,11 @@ use crate::{
     },
     schema,
 };
-use anyhow::bail;
-use async_trait::async_trait;
 use diesel::{
     pg::{upsert::excluded, Pg},
     query_builder::QueryFragment,
     ExpressionMethods,
 };
-use serde::{Deserialize, Serialize};
-use std::fmt::Debug;
-use tracing::error;
 
 pub fn insert_current_collections_v2_query(
     items_to_insert: Vec<CurrentCollectionV2>,

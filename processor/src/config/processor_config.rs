@@ -231,6 +231,7 @@ impl ProcessorConfig {
     }
 
     /// This is to validate table_name for the backfill table
+    #[allow(dead_code)]
     fn validate_backfill_table_names(
         table_names: &HashSet<String>,
         valid_table_names: &HashSet<String>,

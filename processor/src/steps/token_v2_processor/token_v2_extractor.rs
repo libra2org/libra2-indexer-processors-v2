@@ -1,4 +1,3 @@
-use crate::utils::database::ArcDbPool;
 use crate::{
     db::models::{
         token_models::{
@@ -12,7 +11,7 @@ use crate::{
         },
     },
     parsing::token_v2_processor_helpers::parse_v2_token,
-    utils::database::DbContext,
+    utils::database::{ArcDbPool, DbContext},
 };
 use aptos_indexer_processor_sdk::{
     aptos_protos::transaction::v1::Transaction,

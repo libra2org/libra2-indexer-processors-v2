@@ -73,13 +73,22 @@ tonic = { workspace = true }
 tracing = { workspace = true }
 unescape = { workspace = true }
 url = { workspace = true }
-aptos-indexer-processor-sdk = { workspace = true }
-aptos-indexer-processor-sdk-server-framework = { workspace = true }
-aptos-indexer-testing-framework = { workspace = true }
 
 jemallocator = { workspace = true }
 log = "0.4.22"
 
+<<<<<<< HEAD
+=======
+# Postgres SSL support
+native-tls = { workspace = true }
+postgres-native-tls = { workspace = true }
+tiny-keccak = { workspace = true }
+tokio-postgres = { workspace = true }
+
+# Parquet support
+parquet = { workspace = true }
+parquet_derive = { workspace = true }
+>>>>>>> a2bbe1a (comments and fix lint)
 
 [target.'cfg(unix)'.dependencies]
 jemallocator = { workspace = true }

@@ -470,7 +470,7 @@ pub fn convert_bcs_hex_new(typ: u8, value: String) -> Option<String> {
 /// Convert the json serialized PropertyMap's inner BCS fields to their original value in string format
 pub fn convert_bcs_propertymap(s: Value) -> Option<Value> {
     match PropertyMap::from_bcs_encode_str(s) {
-        #[allow(clippy::manual_ok_err)] // TODO: fix this
+        // #[allow(clippy::manual_ok_err)] // TODO: fix this
         Some(e) => match serde_json::to_value(&e) {
             Ok(val) => Some(val),
             Err(_) => None,
@@ -481,7 +481,7 @@ pub fn convert_bcs_propertymap(s: Value) -> Option<Value> {
 
 pub fn convert_bcs_token_object_propertymap(s: Value) -> Option<Value> {
     match TokenObjectPropertyMap::from_bcs_encode_str(s) {
-        #[allow(clippy::manual_ok_err)] // TODO: fix this
+        // #[allow(clippy::manual_ok_err)] // TODO: fix this
         Some(e) => match serde_json::to_value(&e) {
             Ok(val) => Some(val),
             Err(_) => None,

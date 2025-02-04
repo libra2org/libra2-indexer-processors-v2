@@ -3,8 +3,8 @@
 
 use crate::{
     db::{
-        models::fungible_asset_models::v2_fungible_asset_utils::FungibleAssetMetadata,
         models::{
+            fungible_asset_models::v2_fungible_asset_utils::FungibleAssetMetadata,
             object_models::v2_object_utils::{
                 ObjectAggregatedData, ObjectAggregatedDataMapping, ObjectWithMetadata,
             },

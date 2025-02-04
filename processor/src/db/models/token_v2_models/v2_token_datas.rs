@@ -418,8 +418,6 @@ impl From<CurrentTokenDataV2> for ParquetCurrentTokenDataV2 {
     }
 }
 
-/// This is a postgres version of TokenDataV2
-
 // PK of current_token_datas_v2, i.e. token_data_id
 pub type CurrentTokenDataV2PK = String;
 

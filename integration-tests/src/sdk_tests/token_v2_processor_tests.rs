@@ -1,6 +1,6 @@
 use ahash::AHashMap;
 use aptos_indexer_testing_framework::sdk_test_context::SdkTestContext;
-use sdk_processor::{
+use processor::{
     config::{
         db_config::{DbConfig, PostgresConfig},
         indexer_processor_config::IndexerProcessorConfig,
@@ -77,7 +77,7 @@ mod sdk_token_v2_processor_tests {
         IMPORTED_MAINNET_TXNS_999930475_TOKEN_V2_CONCURRENT_MINT,
     };
     use aptos_indexer_testing_framework::{cli_parser::get_test_config, database::TestDatabase};
-    use sdk_processor::processors::token_v2_processor::TokenV2Processor;
+    use processor::processors::token_v2_processor::TokenV2Processor;
 
     /**
     * This test includes processing for the following:

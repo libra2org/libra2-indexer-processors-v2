@@ -1,24 +1,23 @@
 use crate::{
-    db::models::{
-        token_models::{
-            token_claims::PostgresCurrentTokenPendingClaim,
-            token_royalty::PostgresCurrentTokenRoyaltyV1,
+    db::{
+        models::{
+            token_models::{
+                token_claims::PostgresCurrentTokenPendingClaim,
+                token_royalty::PostgresCurrentTokenRoyaltyV1,
+            },
+            token_v2_models::{
+                v2_collections::CurrentCollectionV2, v2_token_activities::PostgresTokenActivityV2,
+                v2_token_datas::PostgresCurrentTokenDataV2,
+                v2_token_ownerships::PostgresCurrentTokenOwnershipV2,
+            },
         },
-        token_v2_models::{
-            v2_collections::{CollectionV2, CurrentCollectionV2},
-            v2_token_activities::PostgresTokenActivityV2,
-            v2_token_datas::PostgresCurrentTokenDataV2,
-            v2_token_ownerships::PostgresCurrentTokenOwnershipV2,
+        queries::token_v2_processor_queries::{
+            insert_current_collections_v2_query, insert_current_deleted_token_datas_v2_query,
+            insert_current_deleted_token_ownerships_v2_query, insert_current_token_claims_query,
+            insert_current_token_datas_v2_query, insert_current_token_ownerships_v2_query,
+            insert_current_token_royalties_v1_query, insert_token_activities_v2_query,
         },
     },
-    db::queries::token_v2_processor_queries::{
-        insert_current_collections_v2_query, insert_current_deleted_token_datas_v2_query,
-        insert_current_deleted_token_ownerships_v2_query, insert_current_token_claims_query,
-        insert_current_token_datas_v2_query, insert_current_token_ownerships_v2_query,
-        insert_current_token_royalties_v1_query, insert_token_activities_v2_query,
-    },
-};
-use crate::{
     processors::token_v2_processor::TokenV2ProcessorConfig,
     utils::database::{execute_in_chunks, get_config_table_chunk_size, ArcDbPool},
 };

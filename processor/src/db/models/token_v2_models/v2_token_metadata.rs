@@ -8,8 +8,8 @@
 use crate::{
     bq_analytics::{HasVersion, NamedTable},
     db::{
-        models::default_models::move_resources::MoveResource,
         models::{
+            default_models::move_resources::MoveResource,
             object_models::v2_object_utils::ObjectAggregatedDataMapping,
             token_models::token_utils::NAME_LENGTH, DEFAULT_NONE,
         },
