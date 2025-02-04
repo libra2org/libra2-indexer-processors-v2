@@ -57,6 +57,13 @@ tonic = { workspace = true }
 tracing = { workspace = true }
 unescape = { workspace = true }
 url = { workspace = true }
+aptos-indexer-processor-sdk = { workspace = true }
+aptos-indexer-processor-sdk-server-framework = { workspace = true }
+aptos-indexer-testing-framework = { workspace = true }
+
+jemallocator = { workspace = true }
+log = "0.4.22"
+
 
 # Postgres SSL support
 native-tls = { workspace = true }

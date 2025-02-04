@@ -10,6 +10,7 @@ use parquet_derive::ParquetRecordWriter;
 use serde::{Deserialize, Serialize};
 
 /// TableItem is a struct that will be used to converted into Postgres or Parquet TableItem
+#[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct TableItem {
     pub txn_version: i64,
     pub block_timestamp: chrono::NaiveDateTime,

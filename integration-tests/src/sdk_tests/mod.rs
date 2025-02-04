@@ -26,8 +26,8 @@ use std::{
 // #[cfg(test)]
 // pub mod account_transaction_processor_tests;
 
-// #[cfg(test)]
-// pub mod default_processor_tests;
+#[cfg(test)]
+pub mod default_processor_tests;
 
 // #[cfg(test)]
 // pub mod objects_processor_tests;

@@ -80,8 +80,8 @@ pub struct PostgresBlockMetadataTransaction {
     pub timestamp: chrono::NaiveDateTime,
 }
 
-impl BlockMetadataTransactionConvertible for PostgresBlockMetadataTransaction {
-    fn from_base(base_item: BlockMetadataTransaction) -> Self {
+impl From<BlockMetadataTransaction> for PostgresBlockMetadataTransaction {
+    fn from(base_item: BlockMetadataTransaction) -> Self {
         PostgresBlockMetadataTransaction {
             version: base_item.version,
             block_height: base_item.block_height,
@@ -100,10 +100,6 @@ impl BlockMetadataTransactionConvertible for PostgresBlockMetadataTransaction {
             timestamp: base_item.timestamp,
         }
     }
-}
-
-pub trait BlockMetadataTransactionConvertible {
-    fn from_base(base_item: BlockMetadataTransaction) -> Self;
 }
 
 // Parquet Model
@@ -140,8 +136,8 @@ impl GetTimeStamp for ParquetBlockMetadataTransaction {
     }
 }
 
-impl BlockMetadataTransactionConvertible for ParquetBlockMetadataTransaction {
-    fn from_base(base_item: BlockMetadataTransaction) -> Self {
+impl From<BlockMetadataTransaction> for ParquetBlockMetadataTransaction {
+    fn from(base_item: BlockMetadataTransaction) -> Self {
         ParquetBlockMetadataTransaction {
             txn_version: base_item.version,
             block_height: base_item.block_height,
@@ -211,7 +207,7 @@ mod tests {
             ns_since_unix_epoch: compute_nanos_since_epoch(time_stamp),
         };
 
-        let block_metadata_transaction = ParquetBlockMetadataTransaction::from_base(base);
+        let block_metadata_transaction = ParquetBlockMetadataTransaction::from(base);
 
         assert_eq!(block_metadata_transaction.txn_version, 1);
         assert_eq!(block_metadata_transaction.block_height, 1);
