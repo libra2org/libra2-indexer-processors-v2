@@ -4,7 +4,7 @@
 #![allow(clippy::extra_unused_lifetimes)]
 
 use crate::{
-    bq_analytics::{GetTimeStamp, HasVersion, NamedTable},
+    bq_analytics::{HasVersion, NamedTable},
     utils::util::standardize_address,
 };
 use allocative_derive::Allocative;
@@ -15,9 +15,9 @@ use field_count::FieldCount;
 use parquet_derive::ParquetRecordWriter;
 use serde::{Deserialize, Serialize};
 
-#[derive(
-    Allocative, Clone, Debug, Default, Deserialize, FieldCount, ParquetRecordWriter, Serialize,
-)]
+/// Base model for the move_modules table.
+/// Types of some of the fields were determined using String instead of json since this table is only used for parquet at the time of writing.
+#[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct MoveModule {
     pub txn_version: i64,
     pub write_set_change_index: i64,
@@ -29,24 +29,7 @@ pub struct MoveModule {
     pub friends: Option<String>,
     pub structs: Option<String>,
     pub is_deleted: bool,
-    #[allocative(skip)]
     pub block_timestamp: chrono::NaiveDateTime,
-}
-
-impl NamedTable for MoveModule {
-    const TABLE_NAME: &'static str = "move_modules";
-}
-
-impl HasVersion for MoveModule {
-    fn version(&self) -> i64 {
-        self.txn_version
-    }
-}
-
-impl GetTimeStamp for MoveModule {
-    fn get_timestamp(&self) -> chrono::NaiveDateTime {
-        self.block_timestamp
-    }
 }
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
@@ -150,6 +133,54 @@ impl MoveModule {
                 .map(|move_struct| serde_json::to_value(move_struct).unwrap())
                 .map(|value| canonical_json::to_string(&value).unwrap())
                 .collect(),
+        }
+    }
+}
+
+#[derive(
+    Allocative, Clone, Debug, Default, Deserialize, FieldCount, ParquetRecordWriter, Serialize,
+)]
+pub struct ParquetMoveModule {
+    pub txn_version: i64,
+    pub write_set_change_index: i64,
+    pub block_height: i64,
+    pub name: String,
+    pub address: String,
+    pub bytecode: Vec<u8>,
+    pub exposed_functions: Option<String>,
+    pub friends: Option<String>,
+    pub structs: Option<String>,
+    pub is_deleted: bool,
+    #[allocative(skip)]
+    pub block_timestamp: chrono::NaiveDateTime,
+}
+
+// TODO: revisit and remove this if we can.
+impl NamedTable for ParquetMoveModule {
+    const TABLE_NAME: &'static str = "move_modules";
+}
+
+// TODO: revisit and remove this if we can. this is currently onlyed used to log the version of the table when the parquet is written.
+impl HasVersion for ParquetMoveModule {
+    fn version(&self) -> i64 {
+        self.txn_version
+    }
+}
+
+impl From<MoveModule> for ParquetMoveModule {
+    fn from(move_module: MoveModule) -> Self {
+        ParquetMoveModule {
+            txn_version: move_module.txn_version,
+            write_set_change_index: move_module.write_set_change_index,
+            block_height: move_module.block_height,
+            name: move_module.name,
+            address: move_module.address,
+            bytecode: move_module.bytecode,
+            exposed_functions: move_module.exposed_functions,
+            friends: move_module.friends,
+            structs: move_module.structs,
+            is_deleted: move_module.is_deleted,
+            block_timestamp: move_module.block_timestamp,
         }
     }
 }

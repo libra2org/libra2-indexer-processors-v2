@@ -4,7 +4,7 @@
 #![allow(clippy::extra_unused_lifetimes)]
 
 use super::{
-    parquet_move_modules::MoveModule,
+    move_modules::MoveModule,
     table_items::{
         ParquetCurrentTableItem, ParquetTableItem, ParquetTableMetadata, TableItem, TableMetadata,
     },
