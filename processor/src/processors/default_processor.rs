@@ -106,13 +106,13 @@ impl ProcessorTrait for DefaultProcessor {
             ..self.config.transaction_stream_config.clone()
         })
         .await?;
+<<<<<<< HEAD
         let default_extractor = DefaultExtractor {};
         let default_storer =
             DefaultStorer::new(self.db_pool.clone(), processor_config, tables_to_write);
-        let version_tracker = VersionTrackerStep::new(
-            get_processor_status_saver(self.db_pool.clone(), self.config.clone()),
-            DEFAULT_UPDATE_PROCESSOR_STATUS_SECS,
-        );
+        let default_extractor = DefaultExtractor {
+            deprecated_table_flags,
+        };
 
         // Connect processor steps together
         let (_, buffer_receiver) = ProcessorBuilder::new_with_inputless_first_step(
