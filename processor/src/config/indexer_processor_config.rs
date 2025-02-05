@@ -4,7 +4,10 @@
 use super::{db_config::DbConfig, processor_config::ProcessorConfig};
 use crate::{
     parquet_processors::parquet_default_processor::ParquetDefaultProcessor,
-    processors::{default_processor::DefaultProcessor, token_v2_processor::TokenV2Processor},
+    processors::{
+        default_processor::DefaultProcessor, events_processor::EventsProcessor,
+        token_v2_processor::TokenV2Processor,
+    },
 };
 use anyhow::Result;
 use aptos_indexer_processor_sdk::{
@@ -46,10 +49,10 @@ impl RunnableConfig for IndexerProcessorConfig {
                 let default_processor = DefaultProcessor::new(self.clone()).await?;
                 default_processor.run_processor().await
             },
-            // ProcessorConfig::EventsProcessor(_) => {
-            //     let events_processor = EventsProcessor::new(self.clone()).await?;
-            //     events_processor.run_processor().await
-            // },
+            ProcessorConfig::EventsProcessor(_) => {
+                let events_processor = EventsProcessor::new(self.clone()).await?;
+                events_processor.run_processor().await
+            },
             // ProcessorConfig::FungibleAssetProcessor(_) => {
             //     let fungible_asset_processor = FungibleAssetProcessor::new(self.clone()).await?;
             //     fungible_asset_processor.run_processor().await
