@@ -32,7 +32,7 @@ pub type TokenStandardType = String;
 type CurrentAnsLookupV2PK = (Domain, Subdomain, TokenStandardType);
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
-pub struct RawAnsLookupV2 {
+pub struct AnsLookupV2 {
     pub transaction_version: i64,
     pub write_set_change_index: i64,
     pub domain: String,
@@ -45,12 +45,8 @@ pub struct RawAnsLookupV2 {
     pub subdomain_expiration_policy: Option<i64>,
 }
 
-pub trait AnsLookupV2Convertible {
-    fn from_raw(raw_item: RawAnsLookupV2) -> Self;
-}
-
 #[derive(Clone, Debug, Deserialize, Serialize, PartialEq, Eq)]
-pub struct RawCurrentAnsLookupV2 {
+pub struct CurrentAnsLookupV2 {
     pub domain: String,
     pub subdomain: String,
     pub token_standard: String,
@@ -62,7 +58,7 @@ pub struct RawCurrentAnsLookupV2 {
     pub subdomain_expiration_policy: Option<i64>,
 }
 
-impl Ord for RawCurrentAnsLookupV2 {
+impl Ord for CurrentAnsLookupV2 {
     fn cmp(&self, other: &Self) -> std::cmp::Ordering {
         self.domain
             .cmp(&other.domain)
@@ -70,7 +66,7 @@ impl Ord for RawCurrentAnsLookupV2 {
     }
 }
 
-impl PartialOrd for RawCurrentAnsLookupV2 {
+impl PartialOrd for CurrentAnsLookupV2 {
     fn partial_cmp(&self, other: &Self) -> Option<std::cmp::Ordering> {
         Some(self.cmp(other))
     }
@@ -101,8 +97,8 @@ impl HasVersion for ParquetAnsLookupV2 {
     }
 }
 
-impl AnsLookupV2Convertible for ParquetAnsLookupV2 {
-    fn from_raw(raw_item: RawAnsLookupV2) -> Self {
+impl From<AnsLookupV2> for ParquetAnsLookupV2 {
+    fn from(raw_item: AnsLookupV2) -> Self {
         ParquetAnsLookupV2 {
             transaction_version: raw_item.transaction_version,
             write_set_change_index: raw_item.write_set_change_index,
@@ -142,8 +138,8 @@ impl HasVersion for ParquetCurrentAnsLookupV2 {
     }
 }
 
-impl CurrentAnsLookupV2Convertible for ParquetCurrentAnsLookupV2 {
-    fn from_raw(raw_item: RawCurrentAnsLookupV2) -> Self {
+impl From<CurrentAnsLookupV2> for ParquetCurrentAnsLookupV2 {
+    fn from(raw_item: CurrentAnsLookupV2) -> Self {
         ParquetCurrentAnsLookupV2 {
             domain: raw_item.domain,
             subdomain: raw_item.subdomain,
@@ -175,8 +171,8 @@ pub struct PostgresAnsLookupV2 {
     pub subdomain_expiration_policy: Option<i64>,
 }
 
-impl AnsLookupV2Convertible for PostgresAnsLookupV2 {
-    fn from_raw(raw_item: RawAnsLookupV2) -> Self {
+impl From<AnsLookupV2> for PostgresAnsLookupV2 {
+    fn from(raw_item: AnsLookupV2) -> Self {
         PostgresAnsLookupV2 {
             transaction_version: raw_item.transaction_version,
             write_set_change_index: raw_item.write_set_change_index,
@@ -219,8 +215,8 @@ pub struct PostgresCurrentAnsLookupV2 {
     pub subdomain_expiration_policy: Option<i64>,
 }
 
-impl CurrentAnsLookupV2Convertible for PostgresCurrentAnsLookupV2 {
-    fn from_raw(raw_item: RawCurrentAnsLookupV2) -> Self {
+impl From<CurrentAnsLookupV2> for PostgresCurrentAnsLookupV2 {
+    fn from(raw_item: CurrentAnsLookupV2) -> Self {
         PostgresCurrentAnsLookupV2 {
             domain: raw_item.domain,
             subdomain: raw_item.subdomain,
@@ -235,7 +231,7 @@ impl CurrentAnsLookupV2Convertible for PostgresCurrentAnsLookupV2 {
     }
 }
 
-impl RawCurrentAnsLookupV2 {
+impl CurrentAnsLookupV2 {
     pub fn pk(&self) -> CurrentAnsLookupV2PK {
         (
             self.domain.clone(),
@@ -247,7 +243,7 @@ impl RawCurrentAnsLookupV2 {
     pub fn get_v2_from_v1(
         v1_current_ans_lookup: CurrentAnsLookup,
         v1_ans_lookup: AnsLookup,
-    ) -> (Self, RawAnsLookupV2) {
+    ) -> (Self, AnsLookupV2) {
         (
             Self {
                 domain: v1_current_ans_lookup.domain,
@@ -260,7 +256,7 @@ impl RawCurrentAnsLookupV2 {
                 is_deleted: v1_current_ans_lookup.is_deleted,
                 subdomain_expiration_policy: None,
             },
-            RawAnsLookupV2 {
+            AnsLookupV2 {
                 transaction_version: v1_ans_lookup.transaction_version,
                 write_set_change_index: v1_ans_lookup.write_set_change_index,
                 domain: v1_ans_lookup.domain,
@@ -281,7 +277,7 @@ impl RawCurrentAnsLookupV2 {
         txn_version: i64,
         write_set_change_index: i64,
         address_to_subdomain_ext: &AHashMap<String, SubdomainExtV2>,
-    ) -> anyhow::Result<Option<(Self, RawAnsLookupV2)>> {
+    ) -> anyhow::Result<Option<(Self, AnsLookupV2)>> {
         if let Some(inner) =
             NameRecordV2::from_write_resource(write_resource, ans_v2_contract_address, txn_version)
                 .unwrap()
@@ -311,7 +307,7 @@ impl RawCurrentAnsLookupV2 {
                     is_deleted: false,
                     subdomain_expiration_policy,
                 },
-                RawAnsLookupV2 {
+                AnsLookupV2 {
                     transaction_version: txn_version,
                     write_set_change_index,
                     domain: inner.get_domain_trunc().clone(),
@@ -327,8 +323,4 @@ impl RawCurrentAnsLookupV2 {
         }
         Ok(None)
     }
-}
-
-pub trait CurrentAnsLookupV2Convertible {
-    fn from_raw(raw_item: RawCurrentAnsLookupV2) -> Self;
 }
