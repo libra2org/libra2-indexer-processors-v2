@@ -4,11 +4,7 @@ use crate::{
         db_config::DbConfig, indexer_processor_config::IndexerProcessorConfig,
         processor_config::ProcessorConfig,
     },
-    db::models::stake_models::{
-        delegator_activities::ParquetDelegatedStakingActivity,
-        delegator_balances::{ParquetCurrentDelegatorBalance, ParquetDelegatorBalance},
-        proposal_votes::ParquetProposalVote,
-    },
+    db::models::event_models::events::ParquetEvent,
     parquet_processors::{
         initialize_database_pool, initialize_gcs_client, initialize_parquet_buffer_step,
         set_backfill_table_flag, ParquetTypeEnum,
@@ -18,7 +14,7 @@ use crate::{
             parquet_version_tracker_step::ParquetVersionTrackerStep,
             processor_status_saver::get_processor_status_saver,
         },
-        parquet_processor_steps::parquet_stake_processor::parquet_stake_extractor::ParquetStakeExtractor,
+        parquet_processor_steps::parquet_events_processor::parquet_events_extractor::ParquetEventsExtractor,
     },
     utils::{
         chain_id::check_or_update_chain_id,
@@ -37,20 +33,19 @@ use parquet::schema::types::Type;
 use std::{collections::HashMap, sync::Arc};
 use tracing::{debug, info};
 
-pub struct ParquetStakeProcessor {
+pub struct ParquetEventsProcessor {
     pub config: IndexerProcessorConfig,
-    pub db_pool: ArcDbPool,
+    pub db_pool: ArcDbPool, // for processor status
 }
 
-impl ParquetStakeProcessor {
+impl ParquetEventsProcessor {
     pub async fn new(config: IndexerProcessorConfig) -> anyhow::Result<Self> {
         let db_pool = initialize_database_pool(&config.db_config).await?;
         Ok(Self { config, db_pool })
     }
 }
-
 #[async_trait::async_trait]
-impl ProcessorTrait for ParquetStakeProcessor {
+impl ProcessorTrait for ParquetEventsProcessor {
     fn name(&self) -> &'static str {
         self.config.processor_config.name()
     }
@@ -68,7 +63,7 @@ impl ProcessorTrait for ParquetStakeProcessor {
             },
             _ => {
                 return Err(anyhow::anyhow!(
-                    "Invalid db config for ParquetStakeProcessor {:?}",
+                    "Invalid db config for ParquetEventsProcessor {:?}",
                     self.config.db_config
                 ));
             },
@@ -82,12 +77,12 @@ impl ProcessorTrait for ParquetStakeProcessor {
         check_or_update_chain_id(grpc_chain_id as i64, self.db_pool.clone()).await?;
 
         let parquet_processor_config = match self.config.processor_config.clone() {
-            ProcessorConfig::ParquetStakeProcessor(parquet_processor_config) => {
+            ProcessorConfig::ParquetEventsProcessor(parquet_processor_config) => {
                 parquet_processor_config
             },
             _ => {
                 return Err(anyhow::anyhow!(
-                    "Invalid processor configuration for ParquetStakeProcessor {:?}",
+                    "Invalid processor configuration for ParquetEventsProcessor {:?}",
                     self.config.processor_config
                 ));
             },
@@ -114,33 +109,17 @@ impl ProcessorTrait for ParquetStakeProcessor {
         .await?;
 
         let backfill_table = set_backfill_table_flag(parquet_processor_config.backfill_table);
-        let parquet_stake_extractor = ParquetStakeExtractor {
+        let parquet_events_extractor = ParquetEventsExtractor {
             opt_in_tables: backfill_table,
         };
 
         let gcs_client =
             initialize_gcs_client(parquet_db_config.google_application_credentials.clone()).await;
 
-        let parquet_type_to_schemas: HashMap<ParquetTypeEnum, Arc<Type>> = [
-            (
-                ParquetTypeEnum::DelegatedStakingActivities,
-                ParquetDelegatedStakingActivity::schema(),
-            ),
-            (
-                ParquetTypeEnum::ProposalVotes,
-                ParquetProposalVote::schema(),
-            ),
-            (
-                ParquetTypeEnum::DelegatorBalances,
-                ParquetDelegatorBalance::schema(),
-            ),
-            (
-                ParquetTypeEnum::CurrentDelegatorBalances,
-                ParquetCurrentDelegatorBalance::schema(),
-            ),
-        ]
-        .into_iter()
-        .collect();
+        let parquet_type_to_schemas: HashMap<ParquetTypeEnum, Arc<Type>> =
+            [(ParquetTypeEnum::Events, ParquetEvent::schema())]
+                .into_iter()
+                .collect();
 
         let default_size_buffer_step = initialize_parquet_buffer_step(
             gcs_client.clone(),
@@ -167,7 +146,7 @@ impl ProcessorTrait for ParquetStakeProcessor {
         let (_, buffer_receiver) = ProcessorBuilder::new_with_inputless_first_step(
             transaction_stream.into_runnable_step(),
         )
-        .connect_to(parquet_stake_extractor.into_runnable_step(), channel_size)
+        .connect_to(parquet_events_extractor.into_runnable_step(), channel_size)
         .connect_to(default_size_buffer_step.into_runnable_step(), channel_size)
         .connect_to(
             parquet_version_tracker_step.into_runnable_step(),

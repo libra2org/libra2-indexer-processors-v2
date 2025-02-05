@@ -4,10 +4,17 @@ use crate::{
         db_config::DbConfig, indexer_processor_config::IndexerProcessorConfig,
         processor_config::ProcessorConfig,
     },
-    db::models::stake_models::{
-        delegator_activities::ParquetDelegatedStakingActivity,
-        delegator_balances::{ParquetCurrentDelegatorBalance, ParquetDelegatorBalance},
-        proposal_votes::ParquetProposalVote,
+    db::models::{
+        token_models::{
+            token_claims::ParquetCurrentTokenPendingClaim,
+            token_royalty::ParquetCurrentTokenRoyaltyV1,
+        },
+        token_v2_models::{
+            v2_token_activities::ParquetTokenActivityV2,
+            v2_token_datas::{ParquetCurrentTokenDataV2, ParquetTokenDataV2},
+            v2_token_metadata::ParquetCurrentTokenV2Metadata,
+            v2_token_ownerships::{ParquetCurrentTokenOwnershipV2, ParquetTokenOwnershipV2},
+        },
     },
     parquet_processors::{
         initialize_database_pool, initialize_gcs_client, initialize_parquet_buffer_step,
@@ -18,7 +25,7 @@ use crate::{
             parquet_version_tracker_step::ParquetVersionTrackerStep,
             processor_status_saver::get_processor_status_saver,
         },
-        parquet_processor_steps::parquet_stake_processor::parquet_stake_extractor::ParquetStakeExtractor,
+        parquet_processor_steps::parquet_token_v2_processor::parquet_token_v2_extractor::ParquetTokenV2Extractor,
     },
     utils::{
         chain_id::check_or_update_chain_id,
@@ -37,12 +44,12 @@ use parquet::schema::types::Type;
 use std::{collections::HashMap, sync::Arc};
 use tracing::{debug, info};
 
-pub struct ParquetStakeProcessor {
+pub struct ParquetTokenV2Processor {
     pub config: IndexerProcessorConfig,
     pub db_pool: ArcDbPool,
 }
 
-impl ParquetStakeProcessor {
+impl ParquetTokenV2Processor {
     pub async fn new(config: IndexerProcessorConfig) -> anyhow::Result<Self> {
         let db_pool = initialize_database_pool(&config.db_config).await?;
         Ok(Self { config, db_pool })
@@ -50,7 +57,7 @@ impl ParquetStakeProcessor {
 }
 
 #[async_trait::async_trait]
-impl ProcessorTrait for ParquetStakeProcessor {
+impl ProcessorTrait for ParquetTokenV2Processor {
     fn name(&self) -> &'static str {
         self.config.processor_config.name()
     }
@@ -68,7 +75,7 @@ impl ProcessorTrait for ParquetStakeProcessor {
             },
             _ => {
                 return Err(anyhow::anyhow!(
-                    "Invalid db config for ParquetStakeProcessor {:?}",
+                    "Invalid db config for ParquetTokenV2Processor {:?}",
                     self.config.db_config
                 ));
             },
@@ -82,12 +89,12 @@ impl ProcessorTrait for ParquetStakeProcessor {
         check_or_update_chain_id(grpc_chain_id as i64, self.db_pool.clone()).await?;
 
         let parquet_processor_config = match self.config.processor_config.clone() {
-            ProcessorConfig::ParquetStakeProcessor(parquet_processor_config) => {
+            ProcessorConfig::ParquetTokenV2Processor(parquet_processor_config) => {
                 parquet_processor_config
             },
             _ => {
                 return Err(anyhow::anyhow!(
-                    "Invalid processor configuration for ParquetStakeProcessor {:?}",
+                    "Invalid processor configuration for ParquetTokenV2Processor {:?}",
                     self.config.processor_config
                 ));
             },
@@ -105,6 +112,7 @@ impl ProcessorTrait for ParquetStakeProcessor {
             processor_status_table_names,
         )
         .await?;
+        println!("Starting version: {:?}", starting_version);
 
         // Define processor transaction stream config
         let transaction_stream = TransactionStreamStep::new(TransactionStreamConfig {
@@ -114,29 +122,44 @@ impl ProcessorTrait for ParquetStakeProcessor {
         .await?;
 
         let backfill_table = set_backfill_table_flag(parquet_processor_config.backfill_table);
-        let parquet_stake_extractor = ParquetStakeExtractor {
+        // TODO: Update this
+        let parquet_token_v2_extractor = ParquetTokenV2Extractor {
             opt_in_tables: backfill_table,
         };
 
         let gcs_client =
             initialize_gcs_client(parquet_db_config.google_application_credentials.clone()).await;
 
+        // TODO: Update this
         let parquet_type_to_schemas: HashMap<ParquetTypeEnum, Arc<Type>> = [
             (
-                ParquetTypeEnum::DelegatedStakingActivities,
-                ParquetDelegatedStakingActivity::schema(),
+                ParquetTypeEnum::CurrentTokenPendingClaims,
+                ParquetCurrentTokenPendingClaim::schema(),
             ),
             (
-                ParquetTypeEnum::ProposalVotes,
-                ParquetProposalVote::schema(),
+                ParquetTypeEnum::CurrentTokenRoyaltiesV1,
+                ParquetCurrentTokenRoyaltyV1::schema(),
             ),
             (
-                ParquetTypeEnum::DelegatorBalances,
-                ParquetDelegatorBalance::schema(),
+                ParquetTypeEnum::CurrentTokenV2Metadata,
+                ParquetCurrentTokenV2Metadata::schema(),
             ),
             (
-                ParquetTypeEnum::CurrentDelegatorBalances,
-                ParquetCurrentDelegatorBalance::schema(),
+                ParquetTypeEnum::TokenActivitiesV2,
+                ParquetTokenActivityV2::schema(),
+            ),
+            (ParquetTypeEnum::TokenDatasV2, ParquetTokenDataV2::schema()),
+            (
+                ParquetTypeEnum::CurrentTokenDatasV2,
+                ParquetCurrentTokenDataV2::schema(),
+            ),
+            (
+                ParquetTypeEnum::TokenOwnershipsV2,
+                ParquetTokenOwnershipV2::schema(),
+            ),
+            (
+                ParquetTypeEnum::CurrentTokenOwnershipsV2,
+                ParquetCurrentTokenOwnershipV2::schema(),
             ),
         ]
         .into_iter()
@@ -167,7 +190,10 @@ impl ProcessorTrait for ParquetStakeProcessor {
         let (_, buffer_receiver) = ProcessorBuilder::new_with_inputless_first_step(
             transaction_stream.into_runnable_step(),
         )
-        .connect_to(parquet_stake_extractor.into_runnable_step(), channel_size)
+        .connect_to(
+            parquet_token_v2_extractor.into_runnable_step(),
+            channel_size,
+        )
         .connect_to(default_size_buffer_step.into_runnable_step(), channel_size)
         .connect_to(
             parquet_version_tracker_step.into_runnable_step(),

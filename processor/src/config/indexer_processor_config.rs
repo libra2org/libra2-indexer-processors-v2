@@ -4,8 +4,12 @@
 use super::{db_config::DbConfig, processor_config::ProcessorConfig};
 use crate::{
     parquet_processors::{
+        parquet_account_transactions_processor::ParquetAccountTransactionsProcessor,
+        parquet_ans_processor::ParquetAnsProcessor,
         parquet_default_processor::ParquetDefaultProcessor,
+        parquet_events_processor::ParquetEventsProcessor,
         parquet_stake_processor::ParquetStakeProcessor,
+        parquet_token_v2_processor::ParquetTokenV2Processor,
         parquet_user_transaction_processor::ParquetUserTransactionProcessor,
     },
     processors::{
@@ -88,14 +92,14 @@ impl RunnableConfig for IndexerProcessorConfig {
                 let parquet_default_processor = ParquetDefaultProcessor::new(self.clone()).await?;
                 parquet_default_processor.run_processor().await
             },
-            // ProcessorConfig::ParquetEventsProcessor(_) => {
-            //     let parquet_events_processor = ParquetEventsProcessor::new(self.clone()).await?;
-            //     parquet_events_processor.run_processor().await
-            // },
             ProcessorConfig::ParquetUserTransactionProcessor(_) => {
                 let parquet_user_transaction_processor =
                     ParquetUserTransactionProcessor::new(self.clone()).await?;
                 parquet_user_transaction_processor.run_processor().await
+            },
+            ProcessorConfig::ParquetEventsProcessor(_) => {
+                let parquet_events_processor = ParquetEventsProcessor::new(self.clone()).await?;
+                parquet_events_processor.run_processor().await
             },
             // ProcessorConfig::ParquetFungibleAssetProcessor(_) => {
             //     let parquet_fungible_asset_processor =
@@ -107,19 +111,19 @@ impl RunnableConfig for IndexerProcessorConfig {
             //         ParquetTransactionMetadataProcessor::new(self.clone()).await?;
             //     parquet_transaction_metadata_processor.run_processor().await
             // },
-            // ProcessorConfig::ParquetAccountTransactionsProcessor(_) => {
-            //     let parquet_account_transactions_processor =
-            //         ParquetAccountTransactionsProcessor::new(self.clone()).await?;
-            //     parquet_account_transactions_processor.run_processor().await
-            // },
-            // ProcessorConfig::ParquetTokenV2Processor(_) => {
-            //     let parquet_token_v2_processor = ParquetTokenV2Processor::new(self.clone()).await?;
-            //     parquet_token_v2_processor.run_processor().await
-            // },
-            // ProcessorConfig::ParquetAnsProcessor(_) => {
-            //     let parquet_ans_processor = ParquetAnsProcessor::new(self.clone()).await?;
-            //     parquet_ans_processor.run_processor().await
-            // },
+            ProcessorConfig::ParquetAccountTransactionsProcessor(_) => {
+                let parquet_account_transactions_processor =
+                    ParquetAccountTransactionsProcessor::new(self.clone()).await?;
+                parquet_account_transactions_processor.run_processor().await
+            },
+            ProcessorConfig::ParquetTokenV2Processor(_) => {
+                let parquet_token_v2_processor = ParquetTokenV2Processor::new(self.clone()).await?;
+                parquet_token_v2_processor.run_processor().await
+            },
+            ProcessorConfig::ParquetAnsProcessor(_) => {
+                let parquet_ans_processor = ParquetAnsProcessor::new(self.clone()).await?;
+                parquet_ans_processor.run_processor().await
+            },
             ProcessorConfig::ParquetStakeProcessor(_) => {
                 let parquet_stake_processor = ParquetStakeProcessor::new(self.clone()).await?;
                 parquet_stake_processor.run_processor().await

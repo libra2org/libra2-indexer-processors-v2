@@ -1,13 +1,13 @@
 use crate::{
     bq_analytics::HasParquetSchema,
     config::{
-        db_config::DbConfig, indexer_processor_config::IndexerProcessorConfig,
-        processor_config::ProcessorConfig,
+        db_config::DbConfig,
+        indexer_processor_config::IndexerProcessorConfig,
+        processor_config::{ParquetDefaultProcessorConfig, ProcessorConfig},
     },
-    db::models::stake_models::{
-        delegator_activities::ParquetDelegatedStakingActivity,
-        delegator_balances::{ParquetCurrentDelegatorBalance, ParquetDelegatorBalance},
-        proposal_votes::ParquetProposalVote,
+    db::models::ans_models::{
+        ans_lookup_v2::{ParquetAnsLookupV2, ParquetCurrentAnsLookupV2},
+        ans_primary_name_v2::{ParquetAnsPrimaryNameV2, ParquetCurrentAnsPrimaryNameV2},
     },
     parquet_processors::{
         initialize_database_pool, initialize_gcs_client, initialize_parquet_buffer_step,
@@ -18,7 +18,7 @@ use crate::{
             parquet_version_tracker_step::ParquetVersionTrackerStep,
             processor_status_saver::get_processor_status_saver,
         },
-        parquet_processor_steps::parquet_stake_processor::parquet_stake_extractor::ParquetStakeExtractor,
+        parquet_processor_steps::parquet_ans_processor::parquet_ans_extractor::ParquetAnsExtractor,
     },
     utils::{
         chain_id::check_or_update_chain_id,
@@ -34,15 +34,26 @@ use aptos_indexer_processor_sdk::{
     traits::{processor_trait::ProcessorTrait, IntoRunnableStep},
 };
 use parquet::schema::types::Type;
+use serde::{Deserialize, Serialize};
 use std::{collections::HashMap, sync::Arc};
 use tracing::{debug, info};
 
-pub struct ParquetStakeProcessor {
+#[derive(Clone, Debug, Deserialize, Serialize)]
+#[serde(deny_unknown_fields)]
+pub struct ParquetAnsProcessorConfig {
+    #[serde(flatten)]
+    pub default: ParquetDefaultProcessorConfig,
+    pub ans_v1_primary_names_table_handle: String,
+    pub ans_v1_name_records_table_handle: String,
+    pub ans_v2_contract_address: String,
+}
+
+pub struct ParquetAnsProcessor {
     pub config: IndexerProcessorConfig,
     pub db_pool: ArcDbPool,
 }
 
-impl ParquetStakeProcessor {
+impl ParquetAnsProcessor {
     pub async fn new(config: IndexerProcessorConfig) -> anyhow::Result<Self> {
         let db_pool = initialize_database_pool(&config.db_config).await?;
         Ok(Self { config, db_pool })
@@ -50,7 +61,7 @@ impl ParquetStakeProcessor {
 }
 
 #[async_trait::async_trait]
-impl ProcessorTrait for ParquetStakeProcessor {
+impl ProcessorTrait for ParquetAnsProcessor {
     fn name(&self) -> &'static str {
         self.config.processor_config.name()
     }
@@ -68,7 +79,7 @@ impl ProcessorTrait for ParquetStakeProcessor {
             },
             _ => {
                 return Err(anyhow::anyhow!(
-                    "Invalid db config for ParquetStakeProcessor {:?}",
+                    "Invalid db config for ParquetAnsProcessor {:?}",
                     self.config.db_config
                 ));
             },
@@ -82,12 +93,10 @@ impl ProcessorTrait for ParquetStakeProcessor {
         check_or_update_chain_id(grpc_chain_id as i64, self.db_pool.clone()).await?;
 
         let parquet_processor_config = match self.config.processor_config.clone() {
-            ProcessorConfig::ParquetStakeProcessor(parquet_processor_config) => {
-                parquet_processor_config
-            },
+            ProcessorConfig::ParquetAnsProcessor(ans_config) => ans_config,
             _ => {
                 return Err(anyhow::anyhow!(
-                    "Invalid processor configuration for ParquetStakeProcessor {:?}",
+                    "Invalid processor configuration for ParquetAnsProcessor {:?}",
                     self.config.processor_config
                 ));
             },
@@ -105,6 +114,7 @@ impl ProcessorTrait for ParquetStakeProcessor {
             processor_status_table_names,
         )
         .await?;
+        println!("Starting version: {:?}", starting_version);
 
         // Define processor transaction stream config
         let transaction_stream = TransactionStreamStep::new(TransactionStreamConfig {
@@ -113,8 +123,10 @@ impl ProcessorTrait for ParquetStakeProcessor {
         })
         .await?;
 
-        let backfill_table = set_backfill_table_flag(parquet_processor_config.backfill_table);
-        let parquet_stake_extractor = ParquetStakeExtractor {
+        let backfill_table =
+            set_backfill_table_flag(parquet_processor_config.clone().default.backfill_table);
+        let parquet_ans_extractor = ParquetAnsExtractor {
+            ans_config: parquet_processor_config.clone(),
             opt_in_tables: backfill_table,
         };
 
@@ -123,20 +135,17 @@ impl ProcessorTrait for ParquetStakeProcessor {
 
         let parquet_type_to_schemas: HashMap<ParquetTypeEnum, Arc<Type>> = [
             (
-                ParquetTypeEnum::DelegatedStakingActivities,
-                ParquetDelegatedStakingActivity::schema(),
+                ParquetTypeEnum::AnsPrimaryNameV2,
+                ParquetAnsPrimaryNameV2::schema(),
             ),
             (
-                ParquetTypeEnum::ProposalVotes,
-                ParquetProposalVote::schema(),
+                ParquetTypeEnum::CurrentAnsPrimaryNameV2,
+                ParquetCurrentAnsPrimaryNameV2::schema(),
             ),
+            (ParquetTypeEnum::AnsLookupV2, ParquetAnsLookupV2::schema()),
             (
-                ParquetTypeEnum::DelegatorBalances,
-                ParquetDelegatorBalance::schema(),
-            ),
-            (
-                ParquetTypeEnum::CurrentDelegatorBalances,
-                ParquetCurrentDelegatorBalance::schema(),
+                ParquetTypeEnum::CurrentAnsLookupV2,
+                ParquetCurrentAnsLookupV2::schema(),
             ),
         ]
         .into_iter()
@@ -145,8 +154,8 @@ impl ProcessorTrait for ParquetStakeProcessor {
         let default_size_buffer_step = initialize_parquet_buffer_step(
             gcs_client.clone(),
             parquet_type_to_schemas,
-            parquet_processor_config.upload_interval,
-            parquet_processor_config.max_buffer_size,
+            parquet_processor_config.default.upload_interval,
+            parquet_processor_config.default.max_buffer_size,
             parquet_db_config.bucket_name.clone(),
             parquet_db_config.bucket_root.clone(),
             self.name().to_string(),
@@ -161,13 +170,13 @@ impl ProcessorTrait for ParquetStakeProcessor {
             DEFAULT_UPDATE_PROCESSOR_STATUS_SECS,
         );
 
-        let channel_size = parquet_processor_config.channel_size;
+        let channel_size = parquet_processor_config.default.channel_size;
 
         // Connect processor steps together
         let (_, buffer_receiver) = ProcessorBuilder::new_with_inputless_first_step(
             transaction_stream.into_runnable_step(),
         )
-        .connect_to(parquet_stake_extractor.into_runnable_step(), channel_size)
+        .connect_to(parquet_ans_extractor.into_runnable_step(), channel_size)
         .connect_to(default_size_buffer_step.into_runnable_step(), channel_size)
         .connect_to(
             parquet_version_tracker_step.into_runnable_step(),
