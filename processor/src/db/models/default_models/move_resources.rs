@@ -19,7 +19,7 @@ use serde::{Deserialize, Serialize};
 /**
  * This is the base MoveResource model struct which should be used to build all other extended models such as
  * ParquetMoveResource, PostgresMoveResource, etc.
- * TODO: In order for this to work with old code, columns names should be kept the same as the old model.
+ * In order for this to work with old code, columns names should be kept the same as the old model.
  */
 #[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct MoveResource {

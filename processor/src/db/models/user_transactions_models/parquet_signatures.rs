@@ -18,6 +18,7 @@ use aptos_protos::transaction::v1::{
 use serde::{Deserialize, Serialize};
 use tracing::warn;
 
+/// TODO: Revisit to improve the schema, and refactor this into a signature file.
 #[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct Signature {
     pub txn_version: i64,
