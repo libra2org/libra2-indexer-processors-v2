@@ -1,7 +1,7 @@
 use crate::{
     config::processor_config::DefaultProcessorConfig,
     db::models::event_models::events::PostgresEvent,
-    schema,
+    db::queries::events_processor_queries::insert_events_query,
     utils::database::{execute_in_chunks, get_config_table_chunk_size, ArcDbPool},
 };
 use ahash::AHashMap;
@@ -12,11 +12,7 @@ use aptos_indexer_processor_sdk::{
     utils::errors::ProcessorError,
 };
 use async_trait::async_trait;
-use diesel::{
-    pg::{upsert::excluded, Pg},
-    query_builder::QueryFragment,
-    ExpressionMethods,
-};
+
 use tracing::debug;
 
 pub struct EventsStorer
@@ -34,26 +30,6 @@ impl EventsStorer {
             processor_config,
         }
     }
-}
-
-fn insert_events_query(
-    items_to_insert: Vec<PostgresEvent>,
-) -> (
-    impl QueryFragment<Pg> + diesel::query_builder::QueryId + Send,
-    Option<&'static str>,
-) {
-    use schema::events::dsl::*;
-    (
-        diesel::insert_into(schema::events::table)
-            .values(items_to_insert)
-            .on_conflict((transaction_version, event_index))
-            .do_update()
-            .set((
-                inserted_at.eq(excluded(inserted_at)),
-                indexed_type.eq(excluded(indexed_type)),
-            )),
-        None,
-    )
 }
 
 #[async_trait]
