@@ -4,6 +4,19 @@
     "multi_agent_index": 0,
     "multi_sig_index": 0,
     "transaction_block_height": 40088443,
+    "signer": "0x66e46c568a91a9ff082dd5eb39920c6e451415ef17301457bd771b3bfd056971",
+    "is_sender_primary": true,
+    "type_": "ed25519_signature",
+    "public_key": "0xd05b8b53a772f04de5d9e839fdc452a0e034cf4c9ef3c4ba6604694d899db12a",
+    "signature": "0xe5e6bb12fce4c841dbaf5160d8808b897a29eed50009bc86421910db20ac0f19ecf1452e131a2928ea2c3108fad16fa8af44e29b3fe697fb08c056a1e2ba2a0c",
+    "threshold": 1,
+    "public_key_indices": []
+  },
+  {
+    "transaction_version": 103958588,
+    "multi_agent_index": 0,
+    "multi_sig_index": 0,
+    "transaction_block_height": 40088443,
     "signer": "0x214e588b8a8260a97420bf729c0d06d9691f3a1bab65b65f65e61227004505c1",
     "is_sender_primary": false,
     "type_": "multi_ed25519_signature",
@@ -14,19 +27,6 @@
       0,
       3
     ]
-  },
-  {
-    "transaction_version": 103958588,
-    "multi_agent_index": 0,
-    "multi_sig_index": 0,
-    "transaction_block_height": 40088443,
-    "signer": "0x66e46c568a91a9ff082dd5eb39920c6e451415ef17301457bd771b3bfd056971",
-    "is_sender_primary": true,
-    "type_": "ed25519_signature",
-    "public_key": "0xd05b8b53a772f04de5d9e839fdc452a0e034cf4c9ef3c4ba6604694d899db12a",
-    "signature": "0xe5e6bb12fce4c841dbaf5160d8808b897a29eed50009bc86421910db20ac0f19ecf1452e131a2928ea2c3108fad16fa8af44e29b3fe697fb08c056a1e2ba2a0c",
-    "threshold": 1,
-    "public_key_indices": []
   },
   {
     "transaction_version": 103958588,

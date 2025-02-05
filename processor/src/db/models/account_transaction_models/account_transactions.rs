@@ -10,7 +10,7 @@ use crate::{
     db::{
         models::{
             object_models::v2_object_utils::ObjectWithMetadata,
-            user_transactions_models::user_transactions::UserTransaction,
+            user_transaction_models::user_transactions::UserTransaction,
         },
         resources::FromWriteResource,
     },

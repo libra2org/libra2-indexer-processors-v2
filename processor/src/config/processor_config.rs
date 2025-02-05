@@ -99,7 +99,7 @@ pub enum ProcessorConfig {
     DefaultProcessor(DefaultProcessorConfig),
     EventsProcessor(DefaultProcessorConfig),
     // FungibleAssetProcessor(DefaultProcessorConfig), // TODO: Add this back when we migrate the processor
-    // UserTransactionProcessor(DefaultProcessorConfig), // TODO: Add this back when we migrate the processor
+    UserTransactionProcessor(DefaultProcessorConfig),
     // StakeProcessor(StakeProcessorConfig), // TODO: Add this back when we migrate the processor
     TokenV2Processor(TokenV2ProcessorConfig),
     // ObjectsProcessor(ObjectsProcessorConfig), // TODO: Add this back when we migrate the processor
