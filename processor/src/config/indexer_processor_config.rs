@@ -3,7 +3,10 @@
 
 use super::{db_config::DbConfig, processor_config::ProcessorConfig};
 use crate::{
-    parquet_processors::parquet_default_processor::ParquetDefaultProcessor,
+    parquet_processors::{
+        parquet_default_processor::ParquetDefaultProcessor,
+        parquet_user_transaction_processor::ParquetUserTransactionProcessor,
+    },
     processors::{
         account_transactions_processor::AccountTransactionsProcessor, ans_processor::AnsProcessor,
         default_processor::DefaultProcessor, events_processor::EventsProcessor,
@@ -86,11 +89,11 @@ impl RunnableConfig for IndexerProcessorConfig {
             //     let parquet_events_processor = ParquetEventsProcessor::new(self.clone()).await?;
             //     parquet_events_processor.run_processor().await
             // },
-            // ProcessorConfig::ParquetUserTransactionsProcessor(_) => {
-            //     let parquet_user_transactions_processor =
-            //         ParquetUserTransactionsProcessor::new(self.clone()).await?;
-            //     parquet_user_transactions_processor.run_processor().await
-            // },
+            ProcessorConfig::ParquetUserTransactionProcessor(_) => {
+                let parquet_user_transaction_processor =
+                    ParquetUserTransactionProcessor::new(self.clone()).await?;
+                parquet_user_transaction_processor.run_processor().await
+            },
             // ProcessorConfig::ParquetFungibleAssetProcessor(_) => {
             //     let parquet_fungible_asset_processor =
             //         ParquetFungibleAssetProcessor::new(self.clone()).await?;
