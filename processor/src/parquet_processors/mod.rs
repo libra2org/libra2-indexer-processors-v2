@@ -46,7 +46,7 @@ use crate::{
         //     v2_token_ownerships::{CurrentTokenOwnershipV2, TokenOwnershipV2},
         // },
         // transaction_metadata_model::parquet_write_set_size_info::WriteSetSize,
-        // user_transaction_models::parquet_user_transactions::UserTransaction,
+        user_transaction_models::user_transactions::ParquetUserTransaction,
     },
     utils::table_flags::TableFlags,
 };
@@ -73,7 +73,7 @@ pub mod parquet_default_processor;
 // pub mod parquet_stake_processor;
 // pub mod parquet_token_v2_processor;
 // pub mod parquet_transaction_metadata_processor;
-// pub mod parquet_user_transaction_processor;
+pub mod parquet_user_transaction_processor;
 
 const GOOGLE_APPLICATION_CREDENTIALS: &str = "GOOGLE_APPLICATION_CREDENTIALS";
 
@@ -111,8 +111,8 @@ pub enum ParquetTypeEnum {
     TableMetadata,
     // // events
     // Events,
-    // // user transactions
-    // UserTransactions,
+    // user transactions
+    UserTransactions,
     // // ANS types
     // AnsPrimaryNameV2,
     // CurrentAnsPrimaryNameV2,
@@ -202,7 +202,7 @@ impl_parquet_trait!(
 );
 impl_parquet_trait!(ParquetTableMetadata, ParquetTypeEnum::TableMetadata);
 // impl_parquet_trait!(EventPQ, ParquetTypeEnum::Events);
-// impl_parquet_trait!(UserTransaction, ParquetTypeEnum::UserTransactions);
+impl_parquet_trait!(ParquetUserTransaction, ParquetTypeEnum::UserTransactions);
 // impl_parquet_trait!(AnsPrimaryNameV2, ParquetTypeEnum::AnsPrimaryNameV2);
 // impl_parquet_trait!(
 //     FungibleAssetActivity,
@@ -276,8 +276,8 @@ pub enum ParquetTypeStructs {
     TableMetadata(Vec<ParquetTableMetadata>),
     // // Events
     // Event(Vec<EventPQ>),
-    // // User txn
-    // UserTransaction(Vec<UserTransaction>),
+    // User txn
+    UserTransaction(Vec<ParquetUserTransaction>),
     // // ANS types
     // AnsPrimaryNameV2(Vec<AnsPrimaryNameV2>),
     // CurrentAnsPrimaryNameV2(Vec<CurrentAnsPrimaryNameV2>),
@@ -326,7 +326,7 @@ impl ParquetTypeStructs {
             },
             ParquetTypeEnum::TableMetadata => ParquetTypeStructs::TableMetadata(Vec::new()),
             // ParquetTypeEnum::Events => ParquetTypeStructs::Event(Vec::new()),
-            // ParquetTypeEnum::UserTransactions => ParquetTypeStructs::UserTransaction(Vec::new()),
+            ParquetTypeEnum::UserTransactions => ParquetTypeStructs::UserTransaction(Vec::new()),
             // ParquetTypeEnum::AnsPrimaryNameV2 => ParquetTypeStructs::AnsPrimaryNameV2(Vec::new()),
             // ParquetTypeEnum::FungibleAssetActivities => {
             //     ParquetTypeStructs::FungibleAssetActivity(Vec::new())
@@ -446,12 +446,12 @@ impl ParquetTypeStructs {
             ) => {
                 handle_append!(self_data, other_data)
             },
-            // (
-            //     ParquetTypeStructs::UserTransaction(self_data),
-            //     ParquetTypeStructs::UserTransaction(other_data),
-            // ) => {
-            //     handle_append!(self_data, other_data)
-            // },
+            (
+                ParquetTypeStructs::UserTransaction(self_data),
+                ParquetTypeStructs::UserTransaction(other_data),
+            ) => {
+                handle_append!(self_data, other_data)
+            },
             // (
             //     ParquetTypeStructs::FungibleAssetActivity(self_data),
             //     ParquetTypeStructs::FungibleAssetActivity(other_data),

@@ -42,7 +42,7 @@ use crate::{
         //     v2_token_ownerships::{CurrentTokenOwnershipV2, TokenOwnershipV2},
         // },
         // transaction_metadata_model::write_set_size_info::WriteSetSize,
-        // user_transaction_models::user_transactions::UserTransaction,
+        user_transaction_models::user_transactions::ParquetUserTransaction,
     },
     processors::ans_processor::AnsProcessorConfig,
     processors::token_v2_processor::TokenV2ProcessorConfig,
@@ -108,13 +108,13 @@ pub enum ProcessorConfig {
     ParquetDefaultProcessor(ParquetDefaultProcessorConfig),
     // ParquetEventsProcessor(ParquetDefaultProcessorConfig), // TODO: Add this back when we migrate the processor
     // ParquetAnsProcessor(ParquetAnsProcessorConfig), // TODO: Add this back when we migrate the processor
-    // ParquetUserTransactionsProcessor(ParquetDefaultProcessorConfig), // TODO: Add this back when we migrate the processor
-    // ParquetFungibleAssetProcessor(ParquetDefaultProcessorConfig), // TODO: Add this back when we migrate the processor
-    // ParquetTransactionMetadataProcessor(ParquetDefaultProcessorConfig), // TODO: Add this back when we migrate the processor
-    // ParquetAccountTransactionsProcessor(ParquetDefaultProcessorConfig), // TODO: Add this back when we migrate the processor
-    // ParquetTokenV2Processor(ParquetDefaultProcessorConfig), // TODO: Add this back when we migrate the processor
-    // ParquetStakeProcessor(ParquetDefaultProcessorConfig), // TODO: Add this back when we migrate the processor
-    // ParquetObjectsProcessor(ParquetDefaultProcessorConfig), // TODO: Add this back when we migrate the processor
+    ParquetUserTransactionProcessor(ParquetDefaultProcessorConfig), // TODO: Add this back when we migrate the processor
+                                                                    // ParquetFungibleAssetProcessor(ParquetDefaultProcessorConfig), // TODO: Add this back when we migrate the processor
+                                                                    // ParquetTransactionMetadataProcessor(ParquetDefaultProcessorConfig), // TODO: Add this back when we migrate the processor
+                                                                    // ParquetAccountTransactionsProcessor(ParquetDefaultProcessorConfig), // TODO: Add this back when we migrate the processor
+                                                                    // ParquetTokenV2Processor(ParquetDefaultProcessorConfig), // TODO: Add this back when we migrate the processor
+                                                                    // ParquetStakeProcessor(ParquetDefaultProcessorConfig), // TODO: Add this back when we migrate the processor
+                                                                    // ParquetObjectsProcessor(ParquetDefaultProcessorConfig), // TODO: Add this back when we migrate the processor
 }
 
 impl ProcessorConfig {
@@ -131,15 +131,15 @@ impl ProcessorConfig {
     /// is useful for querying the status from the processor status table in the database.
     pub fn get_processor_status_table_names(&self) -> anyhow::Result<Vec<String>> {
         let default_config = match self {
-            ProcessorConfig::ParquetDefaultProcessor(config) => config,
+            ProcessorConfig::ParquetDefaultProcessor(config)
             // | ProcessorConfig::ParquetEventsProcessor(config)
-            // | ProcessorConfig::ParquetUserTransactionsProcessor(config)
             // | ProcessorConfig::ParquetTransactionMetadataProcessor(config)
             // | ProcessorConfig::ParquetAccountTransactionsProcessor(config)
             // | ProcessorConfig::ParquetTokenV2Processor(config)
             // | ProcessorConfig::ParquetStakeProcessor(config)
             // | ProcessorConfig::ParquetObjectsProcessor(config)
-            // | ProcessorConfig::ParquetFungibleAssetProcessor(config) => &config,
+            // | ProcessorConfig::ParquetFungibleAssetProcessor(config)
+            | ProcessorConfig::ParquetUserTransactionProcessor(config) => config,
             // | ProcessorConfig::ParquetAnsProcessor(config) => &config.default,
             _ => {
                 return Err(anyhow::anyhow!(
@@ -191,9 +191,9 @@ impl ProcessorConfig {
             //     CurrentAnsLookupV2::TABLE_NAME.to_string(),
             //     CurrentAnsPrimaryNameV2::TABLE_NAME.to_string(),
             // ]),
-            // ProcessorName::ParquetUserTransactionsProcessor => {
-            //     HashSet::from([UserTransaction::TABLE_NAME.to_string()])
-            // },
+            ProcessorName::ParquetUserTransactionProcessor => {
+                HashSet::from([ParquetUserTransaction::TABLE_NAME.to_string()])
+            },
             // ProcessorName::ParquetFungibleAssetProcessor => HashSet::from([
             //     FungibleAssetActivity::TABLE_NAME.to_string(),
             //     FungibleAssetBalance::TABLE_NAME.to_string(),
