@@ -5,7 +5,10 @@
 #![allow(clippy::extra_unused_lifetimes)]
 
 use crate::{
-    db::models::object_models::v2_object_utils::CurrentObjectPK,
+    db::models::{
+        object_models::v2_object_utils::CurrentObjectPK,
+        token_models::token_utils::{NAME_LENGTH, URI_LENGTH},
+    },
     utils::util::{
         deserialize_from_string, deserialize_token_object_property_map_from_bcs_hexstring,
         standardize_address, truncate_str, Aggregator, AggregatorSnapshot, DerivedStringSnapshot,
@@ -22,9 +25,6 @@ use std::{
 };
 
 pub const DEFAULT_OWNER_ADDRESS: &str = "unknown";
-
-pub const URI_LENGTH: usize = 512; // variable moved from Token_utils V1
-pub const NAME_LENGTH: usize = 128; // variable moved from Token_utils V1
 
 /// Tracks all token related data in a hashmap for quick access (keyed on address of the object core)
 /// Maps address to burn event. If it's an old event previous_owner will be empty

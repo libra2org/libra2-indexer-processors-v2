@@ -12,7 +12,6 @@ use super::{
     token_utils::{TokenResource, TokenWriteSet},
 };
 use crate::{
-    // TODO: update this to use the new move resources after refactoring
     db::models::default_models::move_resources::MoveResource,
     schema::tokens,
     utils::{
@@ -352,16 +351,12 @@ impl TableMetadataForToken {
             if let Some(TxnData::User(_)) = transaction.txn_data.as_ref() {
                 let txn_version = transaction.version as i64;
 
-                let timestamp = transaction
-                    .timestamp
-                    .as_ref()
-                    .expect("Transaction timestamp doesn't exist!");
-                let block_timestamp = parse_timestamp(timestamp, txn_version);
-
                 let transaction_info = transaction
                     .info
                     .as_ref()
                     .expect("Transaction info doesn't exist!");
+                let block_timestamp =
+                    parse_timestamp(transaction.timestamp.as_ref().unwrap(), txn_version);
                 for wsc in &transaction_info.changes {
                     if let WriteSetChangeEnum::WriteResource(write_resource) =
                         wsc.change.as_ref().unwrap()
@@ -405,11 +400,8 @@ impl TableMetadataForToken {
                 return Ok(None);
             },
             Err(e) => {
-                error!(
-                    "Error processing write resource for transaction version {}: {}",
-                    txn_version, e
-                );
-                return Err(e);
+                error!("Error processing write resource: {}", e);
+                return Err(anyhow::anyhow!("Error processing write resource: {}", e));
             },
         };
 

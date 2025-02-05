@@ -215,12 +215,7 @@ impl CurrentTokenPendingClaim {
     }
 }
 
-pub trait CurrentTokenPendingClaimConvertible {
-    fn from_base(base_item: CurrentTokenPendingClaim) -> Self;
-}
-
-// Parquet Model
-
+/// This is a parquet version of CurrentTokenPendingClaim
 #[derive(
     Allocative, Clone, Debug, Default, Deserialize, FieldCount, ParquetRecordWriter, Serialize,
 )]
@@ -252,32 +247,31 @@ impl HasVersion for ParquetCurrentTokenPendingClaim {
     }
 }
 
-impl CurrentTokenPendingClaimConvertible for ParquetCurrentTokenPendingClaim {
-    fn from_base(base_item: CurrentTokenPendingClaim) -> Self {
+impl From<CurrentTokenPendingClaim> for ParquetCurrentTokenPendingClaim {
+    fn from(raw_item: CurrentTokenPendingClaim) -> Self {
         Self {
-            token_data_id_hash: base_item.token_data_id_hash,
-            property_version: base_item
+            token_data_id_hash: raw_item.token_data_id_hash,
+            property_version: raw_item
                 .property_version
                 .to_u64()
                 .expect("Failed to convert property_version to u64"),
-            from_address: base_item.from_address,
-            to_address: base_item.to_address,
-            collection_data_id_hash: base_item.collection_data_id_hash,
-            creator_address: base_item.creator_address,
-            collection_name: base_item.collection_name,
-            name: base_item.name,
-            amount: base_item.amount.to_string(), // (assuming amount is non-critical)
-            table_handle: base_item.table_handle,
-            last_transaction_version: base_item.last_transaction_version,
-            last_transaction_timestamp: base_item.last_transaction_timestamp,
-            token_data_id: base_item.token_data_id,
-            collection_id: base_item.collection_id,
+            from_address: raw_item.from_address,
+            to_address: raw_item.to_address,
+            collection_data_id_hash: raw_item.collection_data_id_hash,
+            creator_address: raw_item.creator_address,
+            collection_name: raw_item.collection_name,
+            name: raw_item.name,
+            amount: raw_item.amount.to_string(), // (assuming amount is non-critical)
+            table_handle: raw_item.table_handle,
+            last_transaction_version: raw_item.last_transaction_version,
+            last_transaction_timestamp: raw_item.last_transaction_timestamp,
+            token_data_id: raw_item.token_data_id,
+            collection_id: raw_item.collection_id,
         }
     }
 }
 
-// Postgres Model
-
+/// This is a postgres version of CurrentTokenPendingClaim
 #[derive(
     Clone, Debug, Deserialize, Eq, FieldCount, Identifiable, Insertable, PartialEq, Serialize,
 )]
@@ -316,23 +310,23 @@ impl PartialOrd for PostgresCurrentTokenPendingClaim {
     }
 }
 
-impl CurrentTokenPendingClaimConvertible for PostgresCurrentTokenPendingClaim {
-    fn from_base(base_item: CurrentTokenPendingClaim) -> Self {
+impl From<CurrentTokenPendingClaim> for PostgresCurrentTokenPendingClaim {
+    fn from(raw_item: CurrentTokenPendingClaim) -> Self {
         Self {
-            token_data_id_hash: base_item.token_data_id_hash,
-            property_version: base_item.property_version,
-            from_address: base_item.from_address,
-            to_address: base_item.to_address,
-            collection_data_id_hash: base_item.collection_data_id_hash,
-            creator_address: base_item.creator_address,
-            collection_name: base_item.collection_name,
-            name: base_item.name,
-            amount: base_item.amount,
-            table_handle: base_item.table_handle,
-            last_transaction_version: base_item.last_transaction_version,
-            last_transaction_timestamp: base_item.last_transaction_timestamp,
-            token_data_id: base_item.token_data_id,
-            collection_id: base_item.collection_id,
+            token_data_id_hash: raw_item.token_data_id_hash,
+            property_version: raw_item.property_version,
+            from_address: raw_item.from_address,
+            to_address: raw_item.to_address,
+            collection_data_id_hash: raw_item.collection_data_id_hash,
+            creator_address: raw_item.creator_address,
+            collection_name: raw_item.collection_name,
+            name: raw_item.name,
+            amount: raw_item.amount,
+            table_handle: raw_item.table_handle,
+            last_transaction_version: raw_item.last_transaction_version,
+            last_transaction_timestamp: raw_item.last_transaction_timestamp,
+            token_data_id: raw_item.token_data_id,
+            collection_id: raw_item.collection_id,
         }
     }
 }

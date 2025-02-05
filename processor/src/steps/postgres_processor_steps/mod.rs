@@ -1,5 +1,6 @@
 use crate::utils::table_flags::TableFlags;
 pub mod default_processor;
+pub mod token_v2_processor;
 
 /**
  * This is a helper function to filter data based on the tables_to_write set.
