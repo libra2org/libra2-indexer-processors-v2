@@ -1,3 +1,4 @@
+pub mod account_restoration_processor_helpers;
 pub mod account_transaction_processor_helpers;
 pub mod ans_processor_helpers;
 pub mod default_processor_helpers;

@@ -1,4 +1,4 @@
-use crate::models::user_transactions_models::{Signature, UserTransaction};
+use crate::models::user_transaction_models::{Signature, UserTransaction};
 use anyhow::Result;
 use diesel::{pg::PgConnection, ExpressionMethods, QueryDsl, RunQueryDsl};
 use processor::schema::{signatures::dsl as sig_dsl, user_transactions::dsl as ut_dsl};
