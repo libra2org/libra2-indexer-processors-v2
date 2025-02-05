@@ -5,9 +5,8 @@
 #![allow(clippy::extra_unused_lifetimes)]
 #![allow(clippy::unused_unit)]
 
-use crate::bq_analytics::generic_parquet_processor::{HasVersion, NamedTable};
 use crate::{
-    bq_analytics::{GetTimeStamp, HasVersion, NamedTable},
+    bq_analytics::{HasVersion, NamedTable},
     db::{
         models::{
             object_models::v2_object_utils::ObjectWithMetadata,
@@ -21,10 +20,8 @@ use crate::{
 use ahash::AHashSet;
 use allocative_derive::Allocative;
 use aptos_protos::transaction::v1::{transaction::TxnData, write_set_change::Change, Transaction};
-use aptos_protos::transaction::v1::{transaction::TxnData, write_set_change::Change, Transaction};
 use field_count::FieldCount;
 use parquet_derive::ParquetRecordWriter;
-use serde::{Deserialize, Serialize};
 use serde::{Deserialize, Serialize};
 
 pub type AccountTransactionPK = (String, i64);

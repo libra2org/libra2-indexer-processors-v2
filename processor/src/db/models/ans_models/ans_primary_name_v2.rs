@@ -87,8 +87,6 @@ impl HasVersion for ParquetAnsPrimaryNameV2 {
     }
 }
 
-
-
 impl From<AnsPrimaryNameV2> for ParquetAnsPrimaryNameV2 {
     fn from(raw_item: AnsPrimaryNameV2) -> Self {
         ParquetAnsPrimaryNameV2 {
@@ -126,8 +124,8 @@ impl HasVersion for ParquetCurrentAnsPrimaryNameV2 {
     }
 }
 
-impl CurrentAnsPrimaryNameV2Convertible for ParquetCurrentAnsPrimaryNameV2 {
-    fn from_raw(raw_item: RawCurrentAnsPrimaryNameV2) -> Self {
+impl From<CurrentAnsPrimaryNameV2> for ParquetCurrentAnsPrimaryNameV2 {
+    fn from(raw_item: CurrentAnsPrimaryNameV2) -> Self {
         ParquetCurrentAnsPrimaryNameV2 {
             registered_address: raw_item.registered_address,
             token_standard: raw_item.token_standard,
@@ -136,6 +134,7 @@ impl CurrentAnsPrimaryNameV2Convertible for ParquetCurrentAnsPrimaryNameV2 {
             token_name: raw_item.token_name,
             is_deleted: raw_item.is_deleted,
             last_transaction_version: raw_item.last_transaction_version,
+        }
     }
 }
 

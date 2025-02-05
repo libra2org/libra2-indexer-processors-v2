@@ -93,6 +93,8 @@ impl Processable for TokenV2Extractor {
             query_retry_delay_ms: self.query_retry_delay_ms,
         };
 
+        // Token v2 processor only writes to current tables. If you need to write to non-current
+        // tables, modify TokenV2Storer step to include the tables you want to write to.
         let (
             _,
             _,
