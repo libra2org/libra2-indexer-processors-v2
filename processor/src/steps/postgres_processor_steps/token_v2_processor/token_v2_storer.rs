@@ -30,6 +30,7 @@ use aptos_indexer_processor_sdk::{
 };
 use async_trait::async_trait;
 
+// TODO: Add table opt in filters
 pub struct TokenV2Storer
 where
     Self: Sized + Send + 'static,
