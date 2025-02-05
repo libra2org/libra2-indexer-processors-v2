@@ -1,6 +1,6 @@
 use ahash::AHashMap;
 use aptos_indexer_testing_framework::sdk_test_context::SdkTestContext;
-use sdk_processor::config::{
+use processor::config::{
     db_config::{DbConfig, PostgresConfig},
     indexer_processor_config::IndexerProcessorConfig,
     processor_config::{DefaultProcessorConfig, ProcessorConfig},
@@ -54,7 +54,7 @@ mod sdk_account_restoration_processor_tests {
         IMPORTED_MAINNET_TXNS_2200077877_ACCOUNT_RESTORATION_ROTATED_TO_SINGLE_SECP256K1,
     };
     use aptos_indexer_testing_framework::{cli_parser::get_test_config, database::TestDatabase};
-    use sdk_processor::processors::account_restoration_processor::AccountRestorationProcessor;
+    use processor::processors::account_restoration_processor::AccountRestorationProcessor;
 
     #[tokio::test(flavor = "multi_thread", worker_threads = 2)]
     async fn test_single_key_ed25519() {

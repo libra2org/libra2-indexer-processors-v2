@@ -34,8 +34,8 @@ pub mod default_processor_tests;
 // pub mod objects_processor_tests;
 // #[cfg(test)]
 // pub mod stake_processor_tests;
-// #[cfg(test)]
-// pub mod account_restoration_processor_tests;
+#[cfg(test)]
+pub mod account_restoration_processor_tests;
 #[cfg(test)]
 pub mod user_transaction_processor_tests;
 

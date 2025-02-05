@@ -93,7 +93,7 @@ use std::collections::HashSet;
     strum(serialize_all = "snake_case")
 )]
 pub enum ProcessorConfig {
-    // AccountRestorationProcessor(DefaultProcessorConfig),  // TODO: Add this back when we migrate the processor
+    AccountRestorationProcessor(DefaultProcessorConfig),
     AccountTransactionsProcessor(DefaultProcessorConfig),
     AnsProcessor(AnsProcessorConfig),
     DefaultProcessor(DefaultProcessorConfig),
