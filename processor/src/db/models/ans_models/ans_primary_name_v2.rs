@@ -28,7 +28,7 @@ type RegisteredAddress = String;
 type CurrentAnsPrimaryNameV2PK = (RegisteredAddress, TokenStandardType);
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
-pub struct RawAnsPrimaryNameV2 {
+pub struct AnsPrimaryNameV2 {
     pub transaction_version: i64,
     pub write_set_change_index: i64,
     pub registered_address: String,
@@ -40,12 +40,8 @@ pub struct RawAnsPrimaryNameV2 {
     pub transaction_timestamp: chrono::NaiveDateTime,
 }
 
-pub trait AnsPrimaryNameV2Convertible {
-    fn from_raw(raw_item: RawAnsPrimaryNameV2) -> Self;
-}
-
 #[derive(Clone, Debug, Deserialize, Serialize, PartialEq, Eq)]
-pub struct RawCurrentAnsPrimaryNameV2 {
+pub struct CurrentAnsPrimaryNameV2 {
     pub registered_address: String,
     pub token_standard: String,
     pub domain: Option<String>,
@@ -55,13 +51,13 @@ pub struct RawCurrentAnsPrimaryNameV2 {
     pub last_transaction_version: i64,
 }
 
-impl Ord for RawCurrentAnsPrimaryNameV2 {
+impl Ord for CurrentAnsPrimaryNameV2 {
     fn cmp(&self, other: &Self) -> std::cmp::Ordering {
         self.registered_address.cmp(&other.registered_address)
     }
 }
 
-impl PartialOrd for RawCurrentAnsPrimaryNameV2 {
+impl PartialOrd for CurrentAnsPrimaryNameV2 {
     fn partial_cmp(&self, other: &Self) -> Option<std::cmp::Ordering> {
         Some(self.cmp(other))
     }
@@ -91,8 +87,10 @@ impl HasVersion for ParquetAnsPrimaryNameV2 {
     }
 }
 
-impl AnsPrimaryNameV2Convertible for ParquetAnsPrimaryNameV2 {
-    fn from_raw(raw_item: RawAnsPrimaryNameV2) -> Self {
+
+
+impl From<AnsPrimaryNameV2> for ParquetAnsPrimaryNameV2 {
+    fn from(raw_item: AnsPrimaryNameV2) -> Self {
         ParquetAnsPrimaryNameV2 {
             txn_version: raw_item.transaction_version,
             write_set_change_index: raw_item.write_set_change_index,
@@ -138,7 +136,6 @@ impl CurrentAnsPrimaryNameV2Convertible for ParquetCurrentAnsPrimaryNameV2 {
             token_name: raw_item.token_name,
             is_deleted: raw_item.is_deleted,
             last_transaction_version: raw_item.last_transaction_version,
-        }
     }
 }
 
@@ -157,8 +154,8 @@ pub struct PostgresAnsPrimaryNameV2 {
     pub is_deleted: bool,
 }
 
-impl AnsPrimaryNameV2Convertible for PostgresAnsPrimaryNameV2 {
-    fn from_raw(raw_item: RawAnsPrimaryNameV2) -> Self {
+impl From<AnsPrimaryNameV2> for PostgresAnsPrimaryNameV2 {
+    fn from(raw_item: AnsPrimaryNameV2) -> Self {
         PostgresAnsPrimaryNameV2 {
             transaction_version: raw_item.transaction_version,
             write_set_change_index: raw_item.write_set_change_index,
@@ -197,8 +194,8 @@ pub struct PostgresCurrentAnsPrimaryNameV2 {
     pub last_transaction_version: i64,
 }
 
-impl CurrentAnsPrimaryNameV2Convertible for PostgresCurrentAnsPrimaryNameV2 {
-    fn from_raw(raw_item: RawCurrentAnsPrimaryNameV2) -> Self {
+impl From<CurrentAnsPrimaryNameV2> for PostgresCurrentAnsPrimaryNameV2 {
+    fn from(raw_item: CurrentAnsPrimaryNameV2) -> Self {
         PostgresCurrentAnsPrimaryNameV2 {
             registered_address: raw_item.registered_address,
             token_standard: raw_item.token_standard,
@@ -211,11 +208,7 @@ impl CurrentAnsPrimaryNameV2Convertible for PostgresCurrentAnsPrimaryNameV2 {
     }
 }
 
-pub trait CurrentAnsPrimaryNameV2Convertible {
-    fn from_raw(raw_item: RawCurrentAnsPrimaryNameV2) -> Self;
-}
-
-impl RawCurrentAnsPrimaryNameV2 {
+impl CurrentAnsPrimaryNameV2 {
     pub fn pk(&self) -> CurrentAnsPrimaryNameV2PK {
         (self.registered_address.clone(), self.token_standard.clone())
     }
@@ -224,7 +217,7 @@ impl RawCurrentAnsPrimaryNameV2 {
         v1_current_primary_name: CurrentAnsPrimaryName,
         v1_primary_name: AnsPrimaryName,
         txn_timestamp: chrono::NaiveDateTime,
-    ) -> (Self, RawAnsPrimaryNameV2) {
+    ) -> (Self, AnsPrimaryNameV2) {
         (
             Self {
                 registered_address: v1_current_primary_name.registered_address,
@@ -235,7 +228,7 @@ impl RawCurrentAnsPrimaryNameV2 {
                 is_deleted: v1_current_primary_name.is_deleted,
                 last_transaction_version: v1_current_primary_name.last_transaction_version,
             },
-            RawAnsPrimaryNameV2 {
+            AnsPrimaryNameV2 {
                 transaction_version: v1_primary_name.transaction_version,
                 write_set_change_index: v1_primary_name.write_set_change_index,
                 registered_address: v1_primary_name.registered_address,
@@ -256,7 +249,7 @@ impl RawCurrentAnsPrimaryNameV2 {
         event_index: i64,
         ans_v2_contract_address: &str,
         txn_timestamp: chrono::NaiveDateTime,
-    ) -> anyhow::Result<Option<(Self, RawAnsPrimaryNameV2)>> {
+    ) -> anyhow::Result<Option<(Self, AnsPrimaryNameV2)>> {
         if let Some(set_reverse_lookup_event) =
             SetReverseLookupEvent::from_event(event, ans_v2_contract_address, txn_version).unwrap()
         {
@@ -272,7 +265,7 @@ impl RawCurrentAnsPrimaryNameV2 {
                         last_transaction_version: txn_version,
                         is_deleted: true,
                     },
-                    RawAnsPrimaryNameV2 {
+                    AnsPrimaryNameV2 {
                         transaction_version: txn_version,
                         write_set_change_index: -(event_index + 1),
                         registered_address: set_reverse_lookup_event.get_account_addr().clone(),
@@ -296,7 +289,7 @@ impl RawCurrentAnsPrimaryNameV2 {
                         last_transaction_version: txn_version,
                         is_deleted: false,
                     },
-                    RawAnsPrimaryNameV2 {
+                    AnsPrimaryNameV2 {
                         transaction_version: txn_version,
                         write_set_change_index: -(event_index + 1),
                         registered_address: set_reverse_lookup_event.get_account_addr().clone(),

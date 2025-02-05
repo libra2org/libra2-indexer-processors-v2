@@ -44,6 +44,7 @@ use crate::{
         // transaction_metadata_model::write_set_size_info::WriteSetSize,
         // user_transaction_models::user_transactions::UserTransaction,
     },
+    processors::ans_processor::AnsProcessorConfig,
     processors::token_v2_processor::TokenV2ProcessorConfig,
 };
 use crate::{
@@ -94,7 +95,7 @@ use std::collections::HashSet;
 pub enum ProcessorConfig {
     // AccountRestorationProcessor(DefaultProcessorConfig),  // TODO: Add this back when we migrate the processor
     // AccountTransactionsProcessor(DefaultProcessorConfig), // TODO: Add this back when we migrate the processor
-    // AnsProcessor(AnsProcessorConfig), // TODO: Add this back when we migrate the processor
+    AnsProcessor(AnsProcessorConfig),
     DefaultProcessor(DefaultProcessorConfig),
     EventsProcessor(DefaultProcessorConfig),
     // FungibleAssetProcessor(DefaultProcessorConfig), // TODO: Add this back when we migrate the processor
