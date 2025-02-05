@@ -109,13 +109,13 @@ pub enum ProcessorConfig {
     ParquetDefaultProcessor(ParquetDefaultProcessorConfig),
     // ParquetEventsProcessor(ParquetDefaultProcessorConfig), // TODO: Add this back when we migrate the processor
     // ParquetAnsProcessor(ParquetAnsProcessorConfig), // TODO: Add this back when we migrate the processor
-    ParquetUserTransactionProcessor(ParquetDefaultProcessorConfig), // TODO: Add this back when we migrate the processor
-                                                                    // ParquetFungibleAssetProcessor(ParquetDefaultProcessorConfig), // TODO: Add this back when we migrate the processor
-                                                                    // ParquetTransactionMetadataProcessor(ParquetDefaultProcessorConfig), // TODO: Add this back when we migrate the processor
-                                                                    // ParquetAccountTransactionsProcessor(ParquetDefaultProcessorConfig), // TODO: Add this back when we migrate the processor
-                                                                    // ParquetTokenV2Processor(ParquetDefaultProcessorConfig), // TODO: Add this back when we migrate the processor
-                                                                    // ParquetStakeProcessor(ParquetDefaultProcessorConfig), // TODO: Add this back when we migrate the processor
-                                                                    // ParquetObjectsProcessor(ParquetDefaultProcessorConfig), // TODO: Add this back when we migrate the processor
+    ParquetUserTransactionsProcessor(ParquetDefaultProcessorConfig),
+    // ParquetFungibleAssetProcessor(ParquetDefaultProcessorConfig), // TODO: Add this back when we migrate the processor
+    // ParquetTransactionMetadataProcessor(ParquetDefaultProcessorConfig), // TODO: Add this back when we migrate the processor
+    // ParquetAccountTransactionsProcessor(ParquetDefaultProcessorConfig), // TODO: Add this back when we migrate the processor
+    // ParquetTokenV2Processor(ParquetDefaultProcessorConfig), // TODO: Add this back when we migrate the processor
+    ParquetStakeProcessor(ParquetDefaultProcessorConfig),
+    // ParquetObjectsProcessor(ParquetDefaultProcessorConfig), // TODO: Add this back when we migrate the processor
 }
 
 impl ProcessorConfig {

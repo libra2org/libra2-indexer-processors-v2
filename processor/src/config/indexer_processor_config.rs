@@ -5,6 +5,7 @@ use super::{db_config::DbConfig, processor_config::ProcessorConfig};
 use crate::{
     parquet_processors::{
         parquet_default_processor::ParquetDefaultProcessor,
+        parquet_stake_processor::ParquetStakeProcessor,
         parquet_user_transaction_processor::ParquetUserTransactionProcessor,
     },
     processors::{
@@ -119,10 +120,10 @@ impl RunnableConfig for IndexerProcessorConfig {
             //     let parquet_ans_processor = ParquetAnsProcessor::new(self.clone()).await?;
             //     parquet_ans_processor.run_processor().await
             // },
-            // ProcessorConfig::ParquetStakeProcessor(_) => {
-            //     let parquet_stake_processor = ParquetStakeProcessor::new(self.clone()).await?;
-            //     parquet_stake_processor.run_processor().await
-            // },
+            ProcessorConfig::ParquetStakeProcessor(_) => {
+                let parquet_stake_processor = ParquetStakeProcessor::new(self.clone()).await?;
+                parquet_stake_processor.run_processor().await
+            },
             // ProcessorConfig::ParquetObjectsProcessor(_) => {
             //     let parquet_objects_processor = ParquetObjectsProcessor::new(self.clone()).await?;
             //     parquet_objects_processor.run_processor().await
