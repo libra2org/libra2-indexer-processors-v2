@@ -8,7 +8,7 @@ use crate::{
     },
     steps::{
         common::get_processor_status_saver,
-        token_v2_processor::{
+        postgres_processor_steps::token_v2_processor::{
             token_v2_extractor::TokenV2Extractor, token_v2_storer::TokenV2Storer,
         },
     },
