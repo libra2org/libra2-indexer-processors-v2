@@ -1,7 +1,9 @@
 use crate::{
     config::processor_config::DefaultProcessorConfig,
-    db::models::event_models::events::PostgresEvent,
-    db::queries::events_processor_queries::insert_events_query,
+    db::{
+        models::event_models::events::PostgresEvent,
+        queries::events_processor_queries::insert_events_query,
+    },
     utils::database::{execute_in_chunks, get_config_table_chunk_size, ArcDbPool},
 };
 use ahash::AHashMap;
@@ -12,7 +14,6 @@ use aptos_indexer_processor_sdk::{
     utils::errors::ProcessorError,
 };
 use async_trait::async_trait;
-
 use tracing::debug;
 
 pub struct EventsStorer
