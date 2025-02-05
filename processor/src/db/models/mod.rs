@@ -1,3 +1,4 @@
+pub mod account_transaction_models;
 pub mod ans_models;
 pub mod coin_models;
 pub mod default_models;
@@ -8,6 +9,5 @@ pub mod stake_models;
 pub mod token_models;
 pub mod token_v2_models;
 pub mod user_transactions_models_temp;
-
 // Default None value for parquet fields that are not set
 const DEFAULT_NONE: &str = "NULL";

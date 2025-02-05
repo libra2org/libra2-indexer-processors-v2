@@ -1,3 +1,4 @@
+pub mod account_transactions_processor;
 pub mod ans_processor;
 pub mod default_processor;
 pub mod events_processor;

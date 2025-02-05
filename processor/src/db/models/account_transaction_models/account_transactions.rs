@@ -5,20 +5,27 @@
 #![allow(clippy::extra_unused_lifetimes)]
 #![allow(clippy::unused_unit)]
 
+use crate::bq_analytics::generic_parquet_processor::{HasVersion, NamedTable};
 use crate::{
+    bq_analytics::{GetTimeStamp, HasVersion, NamedTable},
     db::{
-        models::object_models::v2_object_utils::ObjectWithMetadata,
+        models::{
+            object_models::v2_object_utils::ObjectWithMetadata,
+            user_transactions_models_temp::user_transactions::UserTransaction,
+        },
+        resources::FromWriteResource,
     },
+    schema::account_transactions,
     utils::{counters::PROCESSOR_UNKNOWN_TYPE_COUNT, util::standardize_address},
 };
 use ahash::AHashSet;
-use aptos_protos::transaction::v1::{transaction::TxnData, write_set_change::Change, Transaction};
-use serde::{Deserialize, Serialize};
-use crate::bq_analytics::generic_parquet_processor::{HasVersion, NamedTable};
 use allocative_derive::Allocative;
+use aptos_protos::transaction::v1::{transaction::TxnData, write_set_change::Change, Transaction};
+use aptos_protos::transaction::v1::{transaction::TxnData, write_set_change::Change, Transaction};
 use field_count::FieldCount;
 use parquet_derive::ParquetRecordWriter;
-
+use serde::{Deserialize, Serialize};
+use serde::{Deserialize, Serialize};
 
 pub type AccountTransactionPK = (String, i64);
 
@@ -130,10 +137,31 @@ impl HasVersion for ParquetAccountTransaction {
         self.txn_version
     }
 }
+
+impl From<AccountTransaction> for ParquetAccountTransaction {
+    fn from(acc_txn: AccountTransaction) -> Self {
+        Self {
+            txn_version: acc_txn.transaction_version,
+            account_address: acc_txn.account_address,
+            block_timestamp: acc_txn.block_timestamp,
+        }
+    }
+}
+
+// Postgres Model
 #[derive(Clone, Debug, Deserialize, FieldCount, Identifiable, Insertable, Serialize)]
 #[diesel(primary_key(account_address, transaction_version))]
 #[diesel(table_name = account_transactions)]
 pub struct PostgresAccountTransaction {
     pub transaction_version: i64,
     pub account_address: String,
+}
+
+impl From<AccountTransaction> for PostgresAccountTransaction {
+    fn from(acc_txn: AccountTransaction) -> Self {
+        Self {
+            transaction_version: acc_txn.transaction_version,
+            account_address: acc_txn.account_address,
+        }
+    }
 }

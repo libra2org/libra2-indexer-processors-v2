@@ -5,8 +5,9 @@ use super::{db_config::DbConfig, processor_config::ProcessorConfig};
 use crate::{
     parquet_processors::parquet_default_processor::ParquetDefaultProcessor,
     processors::{
-        ans_processor::AnsProcessor, default_processor::DefaultProcessor,
-        events_processor::EventsProcessor, token_v2_processor::TokenV2Processor,
+        account_transactions_processor::AccountTransactionsProcessor, ans_processor::AnsProcessor,
+        default_processor::DefaultProcessor, events_processor::EventsProcessor,
+        token_v2_processor::TokenV2Processor,
     },
 };
 use anyhow::Result;
@@ -37,10 +38,10 @@ impl RunnableConfig for IndexerProcessorConfig {
             //     let acc_rest_processor = AccountRestorationProcessor::new(self.clone()).await?;
             //     acc_rest_processor.run_processor().await
             // },
-            // ProcessorConfig::AccountTransactionsProcessor(_) => {
-            //     let acc_txns_processor = AccountTransactionsProcessor::new(self.clone()).await?;
-            //     acc_txns_processor.run_processor().await
-            // },
+            ProcessorConfig::AccountTransactionsProcessor(_) => {
+                let acc_txns_processor = AccountTransactionsProcessor::new(self.clone()).await?;
+                acc_txns_processor.run_processor().await
+            },
             ProcessorConfig::AnsProcessor(_) => {
                 let ans_processor = AnsProcessor::new(self.clone()).await?;
                 ans_processor.run_processor().await

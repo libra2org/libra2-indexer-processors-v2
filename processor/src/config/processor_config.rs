@@ -94,7 +94,7 @@ use std::collections::HashSet;
 )]
 pub enum ProcessorConfig {
     // AccountRestorationProcessor(DefaultProcessorConfig),  // TODO: Add this back when we migrate the processor
-    // AccountTransactionsProcessor(DefaultProcessorConfig), // TODO: Add this back when we migrate the processor
+    AccountTransactionsProcessor(DefaultProcessorConfig),
     AnsProcessor(AnsProcessorConfig),
     DefaultProcessor(DefaultProcessorConfig),
     EventsProcessor(DefaultProcessorConfig),
