@@ -4,8 +4,10 @@ use crate::{
         processor_config::ProcessorConfig,
     },
     steps::{
-        account_transactions_processor::{AccountTransactionsExtractor, AccountTransactionsStorer},
         common::get_processor_status_saver,
+        postgres_processor_steps::account_transactions_processor::{
+            AccountTransactionsExtractor, AccountTransactionsStorer,
+        },
     },
     utils::{
         chain_id::check_or_update_chain_id,
