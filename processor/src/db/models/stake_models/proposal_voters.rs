@@ -5,7 +5,7 @@
 #![allow(clippy::extra_unused_lifetimes)]
 
 use crate::{
-    bq_analytics::{GetTimeStamp, HasVersion, NamedTable},
+    bq_analytics::{HasVersion, NamedTable},
     db::models::stake_models::stake_utils::StakeEvent,
     schema::proposal_votes,
     utils::{
@@ -100,12 +100,6 @@ impl NamedTable for ParquetProposalVote {
 impl HasVersion for ParquetProposalVote {
     fn version(&self) -> i64 {
         self.transaction_version
-    }
-}
-
-impl GetTimeStamp for ParquetProposalVote {
-    fn get_timestamp(&self) -> chrono::NaiveDateTime {
-        self.transaction_timestamp
     }
 }
 

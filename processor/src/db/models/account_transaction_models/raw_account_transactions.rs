@@ -14,7 +14,7 @@ use crate::{
 use ahash::AHashSet;
 use aptos_protos::transaction::v1::{transaction::TxnData, write_set_change::Change, Transaction};
 use serde::{Deserialize, Serialize};
-use crate::bq_analytics::generic_parquet_processor::{GetTimeStamp, HasVersion, NamedTable};
+use crate::bq_analytics::generic_parquet_processor::{HasVersion, NamedTable};
 use allocative_derive::Allocative;
 use field_count::FieldCount;
 use parquet_derive::ParquetRecordWriter;
@@ -130,14 +130,6 @@ impl HasVersion for ParquetAccountTransaction {
         self.txn_version
     }
 }
-
-// Postgres Model
-impl GetTimeStamp for ParquetAccountTransaction {
-    fn get_timestamp(&self) -> chrono::NaiveDateTime {
-        self.block_timestamp
-    }
-}
-
 #[derive(Clone, Debug, Deserialize, FieldCount, Identifiable, Insertable, Serialize)]
 #[diesel(primary_key(account_address, transaction_version))]
 #[diesel(table_name = account_transactions)]

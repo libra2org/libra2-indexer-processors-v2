@@ -24,7 +24,7 @@ pub fn setup_token_v2_processor_config(
     let default_processor_config = DefaultProcessorConfig {
         per_table_chunk_sizes: AHashMap::new(),
         channel_size: 100,
-        deprecated_tables: HashSet::new(),
+        tables_to_write: HashSet::new(),
     };
     let token_v2_processor_config = TokenV2ProcessorConfig {
         default_config: default_processor_config,

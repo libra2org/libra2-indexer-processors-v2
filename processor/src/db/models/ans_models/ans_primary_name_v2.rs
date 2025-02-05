@@ -6,7 +6,7 @@
 
 use super::ans_lookup_v2::TokenStandardType;
 use crate::{
-    bq_analytics::{GetTimeStamp, HasVersion, NamedTable},
+    bq_analytics::{HasVersion, NamedTable},
     db::models::{
         ans_models::{
             ans_lookup::{AnsPrimaryName, CurrentAnsPrimaryName},
@@ -91,12 +91,6 @@ impl HasVersion for ParquetAnsPrimaryNameV2 {
     }
 }
 
-impl GetTimeStamp for ParquetAnsPrimaryNameV2 {
-    fn get_timestamp(&self) -> chrono::NaiveDateTime {
-        self.block_timestamp
-    }
-}
-
 impl AnsPrimaryNameV2Convertible for ParquetAnsPrimaryNameV2 {
     fn from_raw(raw_item: RawAnsPrimaryNameV2) -> Self {
         ParquetAnsPrimaryNameV2 {
@@ -131,13 +125,6 @@ impl NamedTable for ParquetCurrentAnsPrimaryNameV2 {
 impl HasVersion for ParquetCurrentAnsPrimaryNameV2 {
     fn version(&self) -> i64 {
         self.last_transaction_version
-    }
-}
-
-impl GetTimeStamp for ParquetCurrentAnsPrimaryNameV2 {
-    fn get_timestamp(&self) -> chrono::NaiveDateTime {
-        #[warn(deprecated)]
-        chrono::NaiveDateTime::default()
     }
 }
 

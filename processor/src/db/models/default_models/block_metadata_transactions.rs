@@ -6,7 +6,7 @@
 #![allow(clippy::unused_unit)]
 
 use crate::{
-    bq_analytics::{GetTimeStamp, HasVersion, NamedTable},
+    bq_analytics::{HasVersion, NamedTable},
     schema::block_metadata_transactions,
     utils::util::{compute_nanos_since_epoch, parse_timestamp, standardize_address},
 };
@@ -127,12 +127,6 @@ impl NamedTable for ParquetBlockMetadataTransaction {
 impl HasVersion for ParquetBlockMetadataTransaction {
     fn version(&self) -> i64 {
         self.txn_version
-    }
-}
-
-impl GetTimeStamp for ParquetBlockMetadataTransaction {
-    fn get_timestamp(&self) -> chrono::NaiveDateTime {
-        self.block_timestamp
     }
 }
 

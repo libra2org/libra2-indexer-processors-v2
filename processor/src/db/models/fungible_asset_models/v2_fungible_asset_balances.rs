@@ -7,7 +7,7 @@
 
 use super::v2_fungible_asset_activities::AddressToCoinType;
 use crate::{
-    bq_analytics::{GetTimeStamp, HasVersion, NamedTable},
+    bq_analytics::{HasVersion, NamedTable},
     db::{
         models::{
             coin_models::coin_utils::{CoinInfoType, CoinResource},
@@ -461,13 +461,6 @@ impl HasVersion for ParquetFungibleAssetBalance {
         self.txn_version
     }
 }
-
-impl GetTimeStamp for ParquetFungibleAssetBalance {
-    fn get_timestamp(&self) -> chrono::NaiveDateTime {
-        self.block_timestamp
-    }
-}
-
 impl FungibleAssetBalanceConvertible for ParquetFungibleAssetBalance {
     fn from_base(base_item: FungibleAssetBalance) -> Self {
         Self {
@@ -511,12 +504,6 @@ impl HasVersion for ParquetCurrentFungibleAssetBalance {
     }
 }
 
-impl GetTimeStamp for ParquetCurrentFungibleAssetBalance {
-    fn get_timestamp(&self) -> chrono::NaiveDateTime {
-        self.last_transaction_timestamp
-    }
-}
-
 /// Note that this used to be called current_unified_fungible_asset_balances_to_be_renamed
 /// and was renamed to current_fungible_asset_balances to facilitate migration
 #[derive(
@@ -548,14 +535,6 @@ impl NamedTable for ParquetCurrentUnifiedFungibleAssetBalance {
 impl HasVersion for ParquetCurrentUnifiedFungibleAssetBalance {
     fn version(&self) -> i64 {
         -1
-    }
-}
-
-/// This will be deprecated.
-impl GetTimeStamp for ParquetCurrentUnifiedFungibleAssetBalance {
-    fn get_timestamp(&self) -> chrono::NaiveDateTime {
-        #[allow(deprecated)]
-        chrono::NaiveDateTime::from_timestamp(0, 0)
     }
 }
 

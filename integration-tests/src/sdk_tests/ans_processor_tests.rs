@@ -32,7 +32,7 @@ pub fn setup_ans_processor_config(
         default: DefaultProcessorConfig {
             per_table_chunk_sizes: AHashMap::new(),
             channel_size: 100,
-            deprecated_tables: HashSet::new(),
+            tables_to_write: HashSet::new(),
         },
     };
 

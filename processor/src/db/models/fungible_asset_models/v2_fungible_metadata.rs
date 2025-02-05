@@ -6,7 +6,7 @@
 #![allow(clippy::unused_unit)]
 
 use crate::{
-    bq_analytics::{GetTimeStamp, HasVersion, NamedTable},
+    bq_analytics::{HasVersion, NamedTable},
     db::{
         models::{
             coin_models::coin_utils::{CoinInfoType, CoinResource},
@@ -229,12 +229,6 @@ impl NamedTable for ParquetFungibleAssetMetadataModel {
 impl HasVersion for ParquetFungibleAssetMetadataModel {
     fn version(&self) -> i64 {
         self.last_transaction_version
-    }
-}
-
-impl GetTimeStamp for ParquetFungibleAssetMetadataModel {
-    fn get_timestamp(&self) -> chrono::NaiveDateTime {
-        self.last_transaction_timestamp
     }
 }
 

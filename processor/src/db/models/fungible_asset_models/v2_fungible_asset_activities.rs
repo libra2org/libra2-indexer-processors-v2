@@ -9,7 +9,7 @@ use super::v2_fungible_asset_balances::{
     get_paired_metadata_address, get_primary_fungible_store_address,
 };
 use crate::{
-    bq_analytics::{GetTimeStamp, HasVersion, NamedTable},
+    bq_analytics::{HasVersion, NamedTable},
     db::models::{
         coin_models::{
             coin_activities::CoinActivity,
@@ -319,12 +319,6 @@ impl NamedTable for ParquetFungibleAssetActivity {
 impl HasVersion for ParquetFungibleAssetActivity {
     fn version(&self) -> i64 {
         self.txn_version
-    }
-}
-
-impl GetTimeStamp for ParquetFungibleAssetActivity {
-    fn get_timestamp(&self) -> chrono::NaiveDateTime {
-        self.block_timestamp
     }
 }
 

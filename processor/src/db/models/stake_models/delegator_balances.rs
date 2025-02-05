@@ -3,7 +3,7 @@
 // This is required because a diesel macro makes clippy sad
 #![allow(clippy::extra_unused_lifetimes)]
 use crate::{
-    bq_analytics::{GetTimeStamp, HasVersion, NamedTable},
+    bq_analytics::{HasVersion, NamedTable},
     db::models::{
         default_models::table_items::{PostgresTableItem, TableItem},
         stake_models::delegator_pools::{
@@ -611,12 +611,6 @@ impl NamedTable for ParquetCurrentDelegatorBalance {
     const TABLE_NAME: &'static str = "current_delegator_balances";
 }
 
-impl GetTimeStamp for ParquetCurrentDelegatorBalance {
-    fn get_timestamp(&self) -> chrono::NaiveDateTime {
-        self.block_timestamp
-    }
-}
-
 #[derive(
     Allocative, Clone, Debug, Default, Deserialize, FieldCount, ParquetRecordWriter, Serialize,
 )]
@@ -640,12 +634,6 @@ impl NamedTable for ParquetDelegatorBalance {
 impl HasVersion for ParquetDelegatorBalance {
     fn version(&self) -> i64 {
         self.transaction_version
-    }
-}
-
-impl GetTimeStamp for ParquetDelegatorBalance {
-    fn get_timestamp(&self) -> chrono::NaiveDateTime {
-        self.block_timestamp
     }
 }
 

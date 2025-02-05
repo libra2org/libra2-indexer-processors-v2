@@ -18,3 +18,5 @@ pub mod config;
 pub mod parsing;
 pub mod processors;
 pub mod steps;
+
+pub mod parquet_processors;

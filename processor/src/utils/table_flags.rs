@@ -2,14 +2,14 @@ use bitflags::bitflags;
 use std::collections::HashSet;
 
 bitflags! {
-    #[derive(Debug, Clone, Copy)]
+    #[derive(Debug, Clone, Copy, Eq, PartialEq)]
     pub struct TableFlags: u128 {
        // Default Processor: 1-10
         const TRANSACTIONS = 1 << 1;
         const WRITE_SET_CHANGES = 1 << 2;
         const MOVE_RESOURCES = 1 << 3;
         const TABLE_ITEMS = 1 << 4;
-        const TABLE_METADATAS = 1 << 5;
+        const TABLE_METADATA = 1 << 5;
         const MOVE_MODULES = 1 << 6;
         const CURRENT_TABLE_ITEMS = 1 << 7;
         const BLOCK_METADATA_TRANSACTIONS = 1 << 8;
