@@ -5,8 +5,8 @@ use crate::{
         processor_config::{DefaultProcessorConfig, ProcessorConfig},
     },
     steps::{
-        ans_processor::{AnsExtractor, AnsStorer},
         common::get_processor_status_saver,
+        postgres_processor_steps::ans_processor::{AnsExtractor, AnsStorer},
     },
     utils::{
         chain_id::check_or_update_chain_id,

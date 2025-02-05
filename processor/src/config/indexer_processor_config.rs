@@ -3,11 +3,10 @@
 
 use super::{db_config::DbConfig, processor_config::ProcessorConfig};
 use crate::{
-    ans_processor::AnsProcessor, 
     parquet_processors::parquet_default_processor::ParquetDefaultProcessor,
     processors::{
-        default_processor::DefaultProcessor, events_processor::EventsProcessor,
-        token_v2_processor::TokenV2Processor,
+        ans_processor::AnsProcessor, default_processor::DefaultProcessor,
+        events_processor::EventsProcessor, token_v2_processor::TokenV2Processor,
     },
 };
 use anyhow::Result;
