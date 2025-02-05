@@ -5,7 +5,7 @@ use crate::{
     },
     steps::{
         common::get_processor_status_saver,
-        events_processor::{EventsExtractor, EventsStorer},
+        postgres_processor_steps::events_processor::{EventsExtractor, EventsStorer},
     },
     utils::{
         chain_id::check_or_update_chain_id,

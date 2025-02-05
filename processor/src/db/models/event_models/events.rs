@@ -1,7 +1,7 @@
 #![allow(clippy::extra_unused_lifetimes)]
 
 use crate::{
-    bq_analytics::{GetTimeStamp, HasVersion, NamedTable},
+    bq_analytics::{HasVersion, NamedTable},
     schema::events,
     utils::{
         counters::PROCESSOR_UNKNOWN_TYPE_COUNT,
@@ -147,12 +147,6 @@ impl NamedTable for ParquetEvent {
 impl HasVersion for ParquetEvent {
     fn version(&self) -> i64 {
         self.txn_version
-    }
-}
-
-impl GetTimeStamp for ParquetEvent {
-    fn get_timestamp(&self) -> chrono::NaiveDateTime {
-        self.block_timestamp
     }
 }
 
