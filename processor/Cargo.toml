@@ -77,8 +77,6 @@ url = { workspace = true }
 jemallocator = { workspace = true }
 log = "0.4.22"
 
-<<<<<<< HEAD
-=======
 # Postgres SSL support
 native-tls = { workspace = true }
 postgres-native-tls = { workspace = true }
@@ -88,7 +86,6 @@ tokio-postgres = { workspace = true }
 # Parquet support
 parquet = { workspace = true }
 parquet_derive = { workspace = true }
->>>>>>> a2bbe1a (comments and fix lint)
 
 [target.'cfg(unix)'.dependencies]
 jemallocator = { workspace = true }
