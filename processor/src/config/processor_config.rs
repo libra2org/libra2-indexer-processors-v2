@@ -98,7 +98,7 @@ pub enum ProcessorConfig {
     StakeProcessor(StakeProcessorConfig),
     TokenV2Processor(TokenV2ProcessorConfig),
     // ObjectsProcessor(ObjectsProcessorConfig), // TODO: Add this back when we migrate the processor
-    // MonitoringProcessor(DefaultProcessorConfig), // TODO: Add this back when we migrate the processor
+    MonitoringProcessor(DefaultProcessorConfig),
     // ParquetProcessor
     ParquetDefaultProcessor(ParquetDefaultProcessorConfig),
     ParquetUserTransactionProcessor(ParquetDefaultProcessorConfig),
