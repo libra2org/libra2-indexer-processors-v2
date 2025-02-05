@@ -20,7 +20,7 @@ use crate::{
             v2_fungible_asset_utils::FeeStatement,
         },
         // TODO: update this to use the new signatures after refactoring
-        user_transactions_models::signatures::Signature,
+        user_transaction_models::signatures::Signature,
     },
     schema::coin_activities,
     utils::{

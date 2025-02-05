@@ -4,6 +4,7 @@ pub mod ans_processor;
 pub mod default_processor;
 pub mod events_processor;
 pub mod token_v2_processor;
+pub mod user_transaction_processor;
 
 /**
  * This is a helper function to filter data based on the tables_to_write set.
