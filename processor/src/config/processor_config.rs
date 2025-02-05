@@ -45,6 +45,7 @@ use crate::{
         user_transaction_models::user_transactions::ParquetUserTransaction,
     },
     processors::ans_processor::AnsProcessorConfig,
+    processors::stake_processor::StakeProcessorConfig,
     processors::token_v2_processor::TokenV2ProcessorConfig,
 };
 use crate::{
@@ -100,7 +101,7 @@ pub enum ProcessorConfig {
     EventsProcessor(DefaultProcessorConfig),
     // FungibleAssetProcessor(DefaultProcessorConfig), // TODO: Add this back when we migrate the processor
     UserTransactionProcessor(DefaultProcessorConfig),
-    // StakeProcessor(StakeProcessorConfig), // TODO: Add this back when we migrate the processor
+    StakeProcessor(StakeProcessorConfig),
     TokenV2Processor(TokenV2ProcessorConfig),
     // ObjectsProcessor(ObjectsProcessorConfig), // TODO: Add this back when we migrate the processor
     // MonitoringProcessor(DefaultProcessorConfig), // TODO: Add this back when we migrate the processor

@@ -1,6 +1,6 @@
 use ahash::AHashMap;
 use aptos_indexer_testing_framework::sdk_test_context::SdkTestContext;
-use sdk_processor::{
+use processor::{
     config::{
         db_config::{DbConfig, PostgresConfig},
         indexer_processor_config::IndexerProcessorConfig,
@@ -65,7 +65,7 @@ mod tests {
         IMPORTED_MAINNET_TXNS_4827964_STAKE_INITIALIZE,
     };
     use aptos_indexer_testing_framework::{cli_parser::get_test_config, database::TestDatabase};
-    use sdk_processor::processors::stake_processor::StakeProcessor;
+    use processor::processors::stake_processor::StakeProcessor;
 
     /**
      * - 0x1::delegation_pool::DelegationPool

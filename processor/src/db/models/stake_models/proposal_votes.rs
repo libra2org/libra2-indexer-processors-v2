@@ -32,9 +32,6 @@ pub struct ProposalVote {
     pub should_pass: bool,
     pub transaction_timestamp: chrono::NaiveDateTime,
 }
-pub trait ProposalVoteConvertible {
-    fn from_base(base: ProposalVote) -> Self;
-}
 
 impl ProposalVote {
     pub fn from_transaction(transaction: &Transaction) -> anyhow::Result<Vec<Self>> {
@@ -103,8 +100,8 @@ impl HasVersion for ParquetProposalVote {
     }
 }
 
-impl ProposalVoteConvertible for ParquetProposalVote {
-    fn from_base(base: ProposalVote) -> Self {
+impl From<ProposalVote> for ParquetProposalVote {
+    fn from(base: ProposalVote) -> Self {
         Self {
             transaction_version: base.transaction_version,
             proposal_id: base.proposal_id,
@@ -131,8 +128,8 @@ pub struct PostgresProposalVote {
     pub transaction_timestamp: chrono::NaiveDateTime,
 }
 
-impl ProposalVoteConvertible for PostgresProposalVote {
-    fn from_base(base: ProposalVote) -> Self {
+impl From<ProposalVote> for PostgresProposalVote {
+    fn from(base: ProposalVote) -> Self {
         Self {
             transaction_version: base.transaction_version,
             proposal_id: base.proposal_id,

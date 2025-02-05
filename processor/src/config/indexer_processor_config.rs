@@ -11,7 +11,8 @@ use crate::{
         account_restoration_processor::AccountRestorationProcessor,
         account_transactions_processor::AccountTransactionsProcessor, ans_processor::AnsProcessor,
         default_processor::DefaultProcessor, events_processor::EventsProcessor,
-        token_v2_processor::TokenV2Processor, user_transaction_processor::UserTransactionProcessor,
+        stake_processor::StakeProcessor, token_v2_processor::TokenV2Processor,
+        user_transaction_processor::UserTransactionProcessor,
     },
 };
 use anyhow::Result;
@@ -66,10 +67,10 @@ impl RunnableConfig for IndexerProcessorConfig {
                 let user_txns_processor = UserTransactionProcessor::new(self.clone()).await?;
                 user_txns_processor.run_processor().await
             },
-            // ProcessorConfig::StakeProcessor(_) => {
-            //     let stake_processor = StakeProcessor::new(self.clone()).await?;
-            //     stake_processor.run_processor().await
-            // },
+            ProcessorConfig::StakeProcessor(_) => {
+                let stake_processor = StakeProcessor::new(self.clone()).await?;
+                stake_processor.run_processor().await
+            },
             // ProcessorConfig::MonitoringProcessor(_) => {
             //     let monitoring_processor = MonitoringProcessor::new(self.clone()).await?;
             //     monitoring_processor.run_processor().await

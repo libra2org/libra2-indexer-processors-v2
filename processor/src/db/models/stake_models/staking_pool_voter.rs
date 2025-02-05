@@ -25,10 +25,6 @@ pub struct CurrentStakingPoolVoter {
     pub block_timestamp: chrono::NaiveDateTime,
 }
 
-pub trait CurrentStakingPoolVoterConvertible {
-    fn from_base(base: CurrentStakingPoolVoter) -> Self;
-}
-
 impl CurrentStakingPoolVoter {
     pub fn from_transaction(transaction: &Transaction) -> anyhow::Result<StakingPoolVoterMap> {
         let mut staking_pool_voters = AHashMap::new();
@@ -74,8 +70,8 @@ pub struct PostgresCurrentStakingPoolVoter {
     pub operator_address: String,
 }
 
-impl CurrentStakingPoolVoterConvertible for PostgresCurrentStakingPoolVoter {
-    fn from_base(base: CurrentStakingPoolVoter) -> Self {
+impl From<CurrentStakingPoolVoter> for PostgresCurrentStakingPoolVoter {
+    fn from(base: CurrentStakingPoolVoter) -> Self {
         Self {
             staking_pool_address: base.staking_pool_address,
             voter_address: base.voter_address,

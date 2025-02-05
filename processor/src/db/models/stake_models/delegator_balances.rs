@@ -49,10 +49,6 @@ pub struct CurrentDelegatorBalance {
     pub block_timestamp: chrono::NaiveDateTime,
 }
 
-pub trait CurrentDelegatorBalanceConvertible {
-    fn from_base(base: CurrentDelegatorBalance) -> Self;
-}
-
 #[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct DelegatorBalance {
     pub transaction_version: i64,
@@ -64,10 +60,6 @@ pub struct DelegatorBalance {
     pub shares: BigDecimal,
     pub parent_table_handle: String,
     pub block_timestamp: chrono::NaiveDateTime,
-}
-
-pub trait DelegatorBalanceConvertible {
-    fn from_base(base: DelegatorBalance) -> Self;
 }
 
 #[derive(Debug, Identifiable, Queryable)]
@@ -586,8 +578,8 @@ pub struct ParquetCurrentDelegatorBalance {
     pub block_timestamp: chrono::NaiveDateTime,
 }
 
-impl CurrentDelegatorBalanceConvertible for ParquetCurrentDelegatorBalance {
-    fn from_base(base: CurrentDelegatorBalance) -> Self {
+impl From<CurrentDelegatorBalance> for ParquetCurrentDelegatorBalance {
+    fn from(base: CurrentDelegatorBalance) -> Self {
         Self {
             delegator_address: base.delegator_address,
             pool_address: base.pool_address,
@@ -637,8 +629,8 @@ impl HasVersion for ParquetDelegatorBalance {
     }
 }
 
-impl DelegatorBalanceConvertible for ParquetDelegatorBalance {
-    fn from_base(base: DelegatorBalance) -> Self {
+impl From<DelegatorBalance> for ParquetDelegatorBalance {
+    fn from(base: DelegatorBalance) -> Self {
         Self {
             transaction_version: base.transaction_version,
             write_set_change_index: base.write_set_change_index,
@@ -667,8 +659,8 @@ pub struct PostgresCurrentDelegatorBalance {
     pub parent_table_handle: String,
 }
 
-impl CurrentDelegatorBalanceConvertible for PostgresCurrentDelegatorBalance {
-    fn from_base(base: CurrentDelegatorBalance) -> Self {
+impl From<CurrentDelegatorBalance> for PostgresCurrentDelegatorBalance {
+    fn from(base: CurrentDelegatorBalance) -> Self {
         Self {
             delegator_address: base.delegator_address,
             pool_address: base.pool_address,
@@ -695,8 +687,8 @@ pub struct PostgresDelegatorBalance {
     pub parent_table_handle: String,
 }
 
-impl DelegatorBalanceConvertible for PostgresDelegatorBalance {
-    fn from_base(base: DelegatorBalance) -> Self {
+impl From<DelegatorBalance> for PostgresDelegatorBalance {
+    fn from(base: DelegatorBalance) -> Self {
         Self {
             transaction_version: base.transaction_version,
             write_set_change_index: base.write_set_change_index,

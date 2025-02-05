@@ -49,10 +49,6 @@ pub struct DelegatorPoolBalanceMetadata {
     pub inactive_share_table_handle: String,
 }
 
-pub trait DelegatorPoolBalanceMetadataConvertible {
-    fn from_base(base: DelegatorPoolBalanceMetadata) -> Self;
-}
-
 // Similar metadata but specifically for 0x1::pool_u64_unbound::Pool
 #[derive(Debug, Deserialize, Serialize)]
 pub struct PoolBalanceMetadata {
@@ -96,10 +92,6 @@ pub struct CurrentDelegatorPoolBalance {
     pub operator_commission_percentage: BigDecimal,
     pub inactive_table_handle: String,
     pub active_table_handle: String,
-}
-
-pub trait CurrentDelegatorPoolBalanceConvertible {
-    fn from_base(base: CurrentDelegatorPoolBalance) -> Self;
 }
 
 impl DelegatorPool {
@@ -279,8 +271,8 @@ pub struct PostgresDelegatorPoolBalanceMetadata {
     pub inactive_share_table_handle: String,
 }
 
-impl DelegatorPoolBalanceMetadataConvertible for PostgresDelegatorPoolBalanceMetadata {
-    fn from_base(base: DelegatorPoolBalanceMetadata) -> Self {
+impl From<DelegatorPoolBalanceMetadata> for PostgresDelegatorPoolBalanceMetadata {
+    fn from(base: DelegatorPoolBalanceMetadata) -> Self {
         Self {
             transaction_version: base.transaction_version,
             staking_pool_address: base.staking_pool_address,
@@ -305,8 +297,8 @@ pub struct PostgresPoolBalanceMetadata {
     pub parent_table_handle: String,
 }
 
-impl PoolBalanceMetadataConvertible for PostgresPoolBalanceMetadata {
-    fn from_base(base: PoolBalanceMetadata) -> Self {
+impl From<PoolBalanceMetadata> for PostgresPoolBalanceMetadata {
+    fn from(base: PoolBalanceMetadata) -> Self {
         Self {
             transaction_version: base.transaction_version,
             total_coins: base.total_coins,
@@ -332,8 +324,8 @@ pub struct PostgresDelegatorPoolBalance {
     pub active_table_handle: String,
 }
 
-impl DelegatorPoolBalanceConvertible for PostgresDelegatorPoolBalance {
-    fn from_base(base: DelegatorPoolBalance) -> Self {
+impl From<DelegatorPoolBalance> for PostgresDelegatorPoolBalance {
+    fn from(base: DelegatorPoolBalance) -> Self {
         Self {
             transaction_version: base.transaction_version,
             staking_pool_address: base.staking_pool_address,
@@ -360,8 +352,8 @@ pub struct PostgresCurrentDelegatorPoolBalance {
     pub active_table_handle: String,
 }
 
-impl CurrentDelegatorPoolBalanceConvertible for PostgresCurrentDelegatorPoolBalance {
-    fn from_base(base: CurrentDelegatorPoolBalance) -> Self {
+impl From<CurrentDelegatorPoolBalance> for PostgresCurrentDelegatorPoolBalance {
+    fn from(base: CurrentDelegatorPoolBalance) -> Self {
         Self {
             staking_pool_address: base.staking_pool_address,
             total_coins: base.total_coins,
