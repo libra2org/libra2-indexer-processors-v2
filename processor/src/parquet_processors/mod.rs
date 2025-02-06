@@ -31,7 +31,7 @@ use crate::{
         //     },
         //     parquet_v2_fungible_metadata::FungibleAssetMetadataModel,
         // },
-        // object_models::v2_objects::{CurrentObject, Object},
+        object_models::v2_objects::{ParquetCurrentObject, ParquetObject},
         stake_models::{
             delegator_activities::ParquetDelegatedStakingActivity,
             delegator_balances::{ParquetCurrentDelegatorBalance, ParquetDelegatorBalance},
@@ -71,7 +71,7 @@ pub mod parquet_ans_processor;
 pub mod parquet_default_processor;
 pub mod parquet_events_processor;
 // pub mod parquet_fungible_asset_processor;
-// pub mod parquet_objects_processor;
+pub mod parquet_objects_processor;
 pub mod parquet_stake_processor;
 pub mod parquet_token_v2_processor;
 pub mod parquet_transaction_metadata_processor;
@@ -144,9 +144,9 @@ pub enum ParquetTypeEnum {
     CurrentDelegatorBalances,
     DelegatorBalances,
     ProposalVotes,
-    // // Objects
-    // Objects,
-    // CurrentObjects,
+    // Objects
+    Objects,
+    CurrentObjects,
 }
 
 /// Trait for handling various Parquet types.
@@ -271,8 +271,8 @@ impl_parquet_trait!(
 );
 impl_parquet_trait!(ParquetDelegatorBalance, ParquetTypeEnum::DelegatorBalances);
 impl_parquet_trait!(ParquetProposalVote, ParquetTypeEnum::ProposalVotes);
-// impl_parquet_trait!(Object, ParquetTypeEnum::Objects);
-// impl_parquet_trait!(CurrentObject, ParquetTypeEnum::CurrentObjects);
+impl_parquet_trait!(ParquetObject, ParquetTypeEnum::Objects);
+impl_parquet_trait!(ParquetCurrentObject, ParquetTypeEnum::CurrentObjects);
 
 #[derive(Debug, Clone)]
 #[enum_dispatch(ParquetTypeTrait)]
@@ -319,9 +319,9 @@ pub enum ParquetTypeStructs {
     CurrentDelegatorBalance(Vec<ParquetCurrentDelegatorBalance>),
     DelegatorBalance(Vec<ParquetDelegatorBalance>),
     ProposalVote(Vec<ParquetProposalVote>),
-    // // Objects
-    // Object(Vec<Object>),
-    // CurrentObject(Vec<CurrentObject>),
+    // Objects
+    Object(Vec<ParquetObject>),
+    CurrentObject(Vec<ParquetCurrentObject>),
 }
 
 impl ParquetTypeStructs {
@@ -392,8 +392,8 @@ impl ParquetTypeStructs {
             },
             ParquetTypeEnum::DelegatorBalances => ParquetTypeStructs::DelegatorBalance(Vec::new()),
             ParquetTypeEnum::ProposalVotes => ParquetTypeStructs::ProposalVote(Vec::new()),
-            // ParquetTypeEnum::Objects => ParquetTypeStructs::Object(Vec::new()),
-            // ParquetTypeEnum::CurrentObjects => ParquetTypeStructs::CurrentObject(Vec::new()),
+            ParquetTypeEnum::Objects => ParquetTypeStructs::Object(Vec::new()),
+            ParquetTypeEnum::CurrentObjects => ParquetTypeStructs::CurrentObject(Vec::new()),
         }
     }
 
@@ -603,15 +603,15 @@ impl ParquetTypeStructs {
             ) => {
                 handle_append!(self_data, other_data)
             },
-            // (ParquetTypeStructs::Object(self_data), ParquetTypeStructs::Object(other_data)) => {
-            //     handle_append!(self_data, other_data)
-            // },
-            // (
-            //     ParquetTypeStructs::CurrentObject(self_data),
-            //     ParquetTypeStructs::CurrentObject(other_data),
-            // ) => {
-            //     handle_append!(self_data, other_data)
-            // },
+            (ParquetTypeStructs::Object(self_data), ParquetTypeStructs::Object(other_data)) => {
+                handle_append!(self_data, other_data)
+            },
+            (
+                ParquetTypeStructs::CurrentObject(self_data),
+                ParquetTypeStructs::CurrentObject(other_data),
+            ) => {
+                handle_append!(self_data, other_data)
+            },
             _ => Err(ProcessorError::ProcessError {
                 message: "Mismatched buffer types in append operation".to_string(),
             }),
