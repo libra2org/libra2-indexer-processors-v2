@@ -196,12 +196,7 @@ impl FungibleAssetMetadataModel {
     }
 }
 
-pub trait FungibleAssetMetadataConvertible {
-    fn from_base(base_item: FungibleAssetMetadataModel) -> Self;
-}
-
-// Parquet Model
-
+// Parquet version of FungibleAssetMetadataModel
 #[derive(Allocative, Clone, Debug, Default, Deserialize, ParquetRecordWriter, Serialize)]
 pub struct ParquetFungibleAssetMetadataModel {
     pub asset_type: String,
@@ -232,24 +227,24 @@ impl HasVersion for ParquetFungibleAssetMetadataModel {
     }
 }
 
-impl FungibleAssetMetadataConvertible for ParquetFungibleAssetMetadataModel {
-    fn from_base(base_item: FungibleAssetMetadataModel) -> Self {
+impl From<FungibleAssetMetadataModel> for ParquetFungibleAssetMetadataModel {
+    fn from(raw: FungibleAssetMetadataModel) -> Self {
         Self {
-            asset_type: base_item.asset_type,
-            creator_address: base_item.creator_address,
-            name: base_item.name,
-            symbol: base_item.symbol,
-            decimals: base_item.decimals,
-            icon_uri: base_item.icon_uri,
-            project_uri: base_item.project_uri,
-            last_transaction_version: base_item.last_transaction_version,
-            last_transaction_timestamp: base_item.last_transaction_timestamp,
-            supply_aggregator_table_handle_v1: base_item.supply_aggregator_table_handle_v1,
-            supply_aggregator_table_key_v1: base_item.supply_aggregator_table_key_v1,
-            token_standard: base_item.token_standard,
-            is_token_v2: base_item.is_token_v2,
-            supply_v2: base_item.supply_v2.map(|x| x.to_string()),
-            maximum_v2: base_item.maximum_v2.map(|x| x.to_string()),
+            asset_type: raw.asset_type,
+            creator_address: raw.creator_address,
+            name: raw.name,
+            symbol: raw.symbol,
+            decimals: raw.decimals,
+            icon_uri: raw.icon_uri,
+            project_uri: raw.project_uri,
+            last_transaction_version: raw.last_transaction_version,
+            last_transaction_timestamp: raw.last_transaction_timestamp,
+            supply_aggregator_table_handle_v1: raw.supply_aggregator_table_handle_v1,
+            supply_aggregator_table_key_v1: raw.supply_aggregator_table_key_v1,
+            token_standard: raw.token_standard,
+            is_token_v2: raw.is_token_v2,
+            supply_v2: raw.supply_v2.map(|x| x.to_string()),
+            maximum_v2: raw.maximum_v2.map(|x| x.to_string()),
         }
     }
 }
@@ -277,24 +272,24 @@ pub struct PostgresFungibleAssetMetadataModel {
     pub maximum_v2: Option<BigDecimal>,
 }
 
-impl FungibleAssetMetadataConvertible for PostgresFungibleAssetMetadataModel {
-    fn from_base(base_item: FungibleAssetMetadataModel) -> Self {
+impl From<FungibleAssetMetadataModel> for PostgresFungibleAssetMetadataModel {
+    fn from(raw: FungibleAssetMetadataModel) -> Self {
         Self {
-            asset_type: base_item.asset_type,
-            creator_address: base_item.creator_address,
-            name: base_item.name,
-            symbol: base_item.symbol,
-            decimals: base_item.decimals,
-            icon_uri: base_item.icon_uri,
-            project_uri: base_item.project_uri,
-            last_transaction_version: base_item.last_transaction_version,
-            last_transaction_timestamp: base_item.last_transaction_timestamp,
-            supply_aggregator_table_handle_v1: base_item.supply_aggregator_table_handle_v1,
-            supply_aggregator_table_key_v1: base_item.supply_aggregator_table_key_v1,
-            token_standard: base_item.token_standard,
-            is_token_v2: base_item.is_token_v2,
-            supply_v2: base_item.supply_v2,
-            maximum_v2: base_item.maximum_v2,
+            asset_type: raw.asset_type,
+            creator_address: raw.creator_address,
+            name: raw.name,
+            symbol: raw.symbol,
+            decimals: raw.decimals,
+            icon_uri: raw.icon_uri,
+            project_uri: raw.project_uri,
+            last_transaction_version: raw.last_transaction_version,
+            last_transaction_timestamp: raw.last_transaction_timestamp,
+            supply_aggregator_table_handle_v1: raw.supply_aggregator_table_handle_v1,
+            supply_aggregator_table_key_v1: raw.supply_aggregator_table_key_v1,
+            token_standard: raw.token_standard,
+            is_token_v2: raw.is_token_v2,
+            supply_v2: raw.supply_v2,
+            maximum_v2: raw.maximum_v2,
         }
     }
 }
