@@ -19,6 +19,14 @@ use crate::{
             write_set_changes::ParquetWriteSetChange,
         },
         event_models::events::ParquetEvent,
+        fungible_asset_models::{
+            v2_fungible_asset_activities::ParquetFungibleAssetActivity,
+            v2_fungible_asset_balances::{
+                ParquetCurrentFungibleAssetBalance, ParquetCurrentUnifiedFungibleAssetBalance,
+                ParquetFungibleAssetBalance,
+            },
+            v2_fungible_metadata::ParquetFungibleAssetMetadataModel,
+        },
         object_models::v2_objects::{ParquetCurrentObject, ParquetObject},
         stake_models::{
             delegator_activities::ParquetDelegatedStakingActivity,
@@ -99,7 +107,7 @@ pub enum ProcessorConfig {
     ParquetUserTransactionProcessor(ParquetDefaultProcessorConfig),
     ParquetEventsProcessor(ParquetDefaultProcessorConfig),
     ParquetAnsProcessor(ParquetAnsProcessorConfig),
-    // ParquetFungibleAssetProcessor(ParquetDefaultProcessorConfig), // TODO: Add this back when we migrate the processor
+    ParquetFungibleAssetProcessor(ParquetDefaultProcessorConfig),
     ParquetTransactionMetadataProcessor(ParquetDefaultProcessorConfig),
     ParquetAccountTransactionsProcessor(ParquetDefaultProcessorConfig),
     ParquetTokenV2Processor(ParquetDefaultProcessorConfig),
@@ -126,10 +134,10 @@ impl ProcessorConfig {
             | ProcessorConfig::ParquetAccountTransactionsProcessor(config)
             | ProcessorConfig::ParquetTokenV2Processor(config)
             | ProcessorConfig::ParquetStakeProcessor(config) => config,
-            | ProcessorConfig::ParquetObjectsProcessor(config)
-            // | ProcessorConfig::ParquetFungibleAssetProcessor(config)
+            ProcessorConfig::ParquetObjectsProcessor(config)
+            | ProcessorConfig::ParquetFungibleAssetProcessor(config)
             | ProcessorConfig::ParquetUserTransactionProcessor(config) => config,
-            | ProcessorConfig::ParquetAnsProcessor(config) => &config.default,
+            ProcessorConfig::ParquetAnsProcessor(config) => &config.default,
             _ => {
                 return Err(anyhow::anyhow!(
                     "Invalid parquet processor config: {:?}",
@@ -183,13 +191,13 @@ impl ProcessorConfig {
                 ParquetCurrentAnsLookupV2::TABLE_NAME.to_string(),
                 ParquetCurrentAnsPrimaryNameV2::TABLE_NAME.to_string(),
             ]),
-            // ProcessorName::ParquetFungibleAssetProcessor => HashSet::from([
-            //     FungibleAssetActivity::TABLE_NAME.to_string(),
-            //     FungibleAssetBalance::TABLE_NAME.to_string(),
-            //     CurrentFungibleAssetBalance::TABLE_NAME.to_string(),
-            //     CurrentUnifiedFungibleAssetBalance::TABLE_NAME.to_string(),
-            //     FungibleAssetMetadataModel::TABLE_NAME.to_string(),
-            // ]),
+            ProcessorName::ParquetFungibleAssetProcessor => HashSet::from([
+                ParquetFungibleAssetActivity::TABLE_NAME.to_string(),
+                ParquetFungibleAssetBalance::TABLE_NAME.to_string(),
+                ParquetCurrentFungibleAssetBalance::TABLE_NAME.to_string(),
+                ParquetCurrentUnifiedFungibleAssetBalance::TABLE_NAME.to_string(),
+                ParquetFungibleAssetMetadataModel::TABLE_NAME.to_string(),
+            ]),
             // ProcessorName::ParquetTransactionMetadataProcessor => {
             //     HashSet::from([WriteSetSize::TABLE_NAME.to_string()])
             // },
