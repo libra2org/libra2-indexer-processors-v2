@@ -44,10 +44,11 @@ use crate::{
 };
 use crate::{
     //     parquet_processors::parquet_ans_processor::ParquetAnsProcessorConfig,
-    //     processors::{
-    //         ans_processor::AnsProcessorConfig, objects_processor::ObjectsProcessorConfig,
-    //         stake_processor::StakeProcessorConfig, token_v2_processor::TokenV2ProcessorConfig,
-    //     },
+    processors::{
+        objects_processor::ObjectsProcessorConfig,
+        // ans_processor::AnsProcessorConfig,
+        // stake_processor::StakeProcessorConfig, token_v2_processor::TokenV2ProcessorConfig,
+    },
     utils::parquet_processor_table_mapping::{format_table_name, VALID_TABLE_NAMES},
 };
 use ahash::AHashMap;
@@ -97,7 +98,7 @@ pub enum ProcessorConfig {
     UserTransactionProcessor(DefaultProcessorConfig),
     StakeProcessor(StakeProcessorConfig),
     TokenV2Processor(TokenV2ProcessorConfig),
-    // ObjectsProcessor(ObjectsProcessorConfig), // TODO: Add this back when we migrate the processor
+    ObjectsProcessor(ObjectsProcessorConfig),
     MonitoringProcessor(DefaultProcessorConfig),
     // ParquetProcessor
     ParquetDefaultProcessor(ParquetDefaultProcessorConfig),

@@ -41,11 +41,6 @@ pub struct Object {
     pub untransferrable: bool,
     pub block_timestamp: chrono::NaiveDateTime,
 }
-
-pub trait ObjectConvertible {
-    fn from_raw(base_item: Object) -> Self;
-}
-
 #[derive(Clone, Debug, Deserialize, FieldCount, Serialize)]
 pub struct CurrentObject {
     pub object_address: String,
@@ -57,10 +52,6 @@ pub struct CurrentObject {
     pub is_deleted: bool,
     pub untransferrable: bool,
     pub block_timestamp: chrono::NaiveDateTime,
-}
-
-pub trait CurrentObjectConvertible {
-    fn from_raw(base_item: CurrentObject) -> Self;
 }
 
 #[derive(Debug, Deserialize, Identifiable, Queryable, Serialize)]
@@ -330,8 +321,8 @@ impl HasVersion for ParquetObject {
     }
 }
 
-impl ObjectConvertible for ParquetObject {
-    fn from_raw(base_item: Object) -> Self {
+impl From<Object> for ParquetObject {
+    fn from(base_item: Object) -> Self {
         Self {
             txn_version: base_item.transaction_version,
             write_set_change_index: base_item.write_set_change_index,
@@ -373,8 +364,8 @@ impl HasVersion for ParquetCurrentObject {
     }
 }
 
-impl CurrentObjectConvertible for ParquetCurrentObject {
-    fn from_raw(base_item: CurrentObject) -> Self {
+impl From<CurrentObject> for ParquetCurrentObject {
+    fn from(base_item: CurrentObject) -> Self {
         Self {
             object_address: base_item.object_address,
             owner_address: base_item.owner_address,
@@ -405,8 +396,8 @@ pub struct PostgresObject {
     pub untransferrable: bool,
 }
 
-impl ObjectConvertible for PostgresObject {
-    fn from_raw(base_item: Object) -> Self {
+impl From<Object> for PostgresObject {
+    fn from(base_item: Object) -> Self {
         Self {
             transaction_version: base_item.transaction_version,
             write_set_change_index: base_item.write_set_change_index,
@@ -435,17 +426,17 @@ pub struct PostgresCurrentObject {
     pub untransferrable: bool,
 }
 
-impl CurrentObjectConvertible for PostgresCurrentObject {
-    fn from_raw(base_item: CurrentObject) -> Self {
+impl From<CurrentObject> for PostgresCurrentObject {
+    fn from(raw: CurrentObject) -> Self {
         Self {
-            object_address: base_item.object_address,
-            owner_address: base_item.owner_address,
-            state_key_hash: base_item.state_key_hash,
-            allow_ungated_transfer: base_item.allow_ungated_transfer,
-            last_guid_creation_num: base_item.last_guid_creation_num,
-            last_transaction_version: base_item.last_transaction_version,
-            is_deleted: base_item.is_deleted,
-            untransferrable: base_item.untransferrable,
+            object_address: raw.object_address,
+            owner_address: raw.owner_address,
+            state_key_hash: raw.state_key_hash,
+            allow_ungated_transfer: raw.allow_ungated_transfer,
+            last_guid_creation_num: raw.last_guid_creation_num,
+            last_transaction_version: raw.last_transaction_version,
+            is_deleted: raw.is_deleted,
+            untransferrable: raw.untransferrable,
         }
     }
 }
