@@ -3,6 +3,7 @@ pub mod account_transaction_processor_helpers;
 pub mod ans_processor_helpers;
 pub mod default_processor_helpers;
 pub mod events_processor_helpers;
+pub mod fungible_asset_processor_helpers;
 pub mod objects_processor_helpers;
 pub mod stake_processor_helpers;
 pub mod token_v2_processor_helpers;

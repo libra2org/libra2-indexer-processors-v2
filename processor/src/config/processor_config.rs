@@ -39,16 +39,8 @@ use crate::{
     },
     parquet_processors::parquet_ans_processor::ParquetAnsProcessorConfig,
     processors::{
-        ans_processor::AnsProcessorConfig, stake_processor::StakeProcessorConfig,
-        token_v2_processor::TokenV2ProcessorConfig,
-    },
-};
-use crate::{
-    //     parquet_processors::parquet_ans_processor::ParquetAnsProcessorConfig,
-    processors::{
-        objects_processor::ObjectsProcessorConfig,
-        // ans_processor::AnsProcessorConfig,
-        // stake_processor::StakeProcessorConfig, token_v2_processor::TokenV2ProcessorConfig,
+        ans_processor::AnsProcessorConfig, objects_processor::ObjectsProcessorConfig,
+        stake_processor::StakeProcessorConfig, token_v2_processor::TokenV2ProcessorConfig,
     },
     utils::parquet_processor_table_mapping::{format_table_name, VALID_TABLE_NAMES},
 };
@@ -95,7 +87,7 @@ pub enum ProcessorConfig {
     AnsProcessor(AnsProcessorConfig),
     DefaultProcessor(DefaultProcessorConfig),
     EventsProcessor(DefaultProcessorConfig),
-    // FungibleAssetProcessor(DefaultProcessorConfig), // TODO: Add this back when we migrate the processor
+    FungibleAssetProcessor(DefaultProcessorConfig),
     UserTransactionProcessor(DefaultProcessorConfig),
     StakeProcessor(StakeProcessorConfig),
     TokenV2Processor(TokenV2ProcessorConfig),
@@ -130,7 +122,6 @@ impl ProcessorConfig {
         let default_config = match self {
             ProcessorConfig::ParquetDefaultProcessor(config)
             | ProcessorConfig::ParquetEventsProcessor(config)
-            // | ProcessorConfig::ParquetUserTransactionsProcessor(config)
             | ProcessorConfig::ParquetTransactionMetadataProcessor(config)
             | ProcessorConfig::ParquetAccountTransactionsProcessor(config)
             | ProcessorConfig::ParquetTokenV2Processor(config)
@@ -138,7 +129,6 @@ impl ProcessorConfig {
             | ProcessorConfig::ParquetObjectsProcessor(config)
             // | ProcessorConfig::ParquetFungibleAssetProcessor(config)
             | ProcessorConfig::ParquetUserTransactionProcessor(config) => config,
-            // | ProcessorConfig::ParquetFungibleAssetProcessor(config) => &config,
             | ProcessorConfig::ParquetAnsProcessor(config) => &config.default,
             _ => {
                 return Err(anyhow::anyhow!(
