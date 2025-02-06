@@ -18,6 +18,7 @@ use crate::{
         account_restoration_processor::AccountRestorationProcessor,
         account_transactions_processor::AccountTransactionsProcessor, ans_processor::AnsProcessor,
         default_processor::DefaultProcessor, events_processor::EventsProcessor,
+        fungible_asset_processor::FungibleAssetProcessor,
         monitoring_processor::MonitoringProcessor, objects_processor::ObjectsProcessor,
         stake_processor::StakeProcessor, token_v2_processor::TokenV2Processor,
         user_transaction_processor::UserTransactionProcessor,
@@ -67,10 +68,10 @@ impl RunnableConfig for IndexerProcessorConfig {
                 let events_processor = EventsProcessor::new(self.clone()).await?;
                 events_processor.run_processor().await
             },
-            // ProcessorConfig::FungibleAssetProcessor(_) => {
-            //     let fungible_asset_processor = FungibleAssetProcessor::new(self.clone()).await?;
-            //     fungible_asset_processor.run_processor().await
-            // },
+            ProcessorConfig::FungibleAssetProcessor(_) => {
+                let fungible_asset_processor = FungibleAssetProcessor::new(self.clone()).await?;
+                fungible_asset_processor.run_processor().await
+            },
             ProcessorConfig::UserTransactionProcessor(_) => {
                 let user_txns_processor = UserTransactionProcessor::new(self.clone()).await?;
                 user_txns_processor.run_processor().await

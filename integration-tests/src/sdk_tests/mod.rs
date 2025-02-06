@@ -14,28 +14,23 @@ use std::{
 };
 
 #[cfg(test)]
-pub mod ans_processor_tests;
-
-#[cfg(test)]
-pub mod events_processor_tests;
-
-// #[cfg(test)]
-// pub mod fungible_asset_processor_tests;
-
-#[cfg(test)]
-pub mod token_v2_processor_tests;
-
-#[cfg(test)]
-pub mod account_transaction_processor_tests;
-
-#[cfg(test)]
 pub mod account_restoration_processor_tests;
 #[cfg(test)]
+pub mod account_transaction_processor_tests;
+#[cfg(test)]
+pub mod ans_processor_tests;
+#[cfg(test)]
 pub mod default_processor_tests;
+#[cfg(test)]
+pub mod events_processor_tests;
+#[cfg(test)]
+pub mod fungible_asset_processor_tests;
 #[cfg(test)]
 pub mod objects_processor_tests;
 #[cfg(test)]
 pub mod stake_processor_tests;
+#[cfg(test)]
+pub mod token_v2_processor_tests;
 #[cfg(test)]
 pub mod user_transaction_processor_tests;
 
