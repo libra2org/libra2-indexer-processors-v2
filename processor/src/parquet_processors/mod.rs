@@ -1,12 +1,5 @@
 use crate::{
     config::db_config::DbConfig,
-    steps::common::{
-        gcs_uploader::{create_new_writer, GCSUploader},
-        parquet_buffer_step::ParquetBufferStep,
-    },
-    utils::database::{new_db_pool, ArcDbPool},
-};
-use crate::{
     db::models::{
         account_transaction_models::account_transactions::ParquetAccountTransaction,
         ans_models::{
@@ -17,20 +10,19 @@ use crate::{
             block_metadata_transactions::ParquetBlockMetadataTransaction,
             move_modules::ParquetMoveModule,
             move_resources::ParquetMoveResource,
-            table_items::ParquetTableMetadata,
-            table_items::{ParquetCurrentTableItem, ParquetTableItem},
+            table_items::{ParquetCurrentTableItem, ParquetTableItem, ParquetTableMetadata},
             transactions::ParquetTransaction,
             write_set_changes::ParquetWriteSetChange,
         },
         event_models::events::ParquetEvent,
-        // fungible_asset_models::{
-        //     parquet_v2_fungible_asset_activities::FungibleAssetActivity,
-        //     parquet_v2_fungible_asset_balances::{
-        //         CurrentFungibleAssetBalance, CurrentUnifiedFungibleAssetBalance,
-        //         FungibleAssetBalance,
-        //     },
-        //     parquet_v2_fungible_metadata::FungibleAssetMetadataModel,
-        // },
+        fungible_asset_models::{
+            v2_fungible_asset_activities::ParquetFungibleAssetActivity,
+            v2_fungible_asset_balances::{
+                ParquetCurrentFungibleAssetBalance, ParquetCurrentUnifiedFungibleAssetBalance,
+                ParquetFungibleAssetBalance,
+            },
+            v2_fungible_metadata::ParquetFungibleAssetMetadataModel,
+        },
         object_models::v2_objects::{ParquetCurrentObject, ParquetObject},
         stake_models::{
             delegator_activities::ParquetDelegatedStakingActivity,
@@ -50,7 +42,14 @@ use crate::{
         transaction_metadata_models::write_set_size_info::ParquetWriteSetSize,
         user_transaction_models::user_transactions::ParquetUserTransaction,
     },
-    utils::table_flags::TableFlags,
+    steps::common::{
+        gcs_uploader::{create_new_writer, GCSUploader},
+        parquet_buffer_step::ParquetBufferStep,
+    },
+    utils::{
+        database::{new_db_pool, ArcDbPool},
+        table_flags::TableFlags,
+    },
 };
 use aptos_indexer_processor_sdk::utils::errors::ProcessorError;
 use async_trait::async_trait;
@@ -70,7 +69,7 @@ pub mod parquet_account_transactions_processor;
 pub mod parquet_ans_processor;
 pub mod parquet_default_processor;
 pub mod parquet_events_processor;
-// pub mod parquet_fungible_asset_processor;
+pub mod parquet_fungible_asset_processor;
 pub mod parquet_objects_processor;
 pub mod parquet_stake_processor;
 pub mod parquet_token_v2_processor;
@@ -120,12 +119,12 @@ pub enum ParquetTypeEnum {
     CurrentAnsPrimaryNameV2,
     AnsLookupV2,
     CurrentAnsLookupV2,
-    // // fa
-    // FungibleAssetActivities,
-    // FungibleAssetMetadata,
-    // FungibleAssetBalances,
-    // CurrentFungibleAssetBalances,
-    // CurrentFungibleAssetBalancesLegacy,
+    // fa
+    FungibleAssetActivities,
+    FungibleAssetMetadata,
+    FungibleAssetBalances,
+    CurrentFungibleAssetBalances,
+    CurrentFungibleAssetBalancesLegacy,
     // txn metadata,
     WriteSetSize,
     // account transactions
@@ -215,23 +214,26 @@ impl_parquet_trait!(
     ParquetCurrentAnsLookupV2,
     ParquetTypeEnum::CurrentAnsLookupV2
 );
-// impl_parquet_trait!(
-//     FungibleAssetActivity,
-//     ParquetTypeEnum::FungibleAssetActivities
-// );
-// impl_parquet_trait!(
-//     FungibleAssetMetadataModel,
-//     ParquetTypeEnum::FungibleAssetMetadata
-// );
-// impl_parquet_trait!(FungibleAssetBalance, ParquetTypeEnum::FungibleAssetBalances);
-// impl_parquet_trait!(
-//     CurrentUnifiedFungibleAssetBalance,
-//     ParquetTypeEnum::CurrentFungibleAssetBalances
-// );
-// impl_parquet_trait!(
-//     CurrentFungibleAssetBalance,
-//     ParquetTypeEnum::CurrentFungibleAssetBalancesLegacy
-// );
+impl_parquet_trait!(
+    ParquetFungibleAssetActivity,
+    ParquetTypeEnum::FungibleAssetActivities
+);
+impl_parquet_trait!(
+    ParquetFungibleAssetMetadataModel,
+    ParquetTypeEnum::FungibleAssetMetadata
+);
+impl_parquet_trait!(
+    ParquetFungibleAssetBalance,
+    ParquetTypeEnum::FungibleAssetBalances
+);
+impl_parquet_trait!(
+    ParquetCurrentUnifiedFungibleAssetBalance,
+    ParquetTypeEnum::CurrentFungibleAssetBalances
+);
+impl_parquet_trait!(
+    ParquetCurrentFungibleAssetBalance,
+    ParquetTypeEnum::CurrentFungibleAssetBalancesLegacy
+);
 impl_parquet_trait!(ParquetWriteSetSize, ParquetTypeEnum::WriteSetSize);
 impl_parquet_trait!(
     ParquetAccountTransaction,
@@ -295,12 +297,12 @@ pub enum ParquetTypeStructs {
     CurrentAnsPrimaryNameV2(Vec<ParquetCurrentAnsPrimaryNameV2>),
     AnsLookupV2(Vec<ParquetAnsLookupV2>),
     CurrentAnsLookupV2(Vec<ParquetCurrentAnsLookupV2>),
-    // // FA
-    // FungibleAssetActivity(Vec<FungibleAssetActivity>),
-    // FungibleAssetMetadata(Vec<FungibleAssetMetadataModel>),
-    // FungibleAssetBalance(Vec<FungibleAssetBalance>),
-    // CurrentFungibleAssetBalance(Vec<CurrentFungibleAssetBalance>),
-    // CurrentUnifiedFungibleAssetBalance(Vec<CurrentUnifiedFungibleAssetBalance>),
+    // FA
+    FungibleAssetActivity(Vec<ParquetFungibleAssetActivity>),
+    FungibleAssetMetadata(Vec<ParquetFungibleAssetMetadataModel>),
+    FungibleAssetBalance(Vec<ParquetFungibleAssetBalance>),
+    CurrentFungibleAssetBalance(Vec<ParquetCurrentFungibleAssetBalance>),
+    CurrentUnifiedFungibleAssetBalance(Vec<ParquetCurrentUnifiedFungibleAssetBalance>),
     // Txn metadata
     WriteSetSize(Vec<ParquetWriteSetSize>),
     // account txn
@@ -347,21 +349,21 @@ impl ParquetTypeStructs {
             ParquetTypeEnum::CurrentAnsLookupV2 => {
                 ParquetTypeStructs::CurrentAnsLookupV2(Vec::new())
             },
-            // ParquetTypeEnum::FungibleAssetActivities => {
-            //     ParquetTypeStructs::FungibleAssetActivity(Vec::new())
-            // },
-            // ParquetTypeEnum::FungibleAssetMetadata => {
-            //     ParquetTypeStructs::FungibleAssetMetadata(Vec::new())
-            // },
-            // ParquetTypeEnum::FungibleAssetBalances => {
-            //     ParquetTypeStructs::FungibleAssetBalance(Vec::new())
-            // },
-            // ParquetTypeEnum::CurrentFungibleAssetBalancesLegacy => {
-            //     ParquetTypeStructs::CurrentFungibleAssetBalance(Vec::new())
-            // },
-            // ParquetTypeEnum::CurrentFungibleAssetBalances => {
-            //     ParquetTypeStructs::CurrentUnifiedFungibleAssetBalance(Vec::new())
-            // },
+            ParquetTypeEnum::FungibleAssetActivities => {
+                ParquetTypeStructs::FungibleAssetActivity(Vec::new())
+            },
+            ParquetTypeEnum::FungibleAssetMetadata => {
+                ParquetTypeStructs::FungibleAssetMetadata(Vec::new())
+            },
+            ParquetTypeEnum::FungibleAssetBalances => {
+                ParquetTypeStructs::FungibleAssetBalance(Vec::new())
+            },
+            ParquetTypeEnum::CurrentFungibleAssetBalancesLegacy => {
+                ParquetTypeStructs::CurrentFungibleAssetBalance(Vec::new())
+            },
+            ParquetTypeEnum::CurrentFungibleAssetBalances => {
+                ParquetTypeStructs::CurrentUnifiedFungibleAssetBalance(Vec::new())
+            },
             ParquetTypeEnum::WriteSetSize => ParquetTypeStructs::WriteSetSize(Vec::new()),
             ParquetTypeEnum::AccountTransactions => {
                 ParquetTypeStructs::AccountTransaction(Vec::new())
@@ -464,36 +466,36 @@ impl ParquetTypeStructs {
             ) => {
                 handle_append!(self_data, other_data)
             },
-            // (
-            //     ParquetTypeStructs::FungibleAssetActivity(self_data),
-            //     ParquetTypeStructs::FungibleAssetActivity(other_data),
-            // ) => {
-            //     handle_append!(self_data, other_data)
-            // },
-            // (
-            //     ParquetTypeStructs::FungibleAssetMetadata(self_data),
-            //     ParquetTypeStructs::FungibleAssetMetadata(other_data),
-            // ) => {
-            //     handle_append!(self_data, other_data)
-            // },
-            // (
-            //     ParquetTypeStructs::FungibleAssetBalance(self_data),
-            //     ParquetTypeStructs::FungibleAssetBalance(other_data),
-            // ) => {
-            //     handle_append!(self_data, other_data)
-            // },
-            // (
-            //     ParquetTypeStructs::CurrentFungibleAssetBalance(self_data),
-            //     ParquetTypeStructs::CurrentFungibleAssetBalance(other_data),
-            // ) => {
-            //     handle_append!(self_data, other_data)
-            // },
-            // (
-            //     ParquetTypeStructs::CurrentUnifiedFungibleAssetBalance(self_data),
-            //     ParquetTypeStructs::CurrentUnifiedFungibleAssetBalance(other_data),
-            // ) => {
-            //     handle_append!(self_data, other_data)
-            // },
+            (
+                ParquetTypeStructs::FungibleAssetActivity(self_data),
+                ParquetTypeStructs::FungibleAssetActivity(other_data),
+            ) => {
+                handle_append!(self_data, other_data)
+            },
+            (
+                ParquetTypeStructs::FungibleAssetMetadata(self_data),
+                ParquetTypeStructs::FungibleAssetMetadata(other_data),
+            ) => {
+                handle_append!(self_data, other_data)
+            },
+            (
+                ParquetTypeStructs::FungibleAssetBalance(self_data),
+                ParquetTypeStructs::FungibleAssetBalance(other_data),
+            ) => {
+                handle_append!(self_data, other_data)
+            },
+            (
+                ParquetTypeStructs::CurrentFungibleAssetBalance(self_data),
+                ParquetTypeStructs::CurrentFungibleAssetBalance(other_data),
+            ) => {
+                handle_append!(self_data, other_data)
+            },
+            (
+                ParquetTypeStructs::CurrentUnifiedFungibleAssetBalance(self_data),
+                ParquetTypeStructs::CurrentUnifiedFungibleAssetBalance(other_data),
+            ) => {
+                handle_append!(self_data, other_data)
+            },
             (
                 ParquetTypeStructs::WriteSetSize(self_data),
                 ParquetTypeStructs::WriteSetSize(other_data),

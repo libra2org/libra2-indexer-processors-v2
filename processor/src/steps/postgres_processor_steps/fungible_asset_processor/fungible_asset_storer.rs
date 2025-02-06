@@ -98,7 +98,7 @@ impl Processable for FungibleAssetStorer {
 
         let per_table_chunk_sizes: AHashMap<String, usize> =
             self.processor_config.per_table_chunk_sizes.clone();
-        
+
         // This is a filter to support writng to db for backfilling so that we only write to the tables that are specified in the processor config
         // Or by default we write to all tables if the tables_to_write in the config is empty.
         let current_unified_fab_v1: Vec<PostgresCurrentUnifiedFungibleAssetBalance> = filter_data(
@@ -113,11 +113,7 @@ impl Processable for FungibleAssetStorer {
             current_unified_fab_v2,
         );
 
-        let coin_supply = filter_data(
-            &self.tables_to_write,
-            TableFlags::COIN_SUPPLY,
-            coin_supply,
-        );
+        let coin_supply = filter_data(&self.tables_to_write, TableFlags::COIN_SUPPLY, coin_supply);
 
         let fungible_asset_activities = filter_data(
             &self.tables_to_write,
