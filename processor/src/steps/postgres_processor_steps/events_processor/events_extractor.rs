@@ -28,7 +28,7 @@ impl Processable for EventsExtractor {
         let events: Vec<PostgresEvent> = item
             .data
             .par_iter()
-            .map(|txn| parse_events(txn, "EventsProcessor"))
+            .map(|txn| parse_events(txn, self.name().as_str()))
             .flatten()
             .map(|e| e.into())
             .collect();

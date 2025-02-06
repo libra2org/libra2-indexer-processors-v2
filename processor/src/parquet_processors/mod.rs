@@ -8,11 +8,11 @@ use crate::{
 };
 use crate::{
     db::models::{
-        // account_transaction_models::parquet_account_transactions::AccountTransaction,
-        // ans_models::{
-        //     ans_lookup_v2::{AnsLookupV2, CurrentAnsLookupV2},
-        //     ans_primary_name_v2::{AnsPrimaryNameV2, CurrentAnsPrimaryNameV2},
-        // },
+        account_transaction_models::account_transactions::ParquetAccountTransaction,
+        ans_models::{
+            ans_lookup_v2::{ParquetAnsLookupV2, ParquetCurrentAnsLookupV2},
+            ans_primary_name_v2::{ParquetAnsPrimaryNameV2, ParquetCurrentAnsPrimaryNameV2},
+        },
         default_models::{
             block_metadata_transactions::ParquetBlockMetadataTransaction,
             move_modules::ParquetMoveModule,
@@ -22,7 +22,7 @@ use crate::{
             transactions::ParquetTransaction,
             write_set_changes::ParquetWriteSetChange,
         },
-        // event_models::parquet_events::EventPQ,
+        event_models::events::ParquetEvent,
         // fungible_asset_models::{
         //     parquet_v2_fungible_asset_activities::FungibleAssetActivity,
         //     parquet_v2_fungible_asset_balances::{
@@ -32,19 +32,21 @@ use crate::{
         //     parquet_v2_fungible_metadata::FungibleAssetMetadataModel,
         // },
         // object_models::v2_objects::{CurrentObject, Object},
-        // stake_models::{
-        //     parquet_delegator_activities::DelegatedStakingActivity,
-        //     parquet_delegator_balances::{CurrentDelegatorBalance, DelegatorBalance},
-        //     parquet_proposal_voters::ProposalVote,
-        // },
-        // token_v2_models::{
-        //     token_claims::CurrentTokenPendingClaim,
-        //     v1_token_royalty::CurrentTokenRoyaltyV1,
-        //     v2_token_activities::TokenActivityV2,
-        //     v2_token_datas::{CurrentTokenDataV2, TokenDataV2},
-        //     v2_token_metadata::CurrentTokenV2Metadata,
-        //     v2_token_ownerships::{CurrentTokenOwnershipV2, TokenOwnershipV2},
-        // },
+        stake_models::{
+            delegator_activities::ParquetDelegatedStakingActivity,
+            delegator_balances::{ParquetCurrentDelegatorBalance, ParquetDelegatorBalance},
+            proposal_votes::ParquetProposalVote,
+        },
+        token_models::{
+            token_claims::ParquetCurrentTokenPendingClaim,
+            token_royalty::ParquetCurrentTokenRoyaltyV1,
+        },
+        token_v2_models::{
+            v2_token_activities::ParquetTokenActivityV2,
+            v2_token_datas::{ParquetCurrentTokenDataV2, ParquetTokenDataV2},
+            v2_token_metadata::ParquetCurrentTokenV2Metadata,
+            v2_token_ownerships::{ParquetCurrentTokenOwnershipV2, ParquetTokenOwnershipV2},
+        },
         // transaction_metadata_model::parquet_write_set_size_info::WriteSetSize,
         user_transaction_models::user_transactions::ParquetUserTransaction,
     },
@@ -64,14 +66,14 @@ use std::{
 };
 use strum::{Display, EnumIter};
 
-// pub mod parquet_account_transactions_processor;
-// pub mod parquet_ans_processor;
+pub mod parquet_account_transactions_processor;
+pub mod parquet_ans_processor;
 pub mod parquet_default_processor;
-// pub mod parquet_events_processor;
+pub mod parquet_events_processor;
 // pub mod parquet_fungible_asset_processor;
 // pub mod parquet_objects_processor;
-// pub mod parquet_stake_processor;
-// pub mod parquet_token_v2_processor;
+pub mod parquet_stake_processor;
+pub mod parquet_token_v2_processor;
 // pub mod parquet_transaction_metadata_processor;
 pub mod parquet_user_transaction_processor;
 
@@ -109,15 +111,15 @@ pub enum ParquetTypeEnum {
     CurrentTableItems,
     BlockMetadataTransactions,
     TableMetadata,
-    // // events
-    // Events,
+    // events
+    Events,
     // user transactions
     UserTransactions,
-    // // ANS types
-    // AnsPrimaryNameV2,
-    // CurrentAnsPrimaryNameV2,
-    // AnsLookupV2,
-    // CurrentAnsLookupV2,
+    // ANS types
+    AnsPrimaryNameV2,
+    CurrentAnsPrimaryNameV2,
+    AnsLookupV2,
+    CurrentAnsLookupV2,
     // // fa
     // FungibleAssetActivities,
     // FungibleAssetMetadata,
@@ -126,22 +128,22 @@ pub enum ParquetTypeEnum {
     // CurrentFungibleAssetBalancesLegacy,
     // // txn metadata,
     // WriteSetSize,
-    // // account transactions
-    // AccountTransactions,
-    // // token v2
-    // CurrentTokenPendingClaims,
-    // CurrentTokenRoyaltiesV1,
-    // CurrentTokenV2Metadata,
-    // TokenActivitiesV2,
-    // TokenDatasV2,
-    // CurrentTokenDatasV2,
-    // TokenOwnershipsV2,
-    // CurrentTokenOwnershipsV2,
-    // // stake
-    // DelegatedStakingActivities,
-    // CurrentDelegatorBalances,
-    // DelegatorBalances,
-    // ProposalVotes,
+    // account transactions
+    AccountTransactions,
+    // token v2
+    CurrentTokenPendingClaims,
+    CurrentTokenRoyaltiesV1,
+    CurrentTokenV2Metadata,
+    TokenActivitiesV2,
+    TokenDatasV2,
+    CurrentTokenDatasV2,
+    TokenOwnershipsV2,
+    CurrentTokenOwnershipsV2,
+    // stake
+    DelegatedStakingActivities,
+    CurrentDelegatorBalances,
+    DelegatorBalances,
+    ProposalVotes,
     // // Objects
     // Objects,
     // CurrentObjects,
@@ -201,9 +203,18 @@ impl_parquet_trait!(
     ParquetTypeEnum::BlockMetadataTransactions
 );
 impl_parquet_trait!(ParquetTableMetadata, ParquetTypeEnum::TableMetadata);
-// impl_parquet_trait!(EventPQ, ParquetTypeEnum::Events);
+impl_parquet_trait!(ParquetEvent, ParquetTypeEnum::Events);
 impl_parquet_trait!(ParquetUserTransaction, ParquetTypeEnum::UserTransactions);
-// impl_parquet_trait!(AnsPrimaryNameV2, ParquetTypeEnum::AnsPrimaryNameV2);
+impl_parquet_trait!(ParquetAnsPrimaryNameV2, ParquetTypeEnum::AnsPrimaryNameV2);
+impl_parquet_trait!(
+    ParquetCurrentAnsPrimaryNameV2,
+    ParquetTypeEnum::CurrentAnsPrimaryNameV2
+);
+impl_parquet_trait!(ParquetAnsLookupV2, ParquetTypeEnum::AnsLookupV2);
+impl_parquet_trait!(
+    ParquetCurrentAnsLookupV2,
+    ParquetTypeEnum::CurrentAnsLookupV2
+);
 // impl_parquet_trait!(
 //     FungibleAssetActivity,
 //     ParquetTypeEnum::FungibleAssetActivities
@@ -222,43 +233,44 @@ impl_parquet_trait!(ParquetUserTransaction, ParquetTypeEnum::UserTransactions);
 //     ParquetTypeEnum::CurrentFungibleAssetBalancesLegacy
 // );
 // impl_parquet_trait!(WriteSetSize, ParquetTypeEnum::WriteSetSize);
-// impl_parquet_trait!(AccountTransaction, ParquetTypeEnum::AccountTransactions);
-// impl_parquet_trait!(
-//     CurrentTokenPendingClaim,
-//     ParquetTypeEnum::CurrentTokenPendingClaims
-// );
-// impl_parquet_trait!(
-//     CurrentTokenRoyaltyV1,
-//     ParquetTypeEnum::CurrentTokenRoyaltiesV1
-// );
-// impl_parquet_trait!(
-//     CurrentTokenV2Metadata,
-//     ParquetTypeEnum::CurrentTokenV2Metadata
-// );
-// impl_parquet_trait!(TokenActivityV2, ParquetTypeEnum::TokenActivitiesV2);
-// impl_parquet_trait!(
-//     CurrentAnsPrimaryNameV2,
-//     ParquetTypeEnum::CurrentAnsPrimaryNameV2
-// );
-// impl_parquet_trait!(AnsLookupV2, ParquetTypeEnum::AnsLookupV2);
-// impl_parquet_trait!(CurrentAnsLookupV2, ParquetTypeEnum::CurrentAnsLookupV2);
-// impl_parquet_trait!(TokenDataV2, ParquetTypeEnum::TokenDatasV2);
-// impl_parquet_trait!(CurrentTokenDataV2, ParquetTypeEnum::CurrentTokenDatasV2);
-// impl_parquet_trait!(TokenOwnershipV2, ParquetTypeEnum::TokenOwnershipsV2);
-// impl_parquet_trait!(
-//     CurrentTokenOwnershipV2,
-//     ParquetTypeEnum::CurrentTokenOwnershipsV2
-// );
-// impl_parquet_trait!(
-//     DelegatedStakingActivity,
-//     ParquetTypeEnum::DelegatedStakingActivities
-// );
-// impl_parquet_trait!(
-//     CurrentDelegatorBalance,
-//     ParquetTypeEnum::CurrentDelegatorBalances
-// );
-// impl_parquet_trait!(DelegatorBalance, ParquetTypeEnum::DelegatorBalances);
-// impl_parquet_trait!(ProposalVote, ParquetTypeEnum::ProposalVotes);
+impl_parquet_trait!(
+    ParquetAccountTransaction,
+    ParquetTypeEnum::AccountTransactions
+);
+impl_parquet_trait!(
+    ParquetCurrentTokenPendingClaim,
+    ParquetTypeEnum::CurrentTokenPendingClaims
+);
+impl_parquet_trait!(
+    ParquetCurrentTokenRoyaltyV1,
+    ParquetTypeEnum::CurrentTokenRoyaltiesV1
+);
+impl_parquet_trait!(
+    ParquetCurrentTokenV2Metadata,
+    ParquetTypeEnum::CurrentTokenV2Metadata
+);
+impl_parquet_trait!(ParquetTokenActivityV2, ParquetTypeEnum::TokenActivitiesV2);
+
+impl_parquet_trait!(ParquetTokenDataV2, ParquetTypeEnum::TokenDatasV2);
+impl_parquet_trait!(
+    ParquetCurrentTokenDataV2,
+    ParquetTypeEnum::CurrentTokenDatasV2
+);
+impl_parquet_trait!(ParquetTokenOwnershipV2, ParquetTypeEnum::TokenOwnershipsV2);
+impl_parquet_trait!(
+    ParquetCurrentTokenOwnershipV2,
+    ParquetTypeEnum::CurrentTokenOwnershipsV2
+);
+impl_parquet_trait!(
+    ParquetDelegatedStakingActivity,
+    ParquetTypeEnum::DelegatedStakingActivities
+);
+impl_parquet_trait!(
+    ParquetCurrentDelegatorBalance,
+    ParquetTypeEnum::CurrentDelegatorBalances
+);
+impl_parquet_trait!(ParquetDelegatorBalance, ParquetTypeEnum::DelegatorBalances);
+impl_parquet_trait!(ParquetProposalVote, ParquetTypeEnum::ProposalVotes);
 // impl_parquet_trait!(Object, ParquetTypeEnum::Objects);
 // impl_parquet_trait!(CurrentObject, ParquetTypeEnum::CurrentObjects);
 
@@ -274,15 +286,15 @@ pub enum ParquetTypeStructs {
     CurrentTableItem(Vec<ParquetCurrentTableItem>),
     BlockMetadataTransaction(Vec<ParquetBlockMetadataTransaction>),
     TableMetadata(Vec<ParquetTableMetadata>),
-    // // Events
-    // Event(Vec<EventPQ>),
     // User txn
     UserTransaction(Vec<ParquetUserTransaction>),
-    // // ANS types
-    // AnsPrimaryNameV2(Vec<AnsPrimaryNameV2>),
-    // CurrentAnsPrimaryNameV2(Vec<CurrentAnsPrimaryNameV2>),
-    // AnsLookupV2(Vec<AnsLookupV2>),
-    // CurrentAnsLookupV2(Vec<CurrentAnsLookupV2>),
+    // Events
+    Event(Vec<ParquetEvent>),
+    // ANS types
+    AnsPrimaryNameV2(Vec<ParquetAnsPrimaryNameV2>),
+    CurrentAnsPrimaryNameV2(Vec<ParquetCurrentAnsPrimaryNameV2>),
+    AnsLookupV2(Vec<ParquetAnsLookupV2>),
+    CurrentAnsLookupV2(Vec<ParquetCurrentAnsLookupV2>),
     // // FA
     // FungibleAssetActivity(Vec<FungibleAssetActivity>),
     // FungibleAssetMetadata(Vec<FungibleAssetMetadataModel>),
@@ -291,22 +303,22 @@ pub enum ParquetTypeStructs {
     // CurrentUnifiedFungibleAssetBalance(Vec<CurrentUnifiedFungibleAssetBalance>),
     // // Txn metadata
     // WriteSetSize(Vec<WriteSetSize>),
-    // // account txn
-    // AccountTransaction(Vec<AccountTransaction>),
-    // // Token V2
-    // CurrentTokenPendingClaim(Vec<CurrentTokenPendingClaim>),
-    // CurrentTokenRoyaltyV1(Vec<CurrentTokenRoyaltyV1>),
-    // CurrentTokenV2Metadata(Vec<CurrentTokenV2Metadata>),
-    // TokenActivityV2(Vec<TokenActivityV2>),
-    // TokenDataV2(Vec<TokenDataV2>),
-    // CurrentTokenDataV2(Vec<CurrentTokenDataV2>),
-    // TokenOwnershipV2(Vec<TokenOwnershipV2>),
-    // CurrentTokenOwnershipV2(Vec<CurrentTokenOwnershipV2>),
-    // // Stake
-    // DelegatedStakingActivity(Vec<DelegatedStakingActivity>),
-    // CurrentDelegatorBalance(Vec<CurrentDelegatorBalance>),
-    // DelegatorBalance(Vec<DelegatorBalance>),
-    // ProposalVote(Vec<ProposalVote>),
+    // account txn
+    AccountTransaction(Vec<ParquetAccountTransaction>),
+    // Token V2
+    CurrentTokenPendingClaim(Vec<ParquetCurrentTokenPendingClaim>),
+    CurrentTokenRoyaltyV1(Vec<ParquetCurrentTokenRoyaltyV1>),
+    CurrentTokenV2Metadata(Vec<ParquetCurrentTokenV2Metadata>),
+    TokenActivityV2(Vec<ParquetTokenActivityV2>),
+    TokenDataV2(Vec<ParquetTokenDataV2>),
+    CurrentTokenDataV2(Vec<ParquetCurrentTokenDataV2>),
+    TokenOwnershipV2(Vec<ParquetTokenOwnershipV2>),
+    CurrentTokenOwnershipV2(Vec<ParquetCurrentTokenOwnershipV2>),
+    // Stake
+    DelegatedStakingActivity(Vec<ParquetDelegatedStakingActivity>),
+    CurrentDelegatorBalance(Vec<ParquetCurrentDelegatorBalance>),
+    DelegatorBalance(Vec<ParquetDelegatorBalance>),
+    ProposalVote(Vec<ParquetProposalVote>),
     // // Objects
     // Object(Vec<Object>),
     // CurrentObject(Vec<CurrentObject>),
@@ -325,9 +337,16 @@ impl ParquetTypeStructs {
                 ParquetTypeStructs::BlockMetadataTransaction(Vec::new())
             },
             ParquetTypeEnum::TableMetadata => ParquetTypeStructs::TableMetadata(Vec::new()),
-            // ParquetTypeEnum::Events => ParquetTypeStructs::Event(Vec::new()),
             ParquetTypeEnum::UserTransactions => ParquetTypeStructs::UserTransaction(Vec::new()),
-            // ParquetTypeEnum::AnsPrimaryNameV2 => ParquetTypeStructs::AnsPrimaryNameV2(Vec::new()),
+            ParquetTypeEnum::Events => ParquetTypeStructs::Event(Vec::new()),
+            ParquetTypeEnum::AnsPrimaryNameV2 => ParquetTypeStructs::AnsPrimaryNameV2(Vec::new()),
+            ParquetTypeEnum::CurrentAnsPrimaryNameV2 => {
+                ParquetTypeStructs::CurrentAnsPrimaryNameV2(Vec::new())
+            },
+            ParquetTypeEnum::AnsLookupV2 => ParquetTypeStructs::AnsLookupV2(Vec::new()),
+            ParquetTypeEnum::CurrentAnsLookupV2 => {
+                ParquetTypeStructs::CurrentAnsLookupV2(Vec::new())
+            },
             // ParquetTypeEnum::FungibleAssetActivities => {
             //     ParquetTypeStructs::FungibleAssetActivity(Vec::new())
             // },
@@ -344,42 +363,35 @@ impl ParquetTypeStructs {
             //     ParquetTypeStructs::CurrentUnifiedFungibleAssetBalance(Vec::new())
             // },
             // ParquetTypeEnum::WriteSetSize => ParquetTypeStructs::WriteSetSize(Vec::new()),
-            // ParquetTypeEnum::AccountTransactions => {
-            //     ParquetTypeStructs::AccountTransaction(Vec::new())
-            // },
-            // ParquetTypeEnum::CurrentTokenPendingClaims => {
-            //     ParquetTypeStructs::CurrentTokenPendingClaim(Vec::new())
-            // },
-            // ParquetTypeEnum::CurrentTokenRoyaltiesV1 => {
-            //     ParquetTypeStructs::CurrentTokenRoyaltyV1(Vec::new())
-            // },
-            // ParquetTypeEnum::CurrentTokenV2Metadata => {
-            //     ParquetTypeStructs::CurrentTokenV2Metadata(Vec::new())
-            // },
-            // ParquetTypeEnum::TokenActivitiesV2 => ParquetTypeStructs::TokenActivityV2(Vec::new()),
-            // ParquetTypeEnum::CurrentAnsPrimaryNameV2 => {
-            //     ParquetTypeStructs::CurrentAnsPrimaryNameV2(Vec::new())
-            // },
-            // ParquetTypeEnum::AnsLookupV2 => ParquetTypeStructs::AnsLookupV2(Vec::new()),
-            // ParquetTypeEnum::CurrentAnsLookupV2 => {
-            //     ParquetTypeStructs::CurrentAnsLookupV2(Vec::new())
-            // },
-            // ParquetTypeEnum::TokenDatasV2 => ParquetTypeStructs::TokenDataV2(Vec::new()),
-            // ParquetTypeEnum::CurrentTokenDatasV2 => {
-            //     ParquetTypeStructs::CurrentTokenDataV2(Vec::new())
-            // },
-            // ParquetTypeEnum::TokenOwnershipsV2 => ParquetTypeStructs::TokenOwnershipV2(Vec::new()),
-            // ParquetTypeEnum::CurrentTokenOwnershipsV2 => {
-            //     ParquetTypeStructs::CurrentTokenOwnershipV2(Vec::new())
-            // },
-            // ParquetTypeEnum::DelegatedStakingActivities => {
-            //     ParquetTypeStructs::DelegatedStakingActivity(Vec::new())
-            // },
-            // ParquetTypeEnum::CurrentDelegatorBalances => {
-            //     ParquetTypeStructs::CurrentDelegatorBalance(Vec::new())
-            // },
-            // ParquetTypeEnum::DelegatorBalances => ParquetTypeStructs::DelegatorBalance(Vec::new()),
-            // ParquetTypeEnum::ProposalVotes => ParquetTypeStructs::ProposalVote(Vec::new()),
+            ParquetTypeEnum::AccountTransactions => {
+                ParquetTypeStructs::AccountTransaction(Vec::new())
+            },
+            ParquetTypeEnum::CurrentTokenPendingClaims => {
+                ParquetTypeStructs::CurrentTokenPendingClaim(Vec::new())
+            },
+            ParquetTypeEnum::CurrentTokenRoyaltiesV1 => {
+                ParquetTypeStructs::CurrentTokenRoyaltyV1(Vec::new())
+            },
+            ParquetTypeEnum::CurrentTokenV2Metadata => {
+                ParquetTypeStructs::CurrentTokenV2Metadata(Vec::new())
+            },
+            ParquetTypeEnum::TokenActivitiesV2 => ParquetTypeStructs::TokenActivityV2(Vec::new()),
+            ParquetTypeEnum::TokenDatasV2 => ParquetTypeStructs::TokenDataV2(Vec::new()),
+            ParquetTypeEnum::CurrentTokenDatasV2 => {
+                ParquetTypeStructs::CurrentTokenDataV2(Vec::new())
+            },
+            ParquetTypeEnum::TokenOwnershipsV2 => ParquetTypeStructs::TokenOwnershipV2(Vec::new()),
+            ParquetTypeEnum::CurrentTokenOwnershipsV2 => {
+                ParquetTypeStructs::CurrentTokenOwnershipV2(Vec::new())
+            },
+            ParquetTypeEnum::DelegatedStakingActivities => {
+                ParquetTypeStructs::DelegatedStakingActivity(Vec::new())
+            },
+            ParquetTypeEnum::CurrentDelegatorBalances => {
+                ParquetTypeStructs::CurrentDelegatorBalance(Vec::new())
+            },
+            ParquetTypeEnum::DelegatorBalances => ParquetTypeStructs::DelegatorBalance(Vec::new()),
+            ParquetTypeEnum::ProposalVotes => ParquetTypeStructs::ProposalVote(Vec::new()),
             // ParquetTypeEnum::Objects => ParquetTypeStructs::Object(Vec::new()),
             // ParquetTypeEnum::CurrentObjects => ParquetTypeStructs::CurrentObject(Vec::new()),
         }
@@ -425,9 +437,9 @@ impl ParquetTypeStructs {
             ) => {
                 handle_append!(self_data, other_data)
             },
-            // (ParquetTypeStructs::Event(self_data), ParquetTypeStructs::Event(other_data)) => {
-            //     handle_append!(self_data, other_data)
-            // },
+            (ParquetTypeStructs::Event(self_data), ParquetTypeStructs::Event(other_data)) => {
+                handle_append!(self_data, other_data)
+            },
             (
                 ParquetTypeStructs::CurrentTableItem(self_data),
                 ParquetTypeStructs::CurrentTableItem(other_data),
@@ -488,109 +500,109 @@ impl ParquetTypeStructs {
             // ) => {
             //     handle_append!(self_data, other_data)
             // },
-            // (
-            //     ParquetTypeStructs::AccountTransaction(self_data),
-            //     ParquetTypeStructs::AccountTransaction(other_data),
-            // ) => {
-            //     handle_append!(self_data, other_data)
-            // },
-            // (
-            //     ParquetTypeStructs::CurrentTokenPendingClaim(self_data),
-            //     ParquetTypeStructs::CurrentTokenPendingClaim(other_data),
-            // ) => {
-            //     handle_append!(self_data, other_data)
-            // },
-            // (
-            //     ParquetTypeStructs::CurrentTokenRoyaltyV1(self_data),
-            //     ParquetTypeStructs::CurrentTokenRoyaltyV1(other_data),
-            // ) => {
-            //     handle_append!(self_data, other_data)
-            // },
-            // (
-            //     ParquetTypeStructs::CurrentTokenV2Metadata(self_data),
-            //     ParquetTypeStructs::CurrentTokenV2Metadata(other_data),
-            // ) => {
-            //     handle_append!(self_data, other_data)
-            // },
-            // (
-            //     ParquetTypeStructs::TokenActivityV2(self_data),
-            //     ParquetTypeStructs::TokenActivityV2(other_data),
-            // ) => {
-            //     handle_append!(self_data, other_data)
-            // },
-            // // ANS types
-            // (
-            //     ParquetTypeStructs::AnsPrimaryNameV2(self_data),
-            //     ParquetTypeStructs::AnsPrimaryNameV2(other_data),
-            // ) => {
-            //     handle_append!(self_data, other_data)
-            // },
-            // (
-            //     ParquetTypeStructs::CurrentAnsPrimaryNameV2(self_data),
-            //     ParquetTypeStructs::CurrentAnsPrimaryNameV2(other_data),
-            // ) => {
-            //     handle_append!(self_data, other_data)
-            // },
-            // (
-            //     ParquetTypeStructs::AnsLookupV2(self_data),
-            //     ParquetTypeStructs::AnsLookupV2(other_data),
-            // ) => {
-            //     handle_append!(self_data, other_data)
-            // },
-            // (
-            //     ParquetTypeStructs::CurrentAnsLookupV2(self_data),
-            //     ParquetTypeStructs::CurrentAnsLookupV2(other_data),
-            // ) => {
-            //     handle_append!(self_data, other_data)
-            // },
-            // (
-            //     ParquetTypeStructs::TokenDataV2(self_data),
-            //     ParquetTypeStructs::TokenDataV2(other_data),
-            // ) => {
-            //     handle_append!(self_data, other_data)
-            // },
-            // (
-            //     ParquetTypeStructs::CurrentTokenDataV2(self_data),
-            //     ParquetTypeStructs::CurrentTokenDataV2(other_data),
-            // ) => {
-            //     handle_append!(self_data, other_data)
-            // },
-            // (
-            //     ParquetTypeStructs::TokenOwnershipV2(self_data),
-            //     ParquetTypeStructs::TokenOwnershipV2(other_data),
-            // ) => {
-            //     handle_append!(self_data, other_data)
-            // },
-            // (
-            //     ParquetTypeStructs::CurrentTokenOwnershipV2(self_data),
-            //     ParquetTypeStructs::CurrentTokenOwnershipV2(other_data),
-            // ) => {
-            //     handle_append!(self_data, other_data)
-            // },
-            // (
-            //     ParquetTypeStructs::DelegatedStakingActivity(self_data),
-            //     ParquetTypeStructs::DelegatedStakingActivity(other_data),
-            // ) => {
-            //     handle_append!(self_data, other_data)
-            // },
-            // (
-            //     ParquetTypeStructs::CurrentDelegatorBalance(self_data),
-            //     ParquetTypeStructs::CurrentDelegatorBalance(other_data),
-            // ) => {
-            //     handle_append!(self_data, other_data)
-            // },
-            // (
-            //     ParquetTypeStructs::DelegatorBalance(self_data),
-            //     ParquetTypeStructs::DelegatorBalance(other_data),
-            // ) => {
-            //     handle_append!(self_data, other_data)
-            // },
-            // (
-            //     ParquetTypeStructs::ProposalVote(self_data),
-            //     ParquetTypeStructs::ProposalVote(other_data),
-            // ) => {
-            //     handle_append!(self_data, other_data)
-            // },
+            (
+                ParquetTypeStructs::AccountTransaction(self_data),
+                ParquetTypeStructs::AccountTransaction(other_data),
+            ) => {
+                handle_append!(self_data, other_data)
+            },
+            (
+                ParquetTypeStructs::CurrentTokenPendingClaim(self_data),
+                ParquetTypeStructs::CurrentTokenPendingClaim(other_data),
+            ) => {
+                handle_append!(self_data, other_data)
+            },
+            (
+                ParquetTypeStructs::CurrentTokenRoyaltyV1(self_data),
+                ParquetTypeStructs::CurrentTokenRoyaltyV1(other_data),
+            ) => {
+                handle_append!(self_data, other_data)
+            },
+            (
+                ParquetTypeStructs::CurrentTokenV2Metadata(self_data),
+                ParquetTypeStructs::CurrentTokenV2Metadata(other_data),
+            ) => {
+                handle_append!(self_data, other_data)
+            },
+            (
+                ParquetTypeStructs::TokenActivityV2(self_data),
+                ParquetTypeStructs::TokenActivityV2(other_data),
+            ) => {
+                handle_append!(self_data, other_data)
+            },
+            // ANS types
+            (
+                ParquetTypeStructs::AnsPrimaryNameV2(self_data),
+                ParquetTypeStructs::AnsPrimaryNameV2(other_data),
+            ) => {
+                handle_append!(self_data, other_data)
+            },
+            (
+                ParquetTypeStructs::CurrentAnsPrimaryNameV2(self_data),
+                ParquetTypeStructs::CurrentAnsPrimaryNameV2(other_data),
+            ) => {
+                handle_append!(self_data, other_data)
+            },
+            (
+                ParquetTypeStructs::AnsLookupV2(self_data),
+                ParquetTypeStructs::AnsLookupV2(other_data),
+            ) => {
+                handle_append!(self_data, other_data)
+            },
+            (
+                ParquetTypeStructs::CurrentAnsLookupV2(self_data),
+                ParquetTypeStructs::CurrentAnsLookupV2(other_data),
+            ) => {
+                handle_append!(self_data, other_data)
+            },
+            (
+                ParquetTypeStructs::TokenDataV2(self_data),
+                ParquetTypeStructs::TokenDataV2(other_data),
+            ) => {
+                handle_append!(self_data, other_data)
+            },
+            (
+                ParquetTypeStructs::CurrentTokenDataV2(self_data),
+                ParquetTypeStructs::CurrentTokenDataV2(other_data),
+            ) => {
+                handle_append!(self_data, other_data)
+            },
+            (
+                ParquetTypeStructs::TokenOwnershipV2(self_data),
+                ParquetTypeStructs::TokenOwnershipV2(other_data),
+            ) => {
+                handle_append!(self_data, other_data)
+            },
+            (
+                ParquetTypeStructs::CurrentTokenOwnershipV2(self_data),
+                ParquetTypeStructs::CurrentTokenOwnershipV2(other_data),
+            ) => {
+                handle_append!(self_data, other_data)
+            },
+            (
+                ParquetTypeStructs::DelegatedStakingActivity(self_data),
+                ParquetTypeStructs::DelegatedStakingActivity(other_data),
+            ) => {
+                handle_append!(self_data, other_data)
+            },
+            (
+                ParquetTypeStructs::CurrentDelegatorBalance(self_data),
+                ParquetTypeStructs::CurrentDelegatorBalance(other_data),
+            ) => {
+                handle_append!(self_data, other_data)
+            },
+            (
+                ParquetTypeStructs::DelegatorBalance(self_data),
+                ParquetTypeStructs::DelegatorBalance(other_data),
+            ) => {
+                handle_append!(self_data, other_data)
+            },
+            (
+                ParquetTypeStructs::ProposalVote(self_data),
+                ParquetTypeStructs::ProposalVote(other_data),
+            ) => {
+                handle_append!(self_data, other_data)
+            },
             // (ParquetTypeStructs::Object(self_data), ParquetTypeStructs::Object(other_data)) => {
             //     handle_append!(self_data, other_data)
             // },
