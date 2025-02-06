@@ -47,7 +47,7 @@ use crate::{
             v2_token_metadata::ParquetCurrentTokenV2Metadata,
             v2_token_ownerships::{ParquetCurrentTokenOwnershipV2, ParquetTokenOwnershipV2},
         },
-        // transaction_metadata_model::parquet_write_set_size_info::WriteSetSize,
+        transaction_metadata_models::write_set_size_info::ParquetWriteSetSize,
         user_transaction_models::user_transactions::ParquetUserTransaction,
     },
     utils::table_flags::TableFlags,
@@ -74,7 +74,7 @@ pub mod parquet_events_processor;
 // pub mod parquet_objects_processor;
 pub mod parquet_stake_processor;
 pub mod parquet_token_v2_processor;
-// pub mod parquet_transaction_metadata_processor;
+pub mod parquet_transaction_metadata_processor;
 pub mod parquet_user_transaction_processor;
 
 const GOOGLE_APPLICATION_CREDENTIALS: &str = "GOOGLE_APPLICATION_CREDENTIALS";
@@ -126,8 +126,8 @@ pub enum ParquetTypeEnum {
     // FungibleAssetBalances,
     // CurrentFungibleAssetBalances,
     // CurrentFungibleAssetBalancesLegacy,
-    // // txn metadata,
-    // WriteSetSize,
+    // txn metadata,
+    WriteSetSize,
     // account transactions
     AccountTransactions,
     // token v2
@@ -232,7 +232,7 @@ impl_parquet_trait!(
 //     CurrentFungibleAssetBalance,
 //     ParquetTypeEnum::CurrentFungibleAssetBalancesLegacy
 // );
-// impl_parquet_trait!(WriteSetSize, ParquetTypeEnum::WriteSetSize);
+impl_parquet_trait!(ParquetWriteSetSize, ParquetTypeEnum::WriteSetSize);
 impl_parquet_trait!(
     ParquetAccountTransaction,
     ParquetTypeEnum::AccountTransactions
@@ -301,8 +301,8 @@ pub enum ParquetTypeStructs {
     // FungibleAssetBalance(Vec<FungibleAssetBalance>),
     // CurrentFungibleAssetBalance(Vec<CurrentFungibleAssetBalance>),
     // CurrentUnifiedFungibleAssetBalance(Vec<CurrentUnifiedFungibleAssetBalance>),
-    // // Txn metadata
-    // WriteSetSize(Vec<WriteSetSize>),
+    // Txn metadata
+    WriteSetSize(Vec<ParquetWriteSetSize>),
     // account txn
     AccountTransaction(Vec<ParquetAccountTransaction>),
     // Token V2
@@ -362,7 +362,7 @@ impl ParquetTypeStructs {
             // ParquetTypeEnum::CurrentFungibleAssetBalances => {
             //     ParquetTypeStructs::CurrentUnifiedFungibleAssetBalance(Vec::new())
             // },
-            // ParquetTypeEnum::WriteSetSize => ParquetTypeStructs::WriteSetSize(Vec::new()),
+            ParquetTypeEnum::WriteSetSize => ParquetTypeStructs::WriteSetSize(Vec::new()),
             ParquetTypeEnum::AccountTransactions => {
                 ParquetTypeStructs::AccountTransaction(Vec::new())
             },
@@ -494,12 +494,12 @@ impl ParquetTypeStructs {
             // ) => {
             //     handle_append!(self_data, other_data)
             // },
-            // (
-            //     ParquetTypeStructs::WriteSetSize(self_data),
-            //     ParquetTypeStructs::WriteSetSize(other_data),
-            // ) => {
-            //     handle_append!(self_data, other_data)
-            // },
+            (
+                ParquetTypeStructs::WriteSetSize(self_data),
+                ParquetTypeStructs::WriteSetSize(other_data),
+            ) => {
+                handle_append!(self_data, other_data)
+            },
             (
                 ParquetTypeStructs::AccountTransaction(self_data),
                 ParquetTypeStructs::AccountTransaction(other_data),
