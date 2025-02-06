@@ -1,6 +1,6 @@
 use ahash::AHashMap;
 use aptos_indexer_testing_framework::sdk_test_context::SdkTestContext;
-use sdk_processor::{
+use processor::{
     config::{
         db_config::{DbConfig, PostgresConfig},
         indexer_processor_config::IndexerProcessorConfig,
@@ -64,7 +64,7 @@ mod sdk_objects_processor_tests {
         IMPORTED_MAINNET_TXNS_578366445_TOKEN_V2_BURN_EVENT_V2,
     };
     use aptos_indexer_testing_framework::{cli_parser::get_test_config, database::TestDatabase};
-    use sdk_processor::processors::objects_processor::ObjectsProcessor;
+    use processor::processors::objects_processor::ObjectsProcessor;
 
     #[tokio::test(flavor = "multi_thread", worker_threads = 2)]
     async fn test_objects_write_and_delete_resource() {
@@ -74,7 +74,7 @@ mod sdk_objects_processor_tests {
             IMPORTED_MAINNET_TXNS_578318306_OBJECTS_WRITE_RESOURCE,
             IMPORTED_MAINNET_TXNS_578366445_TOKEN_V2_BURN_EVENT_V2,
         ];
-        process_multiple_transactions(
+        process_object_txns(
             txns,
             Some("test_objects_write_and_delete_resource".to_string()),
         )
@@ -85,18 +85,17 @@ mod sdk_objects_processor_tests {
     async fn test_delete_object_without_write() {
         // Testing that a delete resource with no matching write resource will not write that row to DB.
         let txns = &[IMPORTED_MAINNET_TXNS_578366445_TOKEN_V2_BURN_EVENT_V2];
-        process_multiple_transactions(txns, Some("test_delete_object_without_write".to_string()))
-            .await;
+        process_object_txns(txns, Some("test_delete_object_without_write".to_string())).await;
     }
 
     #[tokio::test(flavor = "multi_thread", worker_threads = 2)]
     async fn test_untransferable_object() {
         let txns = &[IMPORTED_MAINNET_TXNS_1806220919_OBJECT_UNTRANSFERABLE];
-        process_multiple_transactions(txns, Some("test_untransferable".to_string())).await;
+        process_object_txns(txns, Some("test_untransferable".to_string())).await;
     }
 
     // Helper function to abstract out the transaction processing
-    async fn process_multiple_transactions(txns: &[&[u8]], test_case_name: Option<String>) {
+    async fn process_object_txns(txns: &[&[u8]], test_case_name: Option<String>) {
         let (diff_flag, custom_output_path) = get_test_config();
         let output_path = custom_output_path.unwrap_or_else(|| DEFAULT_OUTPUT_FOLDER.to_string());
 

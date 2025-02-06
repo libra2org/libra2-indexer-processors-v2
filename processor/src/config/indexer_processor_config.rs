@@ -17,8 +17,9 @@ use crate::{
         account_restoration_processor::AccountRestorationProcessor,
         account_transactions_processor::AccountTransactionsProcessor, ans_processor::AnsProcessor,
         default_processor::DefaultProcessor, events_processor::EventsProcessor,
-        monitoring_processor::MonitoringProcessor, stake_processor::StakeProcessor,
-        token_v2_processor::TokenV2Processor, user_transaction_processor::UserTransactionProcessor,
+        monitoring_processor::MonitoringProcessor, objects_processor::ObjectsProcessor,
+        stake_processor::StakeProcessor, token_v2_processor::TokenV2Processor,
+        user_transaction_processor::UserTransactionProcessor,
     },
 };
 use anyhow::Result;
@@ -85,10 +86,10 @@ impl RunnableConfig for IndexerProcessorConfig {
                 let token_v2_processor = TokenV2Processor::new(self.clone()).await?;
                 token_v2_processor.run_processor().await
             },
-            // ProcessorConfig::ObjectsProcessor(_) => {
-            //     let objects_processor = ObjectsProcessor::new(self.clone()).await?;
-            //     objects_processor.run_processor().await
-            // },
+            ProcessorConfig::ObjectsProcessor(_) => {
+                let objects_processor = ObjectsProcessor::new(self.clone()).await?;
+                objects_processor.run_processor().await
+            },
             ProcessorConfig::ParquetDefaultProcessor(_) => {
                 let parquet_default_processor = ParquetDefaultProcessor::new(self.clone()).await?;
                 parquet_default_processor.run_processor().await
