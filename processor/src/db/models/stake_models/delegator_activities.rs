@@ -29,9 +29,6 @@ pub struct DelegatedStakingActivity {
     pub amount: BigDecimal,
     pub block_timestamp: chrono::NaiveDateTime,
 }
-pub trait DelegatedStakingActivityConvertible {
-    fn from_base(base_item: DelegatedStakingActivity) -> Self;
-}
 
 impl DelegatedStakingActivity {
     /// Pretty straightforward parsing from known delegated staking events
@@ -132,8 +129,8 @@ pub struct PostgresDelegatedStakingActivity {
     pub amount: BigDecimal,
 }
 
-impl DelegatedStakingActivityConvertible for PostgresDelegatedStakingActivity {
-    fn from_base(base_item: DelegatedStakingActivity) -> Self {
+impl From<DelegatedStakingActivity> for PostgresDelegatedStakingActivity {
+    fn from(base_item: DelegatedStakingActivity) -> Self {
         Self {
             transaction_version: base_item.transaction_version,
             event_index: base_item.event_index,
@@ -170,8 +167,8 @@ impl NamedTable for ParquetDelegatedStakingActivity {
     const TABLE_NAME: &'static str = "delegated_staking_activities";
 }
 
-impl DelegatedStakingActivityConvertible for ParquetDelegatedStakingActivity {
-    fn from_base(base: DelegatedStakingActivity) -> Self {
+impl From<DelegatedStakingActivity> for ParquetDelegatedStakingActivity {
+    fn from(base: DelegatedStakingActivity) -> Self {
         Self {
             transaction_version: base.transaction_version,
             event_index: base.event_index,
