@@ -9,6 +9,7 @@ pub mod object_models;
 pub mod stake_models;
 pub mod token_models;
 pub mod token_v2_models;
+pub mod transaction_metadata_models;
 pub mod user_transaction_models;
 
 // Default None value for parquet fields that are not set

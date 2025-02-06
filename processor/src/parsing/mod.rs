@@ -5,4 +5,5 @@ pub mod default_processor_helpers;
 pub mod events_processor_helpers;
 pub mod stake_processor_helpers;
 pub mod token_v2_processor_helpers;
+pub mod transaction_metadata_processor_helpers;
 pub mod user_transaction_processor_helpers;
