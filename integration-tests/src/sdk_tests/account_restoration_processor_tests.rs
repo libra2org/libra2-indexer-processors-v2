@@ -165,7 +165,7 @@ mod sdk_account_restoration_processor_tests {
         let output_path = custom_output_path.unwrap_or_else(|| DEFAULT_OUTPUT_FOLDER.to_string());
         let db_url = db.get_db_url();
         let (mut indexer_processor_config, processor_name) =
-            setup_account_restoration_processor_config(&test_context, &db_url);
+            setup_account_restoration_processor_config(test_context, &db_url);
         if let Some(chunk_size) = chunk_size {
             if let ProcessorConfig::AccountRestorationProcessor(ref mut config) =
                 indexer_processor_config.processor_config
