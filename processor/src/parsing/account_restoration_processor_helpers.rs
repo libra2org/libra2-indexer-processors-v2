@@ -363,7 +363,7 @@ impl SignatureInfo {
 
 fn process_secondary_signers(
     secondary_addresses: &[String],
-    secondary_signers: &Vec<PbAccountSignature>,
+    secondary_signers: &[PbAccountSignature],
 ) -> Vec<SignatureInfo> {
     let mut signature_infos = vec![];
     for (address, signer) in secondary_addresses.iter().zip(secondary_signers.iter()) {
