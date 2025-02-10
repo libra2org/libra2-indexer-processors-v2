@@ -58,8 +58,9 @@ impl Processable for AccountRestorationStorer {
 
         let auth_key_address: Vec<AuthKeyAccountAddress> =
             deduplicate_auth_key_account_addresses(auth_key_address);
-        let auth_key_multikey: Vec<AuthKeyMultikeyLayout> =
-            deduplicate_auth_key_multikey_layouts(auth_key_multikey.into_iter().flatten().collect());
+        let auth_key_multikey: Vec<AuthKeyMultikeyLayout> = deduplicate_auth_key_multikey_layouts(
+            auth_key_multikey.into_iter().flatten().collect(),
+        );
         let public_key_auth_key: Vec<PublicKeyAuthKey> =
             deduplicate_public_key_auth_keys(public_key_auth_key.into_iter().flatten().collect());
 
