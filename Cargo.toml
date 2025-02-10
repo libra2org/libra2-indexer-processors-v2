@@ -18,12 +18,12 @@ processor = { path = "processor" }
 
 ahash = { version = "0.8.7", features = ["serde"] }
 anyhow = "1.0.86"
-// TODO: Don't merge until the PR is merged: https://github.com/aptos-labs/aptos-indexer-processor-sdk/pull/104
-// Then revert these changes instead of using forked repo
+# TODO: Don't merge until the PR is merged: https://github.com/aptos-labs/aptos-indexer-processor-sdk/pull/104
+# Then revert these changes instead of using forked repo
 aptos-indexer-processor-sdk = { git = "https://github.com/heliuchuan/aptos-indexer-processor-sdk.git", branch = "main" }
 aptos-indexer-processor-sdk-server-framework = { git = "https://github.com/heliuchuan/aptos-indexer-processor-sdk.git", branch = "main" }
 aptos-protos = { git = "https://github.com/aptos-labs/aptos-core.git", rev = "1d8460a995503574ec4e9699d3442d0150d7f3b9" }
-// Also rever this too
+# Also revert this too
 aptos-indexer-test-transactions = { git = "https://github.com/aptos-labs/aptos-core.git", branch = "import-txn" }
 aptos-indexer-testing-framework = { git = "https://github.com/heliuchuan/aptos-indexer-processor-sdk.git", branch = "main" }
 async-trait = "0.1.53"
