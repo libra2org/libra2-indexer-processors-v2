@@ -38,7 +38,7 @@ const_format = "0.2.33"
 # Do NOT enable the postgres feature here, it is conditionally enabled in a feature
 # block in the Cargo.toml file for the processor crate.
 # https://github.com/aptos-labs/aptos-indexer-processors/pull/325
-diesel = { version = "2.2.0", features = [
+diesel = { version = "=2.2.0", features = [
     "chrono",
     "postgres_backend",
     "numeric",
@@ -83,7 +83,6 @@ pbjson = "0.5.1"
 prometheus = { version = "0.13.3", default-features = false }
 prost = { version = "0.13.4", features = ["no-recursion-limit"] }
 prost-types = "0.13.4"
-pq-sys = "0.4.8"
 # Keep it compatible with the aptos-core version.
 rayon = "1.5.2"
 regex = "1.5.5"
