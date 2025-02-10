@@ -10,7 +10,8 @@ use crate::{
 };
 use aptos_protos::transaction::v1::{
     account_signature::Signature as AccountSignature, signature::Signature, transaction::TxnData,
-    MultiEd25519Signature, Transaction, UserTransactionRequest,
+    AccountSignature as PbAccountSignature, MultiEd25519Signature, Transaction,
+    UserTransactionRequest,
 };
 use tracing::warn;
 
@@ -360,6 +361,23 @@ impl SignatureInfo {
     }
 }
 
+fn process_secondary_signers(
+    secondary_addresses: &[String],
+    secondary_signers: &Vec<PbAccountSignature>,
+) -> Vec<SignatureInfo> {
+    let mut signature_infos = vec![];
+    for (address, signer) in secondary_addresses.iter().zip(secondary_signers.iter()) {
+        if let Some(signature) = signer.signature.as_ref() {
+            if let Some(signature_info) =
+                SignatureInfo::from_account_signature(address.clone(), signature)
+            {
+                signature_infos.push(signature_info);
+            }
+        }
+    }
+    signature_infos
+}
+
 fn get_signature_infos_from_user_txn_request(
     user_txn_request: &UserTransactionRequest,
     transaction_version: i64,
@@ -432,22 +450,32 @@ fn get_signature_infos_from_user_txn_request(
             }
 
             // Add secondary signer signatures
-            for (address, signer) in sig
-                .secondary_signer_addresses
-                .iter()
-                .zip(sig.secondary_signers.iter())
-            {
-                if let Some(signature) = signer.signature.as_ref() {
-                    if let Some(signature_info) =
-                        SignatureInfo::from_account_signature(address.clone(), signature)
-                    {
-                        signature_infos.push(signature_info);
-                    }
-                }
-            }
+            signature_infos.extend(process_secondary_signers(
+                &sig.secondary_signer_addresses,
+                &sig.secondary_signers,
+            ));
+
             signature_infos
         },
-        _ => vec![], // TODO: Handle `MultiAgent`
+        Signature::MultiAgent(sig) => {
+            let account_signature = sig.sender.as_ref().unwrap().signature.as_ref().unwrap();
+            let mut signature_infos = vec![];
+
+            // Add sender signature if valid
+            if let Some(sender_info) =
+                SignatureInfo::from_account_signature(sender_address.clone(), account_signature)
+            {
+                signature_infos.push(sender_info);
+            }
+
+            // Add secondary signer signatures
+            signature_infos.extend(process_secondary_signers(
+                &sig.secondary_signer_addresses,
+                &sig.secondary_signers,
+            ));
+
+            signature_infos
+        },
     }
 }
 
@@ -761,10 +789,12 @@ mod tests {
             .unwrap();
         let pk3 = hex::decode("95e2326a4d53ea79b6b97d8ed0b97dbf257cb34e80681031ed358176c36cd00f")
             .unwrap();
-        let signature_info =
-            SignatureInfo::multi_ed25519("0x1".to_string(), 2, vec![pk1, pk2, pk3], vec![
-                true, true, true,
-            ]);
+        let signature_info = SignatureInfo::multi_ed25519(
+            "0x1".to_string(),
+            2,
+            vec![pk1, pk2, pk3],
+            vec![true, true, true],
+        );
 
         let authkey: String =
             "0x4f63487b2133fbca2c4fe1cb4aeb4ef1386d8a1ffd12a62bc3d82de0c04a8578".to_string();
