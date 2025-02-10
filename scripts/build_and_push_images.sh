@@ -10,7 +10,7 @@
 
 set -ex
 
-TARGET_REGISTRY="us-docker.pkg.dev/aptos-registry/docker/aptos-indexer-processors-v2"
+TARGET_REGISTRY="us-docker.pkg.dev/aptos-registry/docker/indexer-client-examples/rust"
 # take GIT_SHA from environment variable if set, otherwise use git rev-parse HEAD
 GIT_SHA="${GIT_SHA:-$(git rev-parse HEAD)}"
 EXAMPLE_TO_BUILD_ARG="${1:-all}"
