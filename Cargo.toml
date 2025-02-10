@@ -83,6 +83,7 @@ pbjson = "0.5.1"
 prometheus = { version = "0.13.3", default-features = false }
 prost = { version = "0.13.4", features = ["no-recursion-limit"] }
 prost-types = "0.13.4"
+pq-sys = "0.4.8"
 # Keep it compatible with the aptos-core version.
 rayon = "1.5.2"
 regex = "1.5.5"
