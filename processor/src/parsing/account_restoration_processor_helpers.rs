@@ -734,8 +734,7 @@ mod tests {
     fn test_signature_info_auth_key_single_key() {
         let pk = hex::decode("c5eba39b323f488de5087353914f7149af93a260011a595ba568ec6f86003dc1")
             .unwrap();
-        let signature_info =
-            SignatureInfo::single_key("0x1".to_string(), Some(0x00), pk.clone());
+        let signature_info = SignatureInfo::single_key("0x1".to_string(), Some(0x00), pk.clone());
         let authkey: String =
             "0x64d95d138a390d9d83f2da145e9d5024c64df039cc10f97b1cc80f5b354aaa50".to_string();
 
