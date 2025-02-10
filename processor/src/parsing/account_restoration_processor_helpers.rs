@@ -460,7 +460,7 @@ fn get_new_unverified_auth_key_from_key_rotation_txn(
     }
     let entry_function_args = payload.arguments;
     let new_auth_key = entry_function_args
-        .get(0)
+        .first()
         .expect("argument to exist")
         .as_str()
         .expect("value should be string")
@@ -488,7 +488,7 @@ fn get_new_verified_auth_key_from_key_rotation_txn(
             },
             "0x1::account::rotate_authentication_key_with_rotation_capability" => {
                 let address = entry_function_args
-                    .get(0)
+                    .first()
                     .expect("argument to exist")
                     .to_string();
                 let scheme_value = entry_function_args.get(1);
@@ -564,7 +564,7 @@ fn get_new_verified_auth_key_from_key_rotation_txn(
 fn get_user_transaction_request(txn: &Transaction) -> Option<&UserTransactionRequest> {
     match txn.txn_data.as_ref()? {
         TxnData::User(user_txn) => user_txn.request.as_ref(),
-        _ => return None,
+        _ => None,
     }
 }
 
@@ -729,15 +729,13 @@ pub fn parse_account_restoration_models_from_transaction(
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::schema::auth_key_account_addresses::auth_key;
 
     #[test]
     fn test_signature_info_auth_key_single_key() {
         let pk = hex::decode("c5eba39b323f488de5087353914f7149af93a260011a595ba568ec6f86003dc1")
             .unwrap();
         let signature_info =
-            SignatureInfo::single_key("0x1".to_string(), Some(0x00), pk.clone().into());
-
+            SignatureInfo::single_key("0x1".to_string(), Some(0x00), pk.clone());
         let authkey: String =
             "0x64d95d138a390d9d83f2da145e9d5024c64df039cc10f97b1cc80f5b354aaa50".to_string();
 
@@ -748,7 +746,7 @@ mod tests {
     fn test_signature_info_auth_key_ed25519() {
         let pk = hex::decode("92952420cf81e5e9035a2cadb9bad7306f1b20329815e770d88aed99be8dcc78")
             .unwrap();
-        let signature_info = SignatureInfo::ed25519("0x1".to_string(), pk.clone().into());
+        let signature_info = SignatureInfo::ed25519("0x1".to_string(), pk.clone());
 
         let authkey: String =
             "0x17243964752480290803984b08a1d24f137ab0ecc8074a44454c4879eebb2988".to_string();
