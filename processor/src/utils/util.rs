@@ -53,6 +53,7 @@ pub struct EntryFunctionPayloadClean {
     pub function: Option<EntryFunctionId>,
     pub type_arguments: Vec<MoveType>,
     pub arguments: Vec<Value>,
+    pub entry_function_id_str: String,
 }
 
 #[derive(Debug, Deserialize, Serialize)]
@@ -129,27 +130,8 @@ pub fn ensure_not_negative(val: BigDecimal) -> BigDecimal {
 }
 
 pub fn split_entry_function_id_str(user_request: &UserTransactionRequest) -> Option<String> {
-    let entry_function_id_str: Option<String> = match &user_request.payload {
-        Some(txn_payload) => match &txn_payload.payload {
-            Some(PayloadType::EntryFunctionPayload(payload)) => {
-                Some(payload.entry_function_id_str.clone())
-            },
-            Some(PayloadType::MultisigPayload(payload)) => {
-                if let Some(payload) = payload.transaction_payload.as_ref() {
-                    match payload.payload.as_ref().unwrap() {
-                        MultisigPayloadType::EntryFunctionPayload(payload) => {
-                            Some(payload.entry_function_id_str.clone())
-                        },
-                    }
-                } else {
-                    None
-                }
-            },
-            _ => return None,
-        },
-        None => return None,
-    };
-    entry_function_id_str
+    get_clean_entry_function_payload_from_user_request(user_request, 0)
+        .map(|payload| payload.entry_function_id_str)
 }
 
 pub fn get_entry_function_from_user_request(
@@ -301,7 +283,35 @@ fn get_clean_entry_function_payload(
                 })
             })
             .collect(),
+        entry_function_id_str: payload.entry_function_id_str.clone(),
     }
+}
+
+pub fn get_clean_entry_function_payload_from_user_request(
+    user_request: &UserTransactionRequest,
+    version: i64,
+) -> Option<EntryFunctionPayloadClean> {
+    let clean_payload: Option<EntryFunctionPayloadClean> = match &user_request.payload {
+        Some(txn_payload) => match &txn_payload.payload {
+            Some(PayloadType::EntryFunctionPayload(payload)) => {
+                Some(get_clean_entry_function_payload(payload, version))
+            },
+            Some(PayloadType::MultisigPayload(payload)) => {
+                if let Some(payload) = payload.transaction_payload.as_ref() {
+                    match payload.payload.as_ref().unwrap() {
+                        MultisigPayloadType::EntryFunctionPayload(payload) => {
+                            Some(get_clean_entry_function_payload(payload, version))
+                        },
+                    }
+                } else {
+                    None
+                }
+            },
+            _ => return None,
+        },
+        None => return None,
+    };
+    clean_payload
 }
 
 /// Part of the json comes escaped from the protobuf so we need to unescape in a safe way

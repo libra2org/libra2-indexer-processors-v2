@@ -7,8 +7,9 @@ use crate::{
             public_key_auth_keys::PublicKeyAuthKey,
         },
         queries::account_restoration_queries::{
-            insert_auth_key_account_addresses_query, insert_auth_key_multikey_layouts_query,
-            insert_public_key_auth_keys_query,
+            deduplicate_auth_key_account_addresses, deduplicate_auth_key_multikey_layouts,
+            deduplicate_public_key_auth_keys, insert_auth_key_account_addresses_query,
+            insert_auth_key_multikey_layouts_query, insert_public_key_auth_keys_query,
         },
     },
     utils::database::{execute_in_chunks, get_config_table_chunk_size, ArcDbPool},
@@ -55,10 +56,12 @@ impl Processable for AccountRestorationStorer {
     ) -> Result<Option<TransactionContext<Self::Output>>, ProcessorError> {
         let (auth_key_address, public_key_auth_key, auth_key_multikey) = input.data;
 
+        let auth_key_address: Vec<AuthKeyAccountAddress> =
+            deduplicate_auth_key_account_addresses(auth_key_address);
         let auth_key_multikey: Vec<AuthKeyMultikeyLayout> =
-            auth_key_multikey.into_iter().flatten().collect();
+            deduplicate_auth_key_multikey_layouts(auth_key_multikey.into_iter().flatten().collect());
         let public_key_auth_key: Vec<PublicKeyAuthKey> =
-            public_key_auth_key.into_iter().flatten().collect();
+            deduplicate_public_key_auth_keys(public_key_auth_key.into_iter().flatten().collect());
 
         let per_table_chunk_sizes: AHashMap<String, usize> =
             self.processor_config.per_table_chunk_sizes.clone();

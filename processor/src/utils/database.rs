@@ -205,10 +205,11 @@ pub fn get_config_table_chunk_size<T: field_count::FieldCount>(
     table_name: &str,
     per_table_chunk_sizes: &AHashMap<String, usize>,
 ) -> usize {
-    per_table_chunk_sizes
-        .get(table_name)
-        .copied()
-        .unwrap_or_else(|| MAX_DIESEL_PARAM_SIZE / T::field_count())
+    let chunk_size = per_table_chunk_sizes.get(table_name).copied();
+    chunk_size.unwrap_or_else(|| {
+        tracing::warn!("No chunk size found for table: {}", table_name);
+        MAX_DIESEL_PARAM_SIZE / T::field_count()
+    })
 }
 
 pub async fn execute_with_better_error_conn<U>(

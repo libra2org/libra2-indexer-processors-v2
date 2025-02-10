@@ -8,17 +8,27 @@ use crate::{
 use diesel::{
     pg::{upsert::excluded, Pg},
     query_builder::QueryFragment,
-    ExpressionMethods,
+    ExpressionMethods, IntoSql,
 };
 use std::collections::HashMap;
 
-fn deduplicate_auth_key_account_addresses(
+pub fn deduplicate_auth_key_account_addresses(
     items_to_insert: Vec<AuthKeyAccountAddress>,
 ) -> Vec<AuthKeyAccountAddress> {
     let mut seen: HashMap<String, AuthKeyAccountAddress> = HashMap::new();
 
     for item in items_to_insert {
-        seen.insert(item.address.clone(), item);
+        match seen.get(&item.auth_key) {
+            Some(existing) => {
+                // Keep the entry with the larger transaction version
+                if item.last_transaction_version > existing.last_transaction_version {
+                    seen.insert(item.auth_key.clone(), item);
+                }
+            },
+            None => {
+                seen.insert(item.auth_key.clone(), item);
+            },
+        }
     }
 
     seen.into_values().collect()
@@ -42,10 +52,36 @@ pub fn insert_auth_key_account_addresses_query(
             .set((
                 auth_key.eq(excluded(auth_key)),
                 verified.eq(excluded(verified)),
-                last_transaction_version.eq(last_transaction_version),
+                last_transaction_version.eq(diesel::dsl::case_when(
+                    last_transaction_version.lt(excluded(last_transaction_version)),
+                    excluded(last_transaction_version),
+                )
+                .otherwise(last_transaction_version)),
             )),
         None,
     )
+}
+
+pub fn deduplicate_auth_key_multikey_layouts(
+    items_to_insert: Vec<AuthKeyMultikeyLayout>,
+) -> Vec<AuthKeyMultikeyLayout> {
+    let mut seen: HashMap<String, AuthKeyMultikeyLayout> = HashMap::new();
+
+    for item in items_to_insert {
+        match seen.get(&item.auth_key) {
+            Some(existing) => {
+                // Keep the entry with the larger transaction version
+                if item.last_transaction_version > existing.last_transaction_version {
+                    seen.insert(item.auth_key.clone(), item);
+                }
+            },
+            None => {
+                seen.insert(item.auth_key.clone(), item);
+            },
+        }
+    }
+
+    seen.into_values().collect()
 }
 
 pub fn insert_auth_key_multikey_layouts_query(
@@ -55,31 +91,64 @@ pub fn insert_auth_key_multikey_layouts_query(
     Option<&'static str>,
 ) {
     use schema::auth_key_multikey_layout::dsl::*;
+    let items_to_insert = deduplicate_auth_key_multikey_layouts(items_to_insert);
+
     // Assuming there cannot be two different multikey layouts that derives the same auth key
     (
         diesel::insert_into(schema::auth_key_multikey_layout::table)
             .values(items_to_insert)
             .on_conflict(auth_key)
             .do_update()
-            .set(last_transaction_version.eq(last_transaction_version)),
+            .set(
+                last_transaction_version.eq(diesel::dsl::case_when(
+                    last_transaction_version.lt(excluded(last_transaction_version)),
+                    excluded(last_transaction_version),
+                )
+                .otherwise(last_transaction_version)),
+            ),
         None,
     )
 }
 
-fn deduplicate_public_key_auth_keys(
+pub fn deduplicate_public_key_auth_keys(
     items_to_insert: Vec<PublicKeyAuthKey>,
 ) -> Vec<PublicKeyAuthKey> {
     let mut seen: HashMap<(String, String, String), PublicKeyAuthKey> = HashMap::new();
 
-    for item in items_to_insert {
-        seen.insert(
-            (
-                item.public_key.clone(),
-                item.public_key_type.clone(),
-                item.auth_key.clone(),
-            ),
-            item,
-        );
+    for mut item in items_to_insert {
+        match seen.get(&(
+            item.public_key.clone(),
+            item.public_key_type.clone(),
+            item.auth_key.clone(),
+        )) {
+            Some(existing) => {
+                // Set verified to true if the existing entry is verified or the item is verified
+                // A public key x auth key pair cannot be unverified
+                item.verified = existing.verified || item.verified;
+                // Keep the larger transaction version
+                item.last_transaction_version = item
+                    .last_transaction_version
+                    .max(existing.last_transaction_version);
+                seen.insert(
+                    (
+                        item.public_key.clone(),
+                        item.public_key_type.clone(),
+                        item.auth_key.clone(),
+                    ),
+                    item,
+                );
+            },
+            None => {
+                seen.insert(
+                    (
+                        item.public_key.clone(),
+                        item.public_key_type.clone(),
+                        item.auth_key.clone(),
+                    ),
+                    item,
+                );
+            },
+        }
     }
 
     seen.into_values().collect()
@@ -100,8 +169,16 @@ pub fn insert_public_key_auth_keys_query(
             .on_conflict((public_key, public_key_type, auth_key))
             .do_update()
             .set((
-                verified.eq(excluded(verified)),
-                last_transaction_version.eq(last_transaction_version),
+                verified.eq(diesel::dsl::case_when(
+                    verified.eq(true),
+                    true.into_sql::<diesel::sql_types::Bool>(),
+                )
+                .otherwise(excluded(verified))),
+                last_transaction_version.eq(diesel::dsl::case_when(
+                    last_transaction_version.lt(excluded(last_transaction_version)),
+                    excluded(last_transaction_version),
+                )
+                .otherwise(last_transaction_version)),
             )),
         None,
     )
