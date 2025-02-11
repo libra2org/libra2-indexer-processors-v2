@@ -6,10 +6,7 @@ use serde_json::Value;
 use std::collections::HashMap;
 
 #[allow(dead_code)]
-pub fn load_data(
-    conn: &mut PgConnection,
-    _txn_versions: Vec<i64>,
-) -> Result<HashMap<String, Value>> {
+pub fn load_data(conn: &mut PgConnection) -> Result<HashMap<String, Value>> {
     let mut result_map: HashMap<String, Value> = HashMap::new();
 
     let ut_result = ut_dsl::user_transactions

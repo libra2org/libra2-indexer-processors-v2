@@ -13,10 +13,7 @@ use serde_json::Value;
 use std::collections::HashMap;
 
 #[allow(dead_code)]
-pub fn load_data(
-    conn: &mut PgConnection,
-    _txn_versions: Vec<i64>, // TODO: Remove this after updating testing framework, for now it's just a placeholder to make the function signature match the original
-) -> Result<HashMap<String, Value>> {
+pub fn load_data(conn: &mut PgConnection) -> Result<HashMap<String, Value>> {
     let mut result_map: HashMap<String, Value> = HashMap::new();
 
     let fungible_asset_activities_result = faa_dsl::fungible_asset_activities

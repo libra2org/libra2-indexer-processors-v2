@@ -134,10 +134,7 @@ pub async fn run_processor_test<F>(
     custom_file_name: Option<String>,
 ) -> anyhow::Result<HashMap<String, Value>>
 where
-    F: Fn(&mut PgConnection, Vec<i64>) -> anyhow::Result<HashMap<String, Value>>
-        + Send
-        + Sync
-        + 'static,
+    F: Fn(&mut PgConnection) -> anyhow::Result<HashMap<String, Value>> + Send + Sync + 'static,
 {
     let txn_versions: Vec<i64> = test_context
         .get_test_transaction_versions()
@@ -157,7 +154,7 @@ where
                     panic!("Failed to establish DB connection: {:?}", e);
                 });
 
-                let db_values = match load_data(&mut conn, txn_versions.clone()) {
+                let db_values = match load_data(&mut conn) {
                     Ok(db_data) => db_data,
                     Err(e) => {
                         eprintln!("[ERROR] Failed to load data {}", e);
