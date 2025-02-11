@@ -6,7 +6,7 @@ use processor::{
         indexer_processor_config::IndexerProcessorConfig,
         processor_config::{DefaultProcessorConfig, ProcessorConfig},
     },
-    processors::stake_processor::StakeProcessorConfig,
+    processors::stake::stake_processor::StakeProcessorConfig,
 };
 use std::collections::HashSet;
 
@@ -65,7 +65,7 @@ mod tests {
         IMPORTED_MAINNET_TXNS_4827964_STAKE_INITIALIZE,
     };
     use aptos_indexer_testing_framework::{cli_parser::get_test_config, database::TestDatabase};
-    use processor::processors::stake_processor::StakeProcessor;
+    use processor::processors::stake::stake_processor::StakeProcessor;
 
     /**
      * - 0x1::delegation_pool::DelegationPool

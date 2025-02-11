@@ -6,7 +6,7 @@ use processor::{
         indexer_processor_config::IndexerProcessorConfig,
         processor_config::{DefaultProcessorConfig, ProcessorConfig},
     },
-    processors::token_v2_processor::TokenV2ProcessorConfig,
+    processors::token_v2::token_v2_processor::TokenV2ProcessorConfig,
 };
 use std::collections::HashSet;
 
@@ -77,7 +77,7 @@ mod sdk_token_v2_processor_tests {
         IMPORTED_MAINNET_TXNS_999930475_TOKEN_V2_CONCURRENT_MINT,
     };
     use aptos_indexer_testing_framework::{cli_parser::get_test_config, database::TestDatabase};
-    use processor::processors::token_v2_processor::TokenV2Processor;
+    use processor::processors::token_v2::token_v2_processor::TokenV2Processor;
 
     /**
     * This test includes processing for the following:

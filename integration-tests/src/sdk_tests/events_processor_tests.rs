@@ -62,7 +62,7 @@ mod tests {
     };
     use aptos_indexer_testing_framework::{cli_parser::get_test_config, database::TestDatabase};
     use aptos_protos::transaction::v1::Transaction;
-    use processor::processors::events_processor::EventsProcessor;
+    use processor::processors::events::events_processor::EventsProcessor;
 
     #[tokio::test(flavor = "multi_thread", worker_threads = 2)]
     async fn testnet_events_processor_genesis_txn() {

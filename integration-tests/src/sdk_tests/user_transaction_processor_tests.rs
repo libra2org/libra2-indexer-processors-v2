@@ -62,7 +62,7 @@ mod sdk_user_txn_processor_tests {
         IMPORTED_TESTNET_TXNS_769222973_MULTISIG,
     };
     use aptos_indexer_testing_framework::{cli_parser::get_test_config, database::TestDatabase};
-    use processor::processors::user_transaction_processor::UserTransactionProcessor;
+    use processor::processors::user_transaction::user_transaction_processor::UserTransactionProcessor;
 
     #[tokio::test(flavor = "multi_thread", worker_threads = 2)]
     async fn test_multi_key_keyless_signature() {
