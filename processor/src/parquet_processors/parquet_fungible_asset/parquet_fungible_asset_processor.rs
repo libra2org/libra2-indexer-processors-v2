@@ -18,6 +18,7 @@ use crate::{
                 ParquetCurrentFungibleAssetBalance, ParquetCurrentUnifiedFungibleAssetBalance,
                 ParquetFungibleAssetBalance,
             },
+            v2_fungible_asset_to_coin_mappings::ParquetFungibleAssetToCoinMapping,
             v2_fungible_metadata::ParquetFungibleAssetMetadataModel,
         },
         processor_status_saver::get_processor_status_saver,
@@ -144,6 +145,10 @@ impl ProcessorTrait for ParquetFungibleAssetProcessor {
             (
                 ParquetTypeEnum::CurrentFungibleAssetBalances,
                 ParquetCurrentUnifiedFungibleAssetBalance::schema(),
+            ),
+            (
+                ParquetTypeEnum::FungibleAssetToCoinMappings,
+                ParquetFungibleAssetToCoinMapping::schema(),
             ),
         ]
         .into_iter()
