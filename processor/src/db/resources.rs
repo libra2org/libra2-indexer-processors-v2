@@ -7,7 +7,7 @@ use crate::processors::{
         ConcurrentFungibleAssetBalance, ConcurrentFungibleAssetSupply, FungibleAssetMetadata,
         FungibleAssetStore, FungibleAssetSupply,
     },
-    objects::models::v2_object_utils::{ObjectCore, Untransferable},
+    objects::v2_object_utils::{ObjectCore, Untransferable},
     token_v2::token_v2_models::v2_token_utils::{
         AptosCollection, Collection, ConcurrentSupply, FixedSupply, PropertyMapModel,
         TokenIdentifiers, TokenV2, UnlimitedSupply,

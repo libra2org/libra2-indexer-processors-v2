@@ -5,7 +5,7 @@ use crate::{
     db::resources::{FromWriteResource, V2TokenResource},
     processors::{
         fungible_asset::fungible_asset_models::v2_fungible_asset_utils::FungibleAssetMetadata,
-        objects::models::v2_object_utils::{
+        objects::v2_object_utils::{
             ObjectAggregatedData, ObjectAggregatedDataMapping, ObjectWithMetadata,
         },
         token_v2::{

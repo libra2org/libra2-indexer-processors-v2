@@ -9,7 +9,7 @@ use crate::{
         parquet_utils::util::{format_table_name, NamedTable, VALID_TABLE_NAMES},
     },
     processors::{
-        account_transactions::models::account_transactions::ParquetAccountTransaction,
+        account_transactions::account_transactions_model::ParquetAccountTransaction,
         ans::{
             ans_processor::AnsProcessorConfig,
             models::{
@@ -35,8 +35,8 @@ use crate::{
             v2_fungible_metadata::ParquetFungibleAssetMetadataModel,
         },
         objects::{
-            models::v2_objects::{ParquetCurrentObject, ParquetObject},
             objects_processor::ObjectsProcessorConfig,
+            v2_objects_models::{ParquetCurrentObject, ParquetObject},
         },
         stake::{
             models::{

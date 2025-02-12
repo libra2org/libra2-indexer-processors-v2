@@ -1,5 +1,5 @@
 use crate::processors::account_transactions::{
-    models::account_transactions::PostgresAccountTransaction, parse_account_transactions,
+    account_transactions_model::PostgresAccountTransaction, parse_account_transactions,
 };
 use aptos_indexer_processor_sdk::{
     aptos_protos::transaction::v1::Transaction,

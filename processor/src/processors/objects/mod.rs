@@ -1,17 +1,18 @@
 // Copyright © Aptos Foundation
 // SPDX-License-Identifier: Apache-2.0
-pub mod models;
 pub mod objects_extractor;
 pub mod objects_processor;
 pub mod objects_storer;
+pub mod v2_object_utils;
+pub mod v2_objects_models;
 
 use crate::{
     db::resources::FromWriteResource,
-    processors::objects::models::{
+    processors::objects::{
         v2_object_utils::{
             ObjectAggregatedData, ObjectAggregatedDataMapping, ObjectWithMetadata, Untransferable,
         },
-        v2_objects::{CurrentObject, Object},
+        v2_objects_models::{CurrentObject, Object},
     },
     utils::{
         database::DbContext,

@@ -4,8 +4,8 @@ use crate::{
         ParquetTypeStructs,
     },
     processors::objects::{
-        models::v2_objects::{ParquetCurrentObject, ParquetObject},
         process_objects,
+        v2_objects_models::{ParquetCurrentObject, ParquetObject},
     },
     utils::table_flags::TableFlags,
 };

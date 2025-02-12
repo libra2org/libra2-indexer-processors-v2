@@ -19,7 +19,7 @@ use crate::{
                 v2_fungible_metadata::{FungibleAssetMetadataMapping, FungibleAssetMetadataModel},
             },
         },
-        objects::models::v2_object_utils::{
+        objects::v2_object_utils::{
             ObjectAggregatedData, ObjectAggregatedDataMapping, ObjectWithMetadata,
         },
     },

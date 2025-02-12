@@ -8,7 +8,7 @@
 use crate::{
     parquet_processors::parquet_utils::util::{HasVersion, NamedTable},
     processors::{
-        objects::models::v2_object_utils::ObjectAggregatedDataMapping,
+        objects::v2_object_utils::ObjectAggregatedDataMapping,
         token_v2::{
             token_models::{
                 token_claims::TokenV1Claimed,

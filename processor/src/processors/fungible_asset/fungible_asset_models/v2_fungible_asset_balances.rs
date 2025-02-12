@@ -20,7 +20,7 @@ use crate::{
                 v2_fungible_asset_utils::FungibleAssetStore,
             },
         },
-        objects::models::v2_object_utils::ObjectAggregatedDataMapping,
+        objects::v2_object_utils::ObjectAggregatedDataMapping,
         token_v2::token_v2_models::v2_token_utils::TokenStandard,
     },
     schema::{

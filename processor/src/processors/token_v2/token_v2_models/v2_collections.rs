@@ -8,7 +8,7 @@
 use crate::{
     db::resources::FromWriteResource,
     processors::{
-        objects::models::v2_object_utils::ObjectAggregatedDataMapping,
+        objects::v2_object_utils::ObjectAggregatedDataMapping,
         token_v2::{
             token_models::{
                 collection_datas::CollectionData,
