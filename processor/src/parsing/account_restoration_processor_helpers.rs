@@ -789,12 +789,10 @@ mod tests {
             .unwrap();
         let pk3 = hex::decode("95e2326a4d53ea79b6b97d8ed0b97dbf257cb34e80681031ed358176c36cd00f")
             .unwrap();
-        let signature_info = SignatureInfo::multi_ed25519(
-            "0x1".to_string(),
-            2,
-            vec![pk1, pk2, pk3],
-            vec![true, true, true],
-        );
+        let signature_info =
+            SignatureInfo::multi_ed25519("0x1".to_string(), 2, vec![pk1, pk2, pk3], vec![
+                true, true, true,
+            ]);
 
         let authkey: String =
             "0x4f63487b2133fbca2c4fe1cb4aeb4ef1386d8a1ffd12a62bc3d82de0c04a8578".to_string();
