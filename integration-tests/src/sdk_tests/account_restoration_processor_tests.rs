@@ -161,7 +161,7 @@ mod sdk_account_restoration_processor_tests {
         test_case_name: Option<String>,
         chunk_size: Option<usize>,
     ) {
-        let (diff_flag, custom_output_path) = get_test_config();
+        let (generate_flag, custom_output_path) = get_test_config();
         let output_path = custom_output_path.unwrap_or_else(|| DEFAULT_OUTPUT_FOLDER.to_string());
         let db_url = db.get_db_url();
         let (mut indexer_processor_config, processor_name) =
@@ -191,7 +191,7 @@ mod sdk_account_restoration_processor_tests {
             account_restoration_processor,
             load_data,
             db_url,
-            diff_flag,
+            generate_flag,
             output_path.clone(),
             test_case_name.clone(),
         )
