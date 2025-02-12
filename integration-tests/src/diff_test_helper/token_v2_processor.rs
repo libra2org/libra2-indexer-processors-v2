@@ -1,10 +1,6 @@
 use crate::models::token_v2_models::*;
 use anyhow::Result;
-use diesel::{
-    pg::PgConnection,
-    query_dsl::methods::{FilterDsl, ThenOrderDsl},
-    ExpressionMethods, RunQueryDsl,
-};
+use diesel::{pg::PgConnection, query_dsl::methods::ThenOrderDsl, ExpressionMethods, RunQueryDsl};
 use processor::schema::{
     current_collections_v2::dsl as ccv2_dsl, current_token_datas_v2::dsl as ctdv2_dsl,
     current_token_ownerships_v2::dsl as ctov2_dsl, current_token_pending_claims::dsl as ctpc_dsl,
@@ -14,14 +10,10 @@ use serde_json::Value;
 use std::collections::HashMap;
 
 #[allow(dead_code)]
-pub fn load_data(
-    conn: &mut PgConnection,
-    txn_versions: Vec<i64>,
-) -> Result<HashMap<String, Value>> {
+pub fn load_data(conn: &mut PgConnection) -> Result<HashMap<String, Value>> {
     let mut result_map: HashMap<String, Value> = HashMap::new();
 
     let token_activities_v2_result = tav2_dsl::token_activities_v2
-        .filter(tav2_dsl::transaction_version.eq_any(&txn_versions))
         .then_order_by(tav2_dsl::transaction_version.asc())
         .then_order_by(tav2_dsl::event_index.asc())
         .load::<TokenActivityV2>(conn);
@@ -35,7 +27,6 @@ pub fn load_data(
     );
 
     let current_collections_v2_result = ccv2_dsl::current_collections_v2
-        .filter(ccv2_dsl::last_transaction_version.eq_any(&txn_versions))
         .then_order_by(ccv2_dsl::collection_id.asc())
         .load::<CurrentCollectionV2>(conn);
 
@@ -49,7 +40,6 @@ pub fn load_data(
     );
 
     let current_token_datas_v2_result = ctdv2_dsl::current_token_datas_v2
-        .filter(ctdv2_dsl::last_transaction_version.eq_any(&txn_versions))
         .then_order_by(ctdv2_dsl::token_data_id.asc())
         .load::<CurrentTokenDataV2>(conn);
 
@@ -63,7 +53,6 @@ pub fn load_data(
     );
 
     let current_token_ownerships_v2_result = ctov2_dsl::current_token_ownerships_v2
-        .filter(ctov2_dsl::last_transaction_version.eq_any(&txn_versions))
         .then_order_by(ctov2_dsl::token_data_id.asc())
         .then_order_by(ctov2_dsl::property_version_v1.asc())
         .then_order_by(ctov2_dsl::owner_address.asc())
@@ -80,7 +69,6 @@ pub fn load_data(
     );
 
     let current_token_pending_claims_result = ctpc_dsl::current_token_pending_claims
-        .filter(ctpc_dsl::last_transaction_version.eq_any(&txn_versions))
         .then_order_by(ctpc_dsl::token_data_id_hash.asc())
         .then_order_by(ctpc_dsl::property_version.asc())
         .then_order_by(ctpc_dsl::from_address.asc())
