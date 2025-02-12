@@ -13,7 +13,7 @@ use crate::{
             coin_models::coin_utils::{CoinInfoType, CoinResource},
             fungible_asset_models::v2_fungible_asset_utils::FungibleAssetMetadata,
         },
-        objects::models::v2_object_utils::ObjectAggregatedDataMapping,
+        objects::v2_object_utils::ObjectAggregatedDataMapping,
         token_v2::token_v2_models::v2_token_utils::TokenStandard,
     },
     schema::fungible_asset_metadata,

@@ -1,13 +1,13 @@
 pub mod account_transactions_extractor;
+pub mod account_transactions_model;
 pub mod account_transactions_processor;
 pub mod account_transactions_storer;
-pub mod models;
 
 // Copyright © Aptos Foundation
 // SPDX-License-Identifier: Apache-2.0
 
 use crate::{
-    processors::account_transactions::models::account_transactions::AccountTransaction,
+    processors::account_transactions::account_transactions_model::AccountTransaction,
     utils::util::parse_timestamp,
 };
 use aptos_protos::transaction::v1::Transaction;

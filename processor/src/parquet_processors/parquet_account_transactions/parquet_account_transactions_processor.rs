@@ -12,7 +12,7 @@ use crate::{
         set_backfill_table_flag, ParquetTypeEnum,
     },
     processors::{
-        account_transactions::models::account_transactions::ParquetAccountTransaction,
+        account_transactions::account_transactions_model::ParquetAccountTransaction,
         processor_status_saver::get_processor_status_saver,
     },
     utils::{

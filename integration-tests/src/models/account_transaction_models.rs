@@ -12,7 +12,7 @@ use field_count::FieldCount;
 use processor::{
     db::resources::FromWriteResource,
     processors::{
-        objects::models::v2_object_utils::ObjectWithMetadata,
+        objects::v2_object_utils::ObjectWithMetadata,
         user_transaction::models::user_transactions::UserTransaction,
     },
     schema::account_transactions,

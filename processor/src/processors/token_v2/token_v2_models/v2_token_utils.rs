@@ -6,7 +6,7 @@
 
 use crate::{
     processors::{
-        objects::models::v2_object_utils::CurrentObjectPK,
+        objects::v2_object_utils::CurrentObjectPK,
         token_v2::token_models::token_utils::{NAME_LENGTH, URI_LENGTH},
     },
     utils::util::{

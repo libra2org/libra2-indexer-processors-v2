@@ -8,7 +8,7 @@ use crate::{
         },
     },
     processors::{
-        account_transactions::models::account_transactions::ParquetAccountTransaction,
+        account_transactions::account_transactions_model::ParquetAccountTransaction,
         ans::models::{
             ans_lookup_v2::{ParquetAnsLookupV2, ParquetCurrentAnsLookupV2},
             ans_primary_name_v2::{ParquetAnsPrimaryNameV2, ParquetCurrentAnsPrimaryNameV2},
@@ -30,7 +30,7 @@ use crate::{
             },
             v2_fungible_metadata::ParquetFungibleAssetMetadataModel,
         },
-        objects::models::v2_objects::{ParquetCurrentObject, ParquetObject},
+        objects::v2_objects_models::{ParquetCurrentObject, ParquetObject},
         stake::models::{
             delegator_activities::ParquetDelegatedStakingActivity,
             delegator_balances::{ParquetCurrentDelegatorBalance, ParquetDelegatorBalance},

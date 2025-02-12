@@ -9,7 +9,7 @@ use crate::{
     db::resources::FromWriteResource,
     parquet_processors::parquet_utils::util::{HasVersion, NamedTable},
     processors::{
-        objects::models::v2_object_utils::ObjectWithMetadata,
+        objects::v2_object_utils::ObjectWithMetadata,
         user_transaction::models::user_transactions::UserTransaction,
     },
     schema::account_transactions,

@@ -1,7 +1,7 @@
 use crate::{
     processors::objects::{
-        models::v2_objects::{PostgresCurrentObject, PostgresObject},
         process_objects,
+        v2_objects_models::{PostgresCurrentObject, PostgresObject},
     },
     utils::database::{ArcDbPool, DbContext},
 };
