@@ -7,14 +7,18 @@
 
 use super::v2_fungible_metadata::FungibleAssetMetadataModel;
 use crate::{
+    parquet_processors::parquet_utils::util::{HasVersion, NamedTable},
     processors::fungible_asset::fungible_asset_models::v2_fungible_asset_balances::get_paired_metadata_address,
-    schema::fungible_asset_to_coin_mappings, utils::database::DbPoolConnection,
+    schema::fungible_asset_to_coin_mappings,
+    utils::database::DbPoolConnection,
 };
 use ahash::AHashMap;
+use allocative_derive::Allocative;
 use diesel::query_dsl::methods::SelectDsl;
 use diesel_async::RunQueryDsl;
 use field_count::FieldCount;
 use lazy_static::lazy_static;
+use parquet_derive::ParquetRecordWriter;
 use serde::{Deserialize, Serialize};
 
 pub type FungibleAssetToCoinMappings = AHashMap<String, String>;
@@ -180,6 +184,36 @@ pub struct PostgresFungibleAssetToCoinMapping {
 }
 
 impl From<FungibleAssetToCoinMapping> for PostgresFungibleAssetToCoinMapping {
+    fn from(raw: FungibleAssetToCoinMapping) -> Self {
+        Self {
+            fungible_asset_metadata_address: raw.fungible_asset_metadata_address,
+            coin_type: raw.coin_type,
+            last_transaction_version: raw.last_transaction_version,
+        }
+    }
+}
+
+// Parquet version of fa_to_coin_mapping
+#[derive(
+    Allocative, Clone, Debug, Default, Deserialize, FieldCount, ParquetRecordWriter, Serialize,
+)]
+pub struct ParquetFungibleAssetToCoinMapping {
+    pub fungible_asset_metadata_address: String,
+    pub coin_type: String,
+    pub last_transaction_version: i64,
+}
+
+impl NamedTable for ParquetFungibleAssetToCoinMapping {
+    const TABLE_NAME: &'static str = "fungible_asset_to_coin_mappings";
+}
+
+impl HasVersion for ParquetFungibleAssetToCoinMapping {
+    fn version(&self) -> i64 {
+        self.last_transaction_version
+    }
+}
+
+impl From<FungibleAssetToCoinMapping> for ParquetFungibleAssetToCoinMapping {
     fn from(raw: FungibleAssetToCoinMapping) -> Self {
         Self {
             fungible_asset_metadata_address: raw.fungible_asset_metadata_address,

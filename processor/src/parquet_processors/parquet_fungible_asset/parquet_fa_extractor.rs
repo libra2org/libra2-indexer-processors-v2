@@ -9,6 +9,7 @@ use crate::{
             v2_fungible_asset_balances::ParquetFungibleAssetBalance,
             v2_fungible_asset_to_coin_mappings::{
                 FungibleAssetToCoinMapping, FungibleAssetToCoinMappings,
+                ParquetFungibleAssetToCoinMapping,
             },
             v2_fungible_metadata::ParquetFungibleAssetMetadataModel,
         },
@@ -75,7 +76,7 @@ impl Processable for ParquetFungibleAssetExtractor {
             raw_fungible_asset_balances,
             _,
             _raw_coin_supply,
-            _raw_fa_to_coin_mappings,
+            raw_fa_to_coin_mappings,
         ) = parse_v2_coin(&transactions.data, Some(&self.fa_to_coin_mapping)).await;
 
         let parquet_fungible_asset_activities: Vec<ParquetFungibleAssetActivity> =
@@ -96,6 +97,12 @@ impl Processable for ParquetFungibleAssetExtractor {
                 .map(ParquetFungibleAssetBalance::from)
                 .collect();
 
+        let parquet_fa_to_coin_mappings: Vec<ParquetFungibleAssetToCoinMapping> =
+            raw_fa_to_coin_mappings
+                .into_iter()
+                .map(ParquetFungibleAssetToCoinMapping::from)
+                .collect();
+
         // Print the size of each extracted data type
         debug!("Processed data sizes:");
         debug!(
@@ -109,6 +116,10 @@ impl Processable for ParquetFungibleAssetExtractor {
         debug!(
             " - V2FungibleAssetBalance: {}",
             parquet_fungible_asset_balances.len()
+        );
+        debug!(
+            " - V2FungibleAssetToCoinMapping: {}",
+            parquet_fa_to_coin_mappings.len()
         );
 
         let mut map: HashMap<ParquetTypeEnum, ParquetTypeStructs> = HashMap::new();
@@ -128,6 +139,11 @@ impl Processable for ParquetFungibleAssetExtractor {
                 TableFlags::FUNGIBLE_ASSET_BALANCES,
                 ParquetTypeEnum::FungibleAssetBalances,
                 ParquetTypeStructs::FungibleAssetBalance(parquet_fungible_asset_balances),
+            ),
+            (
+                TableFlags::FUNGIBLE_ASSET_TO_COIN_MAPPINGS,
+                ParquetTypeEnum::FungibleAssetToCoinMappings,
+                ParquetTypeStructs::FungibleAssetToCoinMappings(parquet_fa_to_coin_mappings),
             ),
         ];
 

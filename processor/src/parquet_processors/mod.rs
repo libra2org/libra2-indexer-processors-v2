@@ -28,6 +28,7 @@ use crate::{
                 ParquetCurrentFungibleAssetBalance, ParquetCurrentUnifiedFungibleAssetBalance,
                 ParquetFungibleAssetBalance,
             },
+            v2_fungible_asset_to_coin_mappings::ParquetFungibleAssetToCoinMapping,
             v2_fungible_metadata::ParquetFungibleAssetMetadataModel,
         },
         objects::v2_objects_models::{ParquetCurrentObject, ParquetObject},
@@ -130,6 +131,7 @@ pub enum ParquetTypeEnum {
     FungibleAssetBalances,
     CurrentFungibleAssetBalances,
     CurrentFungibleAssetBalancesLegacy,
+    FungibleAssetToCoinMappings,
     // txn metadata,
     WriteSetSize,
     // account transactions
@@ -239,6 +241,10 @@ impl_parquet_trait!(
     ParquetCurrentFungibleAssetBalance,
     ParquetTypeEnum::CurrentFungibleAssetBalancesLegacy
 );
+impl_parquet_trait!(
+    ParquetFungibleAssetToCoinMapping,
+    ParquetTypeEnum::FungibleAssetToCoinMappings
+);
 impl_parquet_trait!(ParquetWriteSetSize, ParquetTypeEnum::WriteSetSize);
 impl_parquet_trait!(
     ParquetAccountTransaction,
@@ -308,6 +314,7 @@ pub enum ParquetTypeStructs {
     FungibleAssetBalance(Vec<ParquetFungibleAssetBalance>),
     CurrentFungibleAssetBalance(Vec<ParquetCurrentFungibleAssetBalance>),
     CurrentUnifiedFungibleAssetBalance(Vec<ParquetCurrentUnifiedFungibleAssetBalance>),
+    FungibleAssetToCoinMappings(Vec<ParquetFungibleAssetToCoinMapping>),
     // Txn metadata
     WriteSetSize(Vec<ParquetWriteSetSize>),
     // account txn
@@ -368,6 +375,9 @@ impl ParquetTypeStructs {
             },
             ParquetTypeEnum::CurrentFungibleAssetBalances => {
                 ParquetTypeStructs::CurrentUnifiedFungibleAssetBalance(Vec::new())
+            },
+            ParquetTypeEnum::FungibleAssetToCoinMappings => {
+                ParquetTypeStructs::FungibleAssetToCoinMappings(Vec::new())
             },
             ParquetTypeEnum::WriteSetSize => ParquetTypeStructs::WriteSetSize(Vec::new()),
             ParquetTypeEnum::AccountTransactions => {
@@ -498,6 +508,12 @@ impl ParquetTypeStructs {
             (
                 ParquetTypeStructs::CurrentUnifiedFungibleAssetBalance(self_data),
                 ParquetTypeStructs::CurrentUnifiedFungibleAssetBalance(other_data),
+            ) => {
+                handle_append!(self_data, other_data)
+            },
+            (
+                ParquetTypeStructs::FungibleAssetToCoinMappings(self_data),
+                ParquetTypeStructs::FungibleAssetToCoinMappings(other_data),
             ) => {
                 handle_append!(self_data, other_data)
             },
