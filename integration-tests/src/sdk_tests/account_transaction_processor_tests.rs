@@ -54,7 +54,7 @@ mod tests {
         IMPORTED_TESTNET_TXNS_1_GENESIS, IMPORTED_TESTNET_TXNS_5523474016_VALIDATOR_TXN,
     };
     use aptos_indexer_testing_framework::{cli_parser::get_test_config, database::TestDatabase};
-    use processor::processors::account_transactions_processor::AccountTransactionsProcessor;
+    use processor::processors::account_transactions::account_transactions_processor::AccountTransactionsProcessor;
 
     /**
      * This test includes processing for the following:

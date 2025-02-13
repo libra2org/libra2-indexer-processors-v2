@@ -6,7 +6,7 @@ use processor::{
         indexer_processor_config::IndexerProcessorConfig,
         processor_config::{DefaultProcessorConfig, ProcessorConfig},
     },
-    processors::objects_processor::ObjectsProcessorConfig,
+    processors::objects::objects_processor::ObjectsProcessorConfig,
 };
 use std::collections::HashSet;
 
@@ -64,7 +64,7 @@ mod sdk_objects_processor_tests {
         IMPORTED_MAINNET_TXNS_578366445_TOKEN_V2_BURN_EVENT_V2,
     };
     use aptos_indexer_testing_framework::{cli_parser::get_test_config, database::TestDatabase};
-    use processor::processors::objects_processor::ObjectsProcessor;
+    use processor::processors::objects::objects_processor::ObjectsProcessor;
 
     #[tokio::test(flavor = "multi_thread", worker_threads = 2)]
     async fn test_objects_write_and_delete_resource() {

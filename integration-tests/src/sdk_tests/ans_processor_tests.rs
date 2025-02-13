@@ -6,7 +6,7 @@ use processor::{
         indexer_processor_config::IndexerProcessorConfig,
         processor_config::{DefaultProcessorConfig, ProcessorConfig},
     },
-    processors::ans_processor::AnsProcessorConfig,
+    processors::ans::ans_processor::AnsProcessorConfig,
 };
 use std::collections::HashSet;
 
@@ -65,7 +65,7 @@ mod tests {
         IMPORTED_MAINNET_TXNS_438536688_ANS_CURRENT_ANS_LOOKUP_V2,
     };
     use aptos_indexer_testing_framework::{cli_parser::get_test_config, database::TestDatabase};
-    use processor::processors::ans_processor::AnsProcessor;
+    use processor::processors::ans::ans_processor::AnsProcessor;
 
     /**
      * This test includes processing for the following:
