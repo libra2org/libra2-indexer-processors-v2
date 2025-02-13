@@ -1,5 +1,5 @@
 use crate::{
-    processors::objects::models::v2_objects::{PostgresCurrentObject, PostgresObject},
+    processors::objects::v2_objects_models::{PostgresCurrentObject, PostgresObject},
     utils::database::{execute_in_chunks, get_config_table_chunk_size, ArcDbPool},
 };
 use ahash::AHashMap;

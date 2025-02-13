@@ -9,7 +9,7 @@ use crate::{
     db::resources::FromWriteResource,
     parquet_processors::parquet_utils::util::{HasVersion, NamedTable},
     processors::{
-        objects::models::v2_object_utils::ObjectAggregatedDataMapping,
+        objects::v2_object_utils::ObjectAggregatedDataMapping,
         token_v2::{
             token_models::token_utils::TokenWriteSet,
             token_v2_models::v2_token_utils::{

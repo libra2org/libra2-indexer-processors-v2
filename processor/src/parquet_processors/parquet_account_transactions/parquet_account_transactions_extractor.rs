@@ -4,7 +4,7 @@ use crate::{
         ParquetTypeStructs,
     },
     processors::account_transactions::{
-        models::account_transactions::ParquetAccountTransaction, parse_account_transactions,
+        account_transactions_model::ParquetAccountTransaction, parse_account_transactions,
     },
     utils::table_flags::TableFlags,
 };

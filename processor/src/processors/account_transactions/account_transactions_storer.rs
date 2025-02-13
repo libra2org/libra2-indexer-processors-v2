@@ -3,7 +3,7 @@
 
 use crate::{
     config::processor_config::DefaultProcessorConfig,
-    processors::account_transactions::models::account_transactions::PostgresAccountTransaction,
+    processors::account_transactions::account_transactions_model::PostgresAccountTransaction,
     schema,
     utils::database::{execute_in_chunks, get_config_table_chunk_size, ArcDbPool},
 };

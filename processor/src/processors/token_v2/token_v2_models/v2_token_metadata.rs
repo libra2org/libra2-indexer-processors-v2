@@ -10,7 +10,7 @@ use crate::{
     parquet_processors::parquet_utils::util::{HasVersion, NamedTable},
     processors::{
         default::models::move_resources::MoveResource,
-        objects::models::v2_object_utils::ObjectAggregatedDataMapping,
+        objects::v2_object_utils::ObjectAggregatedDataMapping,
         token_v2::{
             token_models::token_utils::NAME_LENGTH, token_v2_models::v2_token_utils::DEFAULT_NONE,
         },
