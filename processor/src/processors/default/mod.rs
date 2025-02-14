@@ -194,6 +194,7 @@ pub fn process_transactions_parquet(
 
     for detail in wsc_details {
         match detail {
+            // TODO: clean up this code w/ above
             WriteSetChangeDetail::Module(module) => {
                 move_modules.push(module);
             },
