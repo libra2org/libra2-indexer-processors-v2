@@ -1,11 +1,14 @@
 // Copyright © Aptos Foundation
 // SPDX-License-Identifier: Apache-2.0
 
-use super::account_signature_utils::from_account_signature;
+use super::account_signature_utils::{
+    from_account_signature, get_account_signature_type_from_enum,
+};
 use crate::{
     processors::user_transaction::models::signatures::Signature, utils::util::standardize_address,
 };
 use aptos_protos::transaction::v1::{
+    account_signature::Type as AccountSignatureTypeEnum,
     signature::{Signature as SignatureEnum, Type as SignatureTypeEnum},
     Ed25519Signature, FeePayerSignature, MultiAgentSignature, MultiEd25519Signature,
     Signature as SignaturePb, SingleSender,
@@ -50,7 +53,7 @@ pub fn from_parent_signature(
     match s.signature.as_ref().unwrap() {
         SignatureEnum::Ed25519(sig) => vec![parse_ed25519_signature(
             sig,
-            &"ed25519_signature".to_string(),
+            &get_account_signature_type_from_enum(&AccountSignatureTypeEnum::Ed25519),
             sender,
             transaction_version,
             transaction_block_height,
@@ -60,7 +63,7 @@ pub fn from_parent_signature(
         )],
         SignatureEnum::MultiEd25519(sig) => parse_multi_ed25519_signature(
             sig,
-            &"multi_ed25519_signature".to_string(),
+            &get_account_signature_type_from_enum(&AccountSignatureTypeEnum::MultiEd25519),
             sender,
             transaction_version,
             transaction_block_height,
@@ -82,7 +85,7 @@ pub fn from_parent_signature(
 
 pub fn parse_ed25519_signature(
     s: &Ed25519Signature,
-    account_signature_type: &String,
+    account_signature_type: &str,
     sender: &String,
     transaction_version: i64,
     transaction_block_height: i64,
@@ -96,7 +99,7 @@ pub fn parse_ed25519_signature(
         transaction_block_height,
         signer,
         is_sender_primary,
-        account_signature_type: account_signature_type.clone(),
+        account_signature_type: account_signature_type.to_string(),
         any_signature_type: None,
         public_key_type: None,
         public_key: format!("0x{}", hex::encode(s.public_key.as_slice())),
@@ -110,7 +113,7 @@ pub fn parse_ed25519_signature(
 
 pub fn parse_multi_ed25519_signature(
     s: &MultiEd25519Signature,
-    account_signature_type: &String,
+    account_signature_type: &str,
     sender: &String,
     transaction_version: i64,
     transaction_block_height: i64,
@@ -137,7 +140,7 @@ pub fn parse_multi_ed25519_signature(
             transaction_block_height,
             signer: signer.clone(),
             is_sender_primary,
-            account_signature_type: account_signature_type.clone(),
+            account_signature_type: account_signature_type.to_string(),
             any_signature_type: None,
             public_key_type: None,
             public_key: format!("0x{}", hex::encode(public_key.as_slice())),

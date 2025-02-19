@@ -20,7 +20,7 @@ pub fn get_account_signature_type(account_signature: &AccountSignature) -> Strin
     get_account_signature_type_from_enum(&account_signature.r#type())
 }
 
-fn get_account_signature_type_from_enum(signature: &AccountSignatureTypeEnum) -> String {
+pub fn get_account_signature_type_from_enum(signature: &AccountSignatureTypeEnum) -> String {
     match signature {
         AccountSignatureTypeEnum::Ed25519 => "ed25519_signature".to_string(),
         AccountSignatureTypeEnum::MultiEd25519 => "multi_ed25519_signature".to_string(),
@@ -114,7 +114,7 @@ pub fn from_account_signature(
 
 pub fn parse_single_key_signature(
     s: &SingleKeySignature,
-    account_signature_type: &String,
+    account_signature_type: &str,
     sender: &String,
     transaction_version: i64,
     transaction_block_height: i64,
@@ -124,8 +124,8 @@ pub fn parse_single_key_signature(
 ) -> Signature {
     let signer = standardize_address(override_address.unwrap_or(sender));
     let any_signature = s.signature.as_ref().unwrap();
-    let signature_bytes = get_any_signature_bytes(&any_signature);
-    let any_signature_type = get_any_signature_type(&any_signature);
+    let signature_bytes = get_any_signature_bytes(any_signature);
+    let any_signature_type = get_any_signature_type(any_signature);
     let any_public_key_type = get_any_public_key_type(s.public_key.as_ref().unwrap());
 
     Signature {
@@ -133,7 +133,7 @@ pub fn parse_single_key_signature(
         transaction_block_height,
         signer,
         is_sender_primary,
-        account_signature_type: account_signature_type.clone(),
+        account_signature_type: account_signature_type.to_string(),
         any_signature_type: Some(any_signature_type),
         public_key_type: Some(any_public_key_type),
         public_key: format!(
@@ -150,7 +150,7 @@ pub fn parse_single_key_signature(
 
 pub fn parse_multi_key_signature(
     s: &MultiKeySignature,
-    account_signature_type: &String,
+    account_signature_type: &str,
     sender: &String,
     transaction_version: i64,
     transaction_block_height: i64,
@@ -168,8 +168,8 @@ pub fn parse_multi_key_signature(
         let any_public_key = s.public_keys.as_slice().get(index).unwrap();
         let public_key = &any_public_key.public_key;
         let any_signature = signature.signature.as_ref().unwrap();
-        let signature_bytes = get_any_signature_bytes(&any_signature);
-        let any_signature_type = get_any_signature_type(&any_signature);
+        let signature_bytes = get_any_signature_bytes(any_signature);
+        let any_signature_type = get_any_signature_type(any_signature);
         let any_public_key_type = get_any_public_key_type(any_public_key);
 
         signatures.push(Signature {
@@ -177,7 +177,7 @@ pub fn parse_multi_key_signature(
             transaction_block_height,
             signer: signer.clone(),
             is_sender_primary,
-            account_signature_type: account_signature_type.clone(),
+            account_signature_type: account_signature_type.to_string(),
             any_signature_type: Some(any_signature_type),
             public_key_type: Some(any_public_key_type),
             public_key: format!("0x{}", hex::encode(public_key)),
@@ -198,7 +198,7 @@ pub fn parse_multi_key_signature(
 
 pub fn parse_abstraction_signature(
     sender: &String,
-    account_signature_type: &String,
+    account_signature_type: &str,
     transaction_version: i64,
     transaction_block_height: i64,
     is_sender_primary: bool,
@@ -211,7 +211,7 @@ pub fn parse_abstraction_signature(
         transaction_block_height,
         signer,
         is_sender_primary,
-        account_signature_type: account_signature_type.clone(),
+        account_signature_type: account_signature_type.to_string(),
         any_signature_type: None,
         public_key_type: None,
         public_key: "Not implemented".into(),
