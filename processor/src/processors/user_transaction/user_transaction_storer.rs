@@ -116,9 +116,7 @@ pub fn insert_user_transactions_query(
             .on_conflict(version)
             .do_update()
             .set((
-                entry_function_contract_address.eq(excluded(entry_function_contract_address)),
-                entry_function_module_name.eq(excluded(entry_function_module_name)),
-                entry_function_function_name.eq(excluded(entry_function_function_name)),
+                parent_signature_type.eq(excluded(parent_signature_type)),
                 inserted_at.eq(excluded(inserted_at)),
             )),
         None,
@@ -143,6 +141,7 @@ pub fn insert_signatures_query(
             ))
             .do_update()
             .set((
+                type_.eq(excluded(type_)),
                 any_signature_type.eq(excluded(any_signature_type)),
                 public_key_type.eq(excluded(public_key_type)),
                 inserted_at.eq(excluded(inserted_at)),
