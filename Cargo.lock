@@ -142,7 +142,7 @@ checksum = "34ac096ce696dc2fcabef30516bb13c0a68a11d30131d3df6f04711467681b04"
 [[package]]
 name = "aptos-indexer-processor-sdk"
 version = "0.1.0"
-source = "git+https://github.com/aptos-labs/aptos-indexer-processor-sdk.git?rev=051a77e3a4206911223d8ba0628d8251a679b21c#051a77e3a4206911223d8ba0628d8251a679b21c"
+source = "git+https://github.com/aptos-labs/aptos-indexer-processor-sdk.git?rev=707b8bf33cad1a8143b9e81762d644f1be0451bb#707b8bf33cad1a8143b9e81762d644f1be0451bb"
 dependencies = [
  "ahash",
  "anyhow",
@@ -175,7 +175,7 @@ dependencies = [
 [[package]]
 name = "aptos-indexer-processor-sdk-server-framework"
 version = "1.0.0"
-source = "git+https://github.com/aptos-labs/aptos-indexer-processor-sdk.git?rev=051a77e3a4206911223d8ba0628d8251a679b21c#051a77e3a4206911223d8ba0628d8251a679b21c"
+source = "git+https://github.com/aptos-labs/aptos-indexer-processor-sdk.git?rev=707b8bf33cad1a8143b9e81762d644f1be0451bb#707b8bf33cad1a8143b9e81762d644f1be0451bb"
 dependencies = [
  "anyhow",
  "aptos-indexer-processor-sdk",
@@ -199,16 +199,16 @@ dependencies = [
 [[package]]
 name = "aptos-indexer-test-transactions"
 version = "1.0.0"
-source = "git+https://github.com/aptos-labs/aptos-core.git?rev=78ef08b68a0b108d88ef34fd317e79b42df6cb29#78ef08b68a0b108d88ef34fd317e79b42df6cb29"
+source = "git+https://github.com/aptos-labs/aptos-core.git?rev=a9d48203d16ee3d77cda0e1378526a46af3bc034#a9d48203d16ee3d77cda0e1378526a46af3bc034"
 dependencies = [
- "aptos-protos 1.3.1 (git+https://github.com/aptos-labs/aptos-core.git?rev=78ef08b68a0b108d88ef34fd317e79b42df6cb29)",
+ "aptos-protos 1.3.1 (git+https://github.com/aptos-labs/aptos-core.git?rev=a9d48203d16ee3d77cda0e1378526a46af3bc034)",
  "serde_json",
 ]
 
 [[package]]
 name = "aptos-indexer-testing-framework"
 version = "0.1.0"
-source = "git+https://github.com/aptos-labs/aptos-indexer-processor-sdk.git?rev=051a77e3a4206911223d8ba0628d8251a679b21c#051a77e3a4206911223d8ba0628d8251a679b21c"
+source = "git+https://github.com/aptos-labs/aptos-indexer-processor-sdk.git?rev=707b8bf33cad1a8143b9e81762d644f1be0451bb#707b8bf33cad1a8143b9e81762d644f1be0451bb"
 dependencies = [
  "anyhow",
  "aptos-indexer-processor-sdk",
@@ -233,7 +233,7 @@ dependencies = [
 [[package]]
 name = "aptos-indexer-transaction-stream"
 version = "0.1.0"
-source = "git+https://github.com/aptos-labs/aptos-indexer-processor-sdk.git?rev=051a77e3a4206911223d8ba0628d8251a679b21c#051a77e3a4206911223d8ba0628d8251a679b21c"
+source = "git+https://github.com/aptos-labs/aptos-indexer-processor-sdk.git?rev=707b8bf33cad1a8143b9e81762d644f1be0451bb#707b8bf33cad1a8143b9e81762d644f1be0451bb"
 dependencies = [
  "anyhow",
  "aptos-moving-average",
@@ -254,7 +254,7 @@ dependencies = [
 [[package]]
 name = "aptos-moving-average"
 version = "0.1.0"
-source = "git+https://github.com/aptos-labs/aptos-indexer-processor-sdk.git?rev=051a77e3a4206911223d8ba0628d8251a679b21c#051a77e3a4206911223d8ba0628d8251a679b21c"
+source = "git+https://github.com/aptos-labs/aptos-indexer-processor-sdk.git?rev=707b8bf33cad1a8143b9e81762d644f1be0451bb#707b8bf33cad1a8143b9e81762d644f1be0451bb"
 dependencies = [
  "chrono",
 ]
@@ -286,7 +286,7 @@ dependencies = [
 [[package]]
 name = "aptos-protos"
 version = "1.3.1"
-source = "git+https://github.com/aptos-labs/aptos-core.git?rev=78ef08b68a0b108d88ef34fd317e79b42df6cb29#78ef08b68a0b108d88ef34fd317e79b42df6cb29"
+source = "git+https://github.com/aptos-labs/aptos-core.git?rev=a9d48203d16ee3d77cda0e1378526a46af3bc034#a9d48203d16ee3d77cda0e1378526a46af3bc034"
 dependencies = [
  "pbjson",
  "prost 0.13.4",
@@ -2324,7 +2324,7 @@ dependencies = [
 [[package]]
 name = "instrumented-channel"
 version = "0.1.0"
-source = "git+https://github.com/aptos-labs/aptos-indexer-processor-sdk.git?rev=051a77e3a4206911223d8ba0628d8251a679b21c#051a77e3a4206911223d8ba0628d8251a679b21c"
+source = "git+https://github.com/aptos-labs/aptos-indexer-processor-sdk.git?rev=707b8bf33cad1a8143b9e81762d644f1be0451bb#707b8bf33cad1a8143b9e81762d644f1be0451bb"
 dependencies = [
  "delegate",
  "derive_builder",
@@ -4203,7 +4203,7 @@ checksum = "6ea1a2d0a644769cc99faa24c3ad26b379b786fe7c36fd3c546254801650e6dd"
 [[package]]
 name = "sample"
 version = "0.1.0"
-source = "git+https://github.com/aptos-labs/aptos-indexer-processor-sdk.git?rev=051a77e3a4206911223d8ba0628d8251a679b21c#051a77e3a4206911223d8ba0628d8251a679b21c"
+source = "git+https://github.com/aptos-labs/aptos-indexer-processor-sdk.git?rev=707b8bf33cad1a8143b9e81762d644f1be0451bb#707b8bf33cad1a8143b9e81762d644f1be0451bb"
 dependencies = [
  "tracing",
 ]
