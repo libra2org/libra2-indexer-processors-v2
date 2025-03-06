@@ -36,5 +36,24 @@
     "last_transaction_timestamp": "2025-03-04T18:53:21",
     "token_standard": "v1",
     "asset_type": "0x1::aptos_coin::AptosCoin"
+  },
+  {
+    "storage_id": "0xe9e3c9b39c1b966b599a7212f18bb9237c87db88c6f6501534958bbaa12210e0",
+    "owner_address": "0x0bb3e0c3db6ab22cf18b8b0c6a2efd5b2304902b2a51f6338951e85938081b78",
+    "asset_type_v2": null,
+    "asset_type_v1": "0x1::aptos_coin::AptosCoin",
+    "is_primary": true,
+    "is_frozen": false,
+    "amount_v1": "2644421640",
+    "amount_v2": null,
+    "amount": "2644421640",
+    "last_transaction_version_v1": 6643353707,
+    "last_transaction_version_v2": null,
+    "last_transaction_version": 6643353707,
+    "last_transaction_timestamp_v1": "2025-03-04T18:53:03",
+    "last_transaction_timestamp_v2": null,
+    "last_transaction_timestamp": "2025-03-04T18:53:03",
+    "token_standard": "v1",
+    "asset_type": "0x1::aptos_coin::AptosCoin"
   }
 ]

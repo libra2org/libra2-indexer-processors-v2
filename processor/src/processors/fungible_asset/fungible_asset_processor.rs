@@ -31,10 +31,14 @@ use tracing::{debug, info};
 pub struct FungibleAssetProcessor {
     pub config: IndexerProcessorConfig,
     pub db_pool: ArcDbPool,
+    pub starting_version_override: Option<u64>,
 }
 
 impl FungibleAssetProcessor {
-    pub async fn new(config: IndexerProcessorConfig) -> Result<Self> {
+    pub async fn new(
+        config: IndexerProcessorConfig,
+        starting_version_override: Option<u64>,
+    ) -> Result<Self> {
         match config.db_config {
             DbConfig::PostgresConfig(ref postgres_config) => {
                 let conn_pool = new_db_pool(
@@ -52,6 +56,7 @@ impl FungibleAssetProcessor {
                 Ok(Self {
                     config,
                     db_pool: conn_pool,
+                    starting_version_override,
                 })
             },
             _ => Err(anyhow::anyhow!(
@@ -79,7 +84,10 @@ impl ProcessorTrait for FungibleAssetProcessor {
         }
 
         // Merge the starting version from config and the latest processed version from the DB
-        let starting_version = get_starting_version(&self.config, self.db_pool.clone()).await?;
+        let starting_version = match self.starting_version_override {
+            Some(starting_version) => starting_version,
+            None => get_starting_version(&self.config, self.db_pool.clone()).await?,
+        };
 
         // Check and update the ledger chain id to ensure we're indexing the correct chain
         let grpc_chain_id = TransactionStream::new(self.config.transaction_stream_config.clone())

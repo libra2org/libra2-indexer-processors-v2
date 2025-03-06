@@ -199,6 +199,9 @@ mod sdk_fungible_asset_processor_tests {
     #[tokio::test(flavor = "multi_thread", worker_threads = 2)]
     async fn test_out_of_order_balances_multiple_batches() {
         sequential_multi_transaction_helper_function(
+            // &[&[IMPORTED_TESTNET_TXNS_6643353877_FA_TRANSFER_2], &[
+            //     IMPORTED_TESTNET_TXNS_6643353707_FA_TRANSFER_EVENTS_V2,
+            // ]],
             &[&[IMPORTED_TESTNET_TXNS_6643353877_FA_TRANSFER_2], &[
                 IMPORTED_TESTNET_TXNS_6643353707_FA_TRANSFER_EVENTS_V2,
             ]],
@@ -352,9 +355,11 @@ mod sdk_fungible_asset_processor_tests {
         let (indexer_processor_config, processor_name) =
             setup_fa_processor_config(&test_context, &db_url);
 
-        let fungible_asset_processor = FungibleAssetProcessor::new(indexer_processor_config)
-            .await
-            .expect("Failed to create FungibleAssetProcessor");
+        let starting_version = test_context.get_request_start_version();
+        let fungible_asset_processor =
+            FungibleAssetProcessor::new(indexer_processor_config, Some(starting_version))
+                .await
+                .expect("Failed to create FungibleAssetProcessor");
 
         match run_processor_test(
             &mut test_context,

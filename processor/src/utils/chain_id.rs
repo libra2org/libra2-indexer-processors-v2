@@ -34,7 +34,6 @@ pub async fn check_or_update_chain_id(grpc_chain_id: i64, db_pool: ArcDbPool) ->
                         chain_id: grpc_chain_id,
                     })
                     .on_conflict_do_nothing(),
-                None,
             )
             .await
             .context("Error updating chain_id!")

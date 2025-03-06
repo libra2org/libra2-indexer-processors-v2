@@ -17,6 +17,7 @@ use async_trait::async_trait;
 use diesel::{
     pg::{upsert::excluded, Pg},
     query_builder::QueryFragment,
+    query_dsl::methods::FilterDsl,
     ExpressionMethods,
 };
 
@@ -90,44 +91,34 @@ impl NamedStep for AccountRestorationStorer {
 
 pub fn insert_auth_key_account_addresses_query(
     items_to_insert: Vec<AuthKeyAccountAddress>,
-) -> (
-    impl QueryFragment<Pg> + diesel::query_builder::QueryId + Send,
-    Option<&'static str>,
-) {
+) -> impl QueryFragment<Pg> + diesel::query_builder::QueryId + Send {
     use schema::auth_key_account_addresses::dsl::*;
 
-    (
-        diesel::insert_into(schema::auth_key_account_addresses::table)
-            .values(items_to_insert)
-            .on_conflict(account_address)
-            .do_update()
-            .set((
-                auth_key.eq(excluded(auth_key)),
-                last_transaction_version.eq(excluded(last_transaction_version)),
-            )),
-        Some(" WHERE auth_key_account_addresses.last_transaction_version <= excluded.last_transaction_version "),
-    )
+    diesel::insert_into(schema::auth_key_account_addresses::table)
+        .values(items_to_insert)
+        .on_conflict(account_address)
+        .do_update()
+        .set((
+            auth_key.eq(excluded(auth_key)),
+            last_transaction_version.eq(excluded(last_transaction_version)),
+        ))
+        .filter(last_transaction_version.le(excluded(last_transaction_version)))
 }
 
 pub fn insert_public_key_auth_keys_query(
     items_to_insert: Vec<PublicKeyAuthKey>,
-) -> (
-    impl QueryFragment<Pg> + diesel::query_builder::QueryId + Send,
-    Option<&'static str>,
-) {
+) -> impl QueryFragment<Pg> + diesel::query_builder::QueryId + Send {
     use schema::public_key_auth_keys::dsl::*;
 
-    (
-        diesel::insert_into(schema::public_key_auth_keys::table)
-            .values(items_to_insert)
-            .on_conflict((auth_key, public_key))
-            .do_update()
-            .set((
-                public_key_type.eq(excluded(public_key_type)),
-                is_public_key_used.eq(excluded(is_public_key_used)),
-                last_transaction_version.eq(excluded(last_transaction_version)),
-                signature_type.eq(excluded(signature_type)),
-            )),
-        Some(" WHERE public_key_auth_keys.last_transaction_version <= excluded.last_transaction_version "),
-    )
+    diesel::insert_into(schema::public_key_auth_keys::table)
+        .values(items_to_insert)
+        .on_conflict((auth_key, public_key))
+        .do_update()
+        .set((
+            public_key_type.eq(excluded(public_key_type)),
+            is_public_key_used.eq(excluded(is_public_key_used)),
+            last_transaction_version.eq(excluded(last_transaction_version)),
+            signature_type.eq(excluded(signature_type)),
+        ))
+        .filter(last_transaction_version.le(excluded(last_transaction_version)))
 }
