@@ -153,9 +153,7 @@ pub fn get_config_table_chunk_size<T: field_count::FieldCount>(
     per_table_chunk_sizes: &AHashMap<String, usize>,
 ) -> usize {
     let chunk_size = per_table_chunk_sizes.get(table_name).copied();
-    chunk_size.unwrap_or_else(|| {
-        MAX_DIESEL_PARAM_SIZE / T::field_count()
-    })
+    chunk_size.unwrap_or_else(|| MAX_DIESEL_PARAM_SIZE / T::field_count())
 }
 
 pub async fn execute_with_better_error<U>(
