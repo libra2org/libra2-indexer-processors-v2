@@ -65,7 +65,7 @@ mod tests {
     use processor::processors::events::events_processor::EventsProcessor;
 
     #[tokio::test(flavor = "multi_thread", worker_threads = 2)]
-    async fn testnet_events_processor_genesis_txn() {
+    async fn test_events_processor_genesis_txn() {
         process_single_testnet_event_txn(
             IMPORTED_TESTNET_TXNS_1_GENESIS,
             Some("genesis_txn_test".to_string()),
@@ -74,7 +74,7 @@ mod tests {
     }
 
     #[tokio::test(flavor = "multi_thread", worker_threads = 2)]
-    async fn testnet_events_processor_new_block_event() {
+    async fn test_events_processor_new_block_event() {
         process_single_testnet_event_txn(
             IMPORTED_TESTNET_TXNS_2_NEW_BLOCK_EVENT,
             Some("new_block_event_test".to_string()),
@@ -83,7 +83,7 @@ mod tests {
     }
 
     #[tokio::test(flavor = "multi_thread", worker_threads = 2)]
-    async fn testnet_events_processor_empty_txn() {
+    async fn test_events_processor_empty_txn() {
         process_single_testnet_event_txn(
             IMPORTED_TESTNET_TXNS_3_EMPTY_TXN,
             Some("empty_txn_test".to_string()),
@@ -92,7 +92,7 @@ mod tests {
     }
 
     #[tokio::test(flavor = "multi_thread", worker_threads = 2)]
-    async fn testnet_events_processor_coin_register_fa_metadata() {
+    async fn test_events_processor_coin_register_fa_metadata() {
         process_single_testnet_event_txn(
             IMPORTED_TESTNET_TXNS_278556781_V1_COIN_REGISTER_FA_METADATA,
             Some("coin_register_fa_metadata_test".to_string()),
@@ -101,7 +101,7 @@ mod tests {
     }
 
     #[tokio::test(flavor = "multi_thread", worker_threads = 2)]
-    async fn testnet_events_processor_fa_metadata() {
+    async fn test_events_processor_fa_metadata() {
         process_single_testnet_event_txn(
             IMPORTED_TESTNET_TXNS_1255836496_V2_FA_METADATA_,
             Some("fa_metadata_test".to_string()),
@@ -110,7 +110,7 @@ mod tests {
     }
 
     #[tokio::test(flavor = "multi_thread", worker_threads = 2)]
-    async fn testnet_events_processor_fa_activities() {
+    async fn test_events_processor_fa_activities() {
         process_single_testnet_event_txn(
             IMPORTED_TESTNET_TXNS_5992795934_FA_ACTIVITIES,
             Some("fa_activities_test".to_string()),
@@ -120,13 +120,13 @@ mod tests {
 
     /// Example test case of not using custom name
     #[tokio::test(flavor = "multi_thread", worker_threads = 2)]
-    async fn testnet_events_processor_coin_register() {
+    async fn test_events_processor_coin_register() {
         process_single_testnet_event_txn(IMPORTED_TESTNET_TXNS_5979639459_COIN_REGISTER, None)
             .await;
     }
 
     #[tokio::test(flavor = "multi_thread", worker_threads = 2)]
-    async fn devnet_events_processor_coin_module_events() {
+    async fn test_events_processor_coin_module_events() {
         process_single_devnet_event_txn(
             IMPORTED_TESTNET_TXNS_6643353707_FA_TRANSFER_EVENTS_V2,
             Some("coin_event_v2".to_string()),
@@ -135,7 +135,7 @@ mod tests {
     }
 
     #[tokio::test(flavor = "multi_thread", worker_threads = 2)]
-    async fn devnet_events_processor_token_v1_module_events() {
+    async fn test_events_processor_token_v1_module_events() {
         process_single_devnet_event_txn(
             IMPORTED_DEVNET_TXNS_78753831_TOKEN_V1_MINT_TRANSFER_WITH_V2_EVENTS,
             Some("token_v1_event_v2".to_string()),
@@ -144,7 +144,7 @@ mod tests {
     }
 
     #[tokio::test(flavor = "multi_thread", worker_threads = 2)]
-    async fn devnet_events_processor_token_v2_module_events() {
+    async fn test_events_processor_token_v2_module_events() {
         process_single_devnet_event_txn(
             IMPORTED_DEVNET_TXNS_78753832_TOKEN_V2_MINT_TRANSFER_WITH_V2_EVENTS,
             Some("token_v2_event_v2".to_string()),
@@ -157,7 +157,7 @@ mod tests {
     // so GRPC can return a txn with event size info but no events
     // We expect no events parsed
     #[tokio::test(flavor = "multi_thread", worker_threads = 2)]
-    async fn mainnet_events_processor_validator_txn_missing_events() {
+    async fn test_events_processor_validator_txn_missing_events() {
         process_single_mainnet_event_txn(
             IMPORTED_MAINNET_TXNS_554229017_EVENTS_WITH_NO_EVENT_SIZE_INFO, // this is misnamed, but it's the validatortxn with missing events
             Some("validator_txn_missing_events".to_string()),
@@ -167,7 +167,7 @@ mod tests {
 
     // Example 2: Test for multiple transactions handling
     #[tokio::test(flavor = "multi_thread", worker_threads = 2)]
-    async fn testnet_events_processor_db_output_scenario_testing() {
+    async fn test_events_processor_db_output_scenario_testing() {
         let (generate_flag, custom_output_path) = get_test_config();
         let output_path = custom_output_path.unwrap_or_else(|| DEFAULT_OUTPUT_FOLDER.to_string());
 
