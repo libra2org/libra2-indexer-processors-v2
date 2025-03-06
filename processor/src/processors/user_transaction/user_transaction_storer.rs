@@ -105,47 +105,35 @@ impl NamedStep for UserTransactionStorer {
 
 pub fn insert_user_transactions_query(
     items_to_insert: Vec<PostgresUserTransaction>,
-) -> (
-    impl QueryFragment<Pg> + diesel::query_builder::QueryId + Send,
-    Option<&'static str>,
-) {
+) -> impl QueryFragment<Pg> + diesel::query_builder::QueryId + Send {
     use schema::user_transactions::dsl::*;
-    (
-        diesel::insert_into(schema::user_transactions::table)
-            .values(items_to_insert)
-            .on_conflict(version)
-            .do_update()
-            .set((
-                parent_signature_type.eq(excluded(parent_signature_type)),
-                inserted_at.eq(excluded(inserted_at)),
-            )),
-        None,
-    )
+    diesel::insert_into(schema::user_transactions::table)
+        .values(items_to_insert)
+        .on_conflict(version)
+        .do_update()
+        .set((
+            parent_signature_type.eq(excluded(parent_signature_type)),
+            inserted_at.eq(excluded(inserted_at)),
+        ))
 }
 
 pub fn insert_signatures_query(
     items_to_insert: Vec<PostgresSignature>,
-) -> (
-    impl QueryFragment<Pg> + diesel::query_builder::QueryId + Send,
-    Option<&'static str>,
-) {
+) -> impl QueryFragment<Pg> + diesel::query_builder::QueryId + Send {
     use schema::signatures::dsl::*;
-    (
-        diesel::insert_into(schema::signatures::table)
-            .values(items_to_insert)
-            .on_conflict((
-                transaction_version,
-                multi_agent_index,
-                multi_sig_index,
-                is_sender_primary,
-            ))
-            .do_update()
-            .set((
-                type_.eq(excluded(type_)),
-                any_signature_type.eq(excluded(any_signature_type)),
-                public_key_type.eq(excluded(public_key_type)),
-                inserted_at.eq(excluded(inserted_at)),
-            )),
-        None,
-    )
+    diesel::insert_into(schema::signatures::table)
+        .values(items_to_insert)
+        .on_conflict((
+            transaction_version,
+            multi_agent_index,
+            multi_sig_index,
+            is_sender_primary,
+        ))
+        .do_update()
+        .set((
+            type_.eq(excluded(type_)),
+            any_signature_type.eq(excluded(any_signature_type)),
+            public_key_type.eq(excluded(public_key_type)),
+            inserted_at.eq(excluded(inserted_at)),
+        ))
 }

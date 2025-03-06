@@ -72,7 +72,8 @@ impl RunnableConfig for IndexerProcessorConfig {
                 events_processor.run_processor().await
             },
             ProcessorConfig::FungibleAssetProcessor(_) => {
-                let fungible_asset_processor = FungibleAssetProcessor::new(self.clone()).await?;
+                let fungible_asset_processor =
+                    FungibleAssetProcessor::new(self.clone(), None).await?;
                 fungible_asset_processor.run_processor().await
             },
             ProcessorConfig::UserTransactionProcessor(_) => {

@@ -26,6 +26,7 @@ use async_trait::async_trait;
 use diesel::{
     pg::{upsert::excluded, Pg},
     query_builder::QueryFragment,
+    query_dsl::methods::FilterDsl,
     ExpressionMethods,
 };
 
@@ -199,93 +200,68 @@ impl NamedStep for DefaultStorer {
 
 pub fn insert_block_metadata_transactions_query(
     items_to_insert: Vec<PostgresBlockMetadataTransaction>,
-) -> (
-    impl QueryFragment<Pg> + diesel::query_builder::QueryId + Send,
-    Option<&'static str>,
-) {
+) -> impl QueryFragment<Pg> + diesel::query_builder::QueryId + Send {
     use schema::block_metadata_transactions::dsl::*;
 
-    (
-        diesel::insert_into(schema::block_metadata_transactions::table)
-            .values(items_to_insert)
-            .on_conflict(version)
-            .do_nothing(),
-        None,
-    )
+    diesel::insert_into(schema::block_metadata_transactions::table)
+        .values(items_to_insert)
+        .on_conflict(version)
+        .do_nothing()
 }
 
 pub fn insert_table_items_query(
     items_to_insert: Vec<PostgresTableItem>,
-) -> (
-    impl QueryFragment<Pg> + diesel::query_builder::QueryId + Send,
-    Option<&'static str>,
-) {
+) -> impl QueryFragment<Pg> + diesel::query_builder::QueryId + Send {
     use schema::table_items::dsl::*;
 
-    (
-        diesel::insert_into(schema::table_items::table)
-            .values(items_to_insert)
-            .on_conflict((transaction_version, write_set_change_index))
-            .do_nothing(),
-        None,
-    )
+    diesel::insert_into(schema::table_items::table)
+        .values(items_to_insert)
+        .on_conflict((transaction_version, write_set_change_index))
+        .do_nothing()
 }
 
 pub fn insert_current_table_items_query(
     items_to_insert: Vec<PostgresCurrentTableItem>,
-) -> (
-    impl QueryFragment<Pg> + diesel::query_builder::QueryId + Send,
-    Option<&'static str>,
-) {
+) -> impl QueryFragment<Pg> + diesel::query_builder::QueryId + Send {
     use schema::current_table_items::dsl::*;
 
-    (
-        diesel::insert_into(schema::current_table_items::table)
-            .values(items_to_insert)
-            .on_conflict((table_handle, key_hash))
-            .do_update()
-            .set((
-                key.eq(excluded(key)),
-                decoded_key.eq(excluded(decoded_key)),
-                decoded_value.eq(excluded(decoded_value)),
-                is_deleted.eq(excluded(is_deleted)),
-                last_transaction_version.eq(excluded(last_transaction_version)),
-                inserted_at.eq(excluded(inserted_at)),
+    diesel::insert_into(schema::current_table_items::table)
+        .values(items_to_insert)
+        .on_conflict((table_handle, key_hash))
+        .do_update()
+        .set((
+            key.eq(excluded(key)),
+            decoded_key.eq(excluded(decoded_key)),
+            decoded_value.eq(excluded(decoded_value)),
+            is_deleted.eq(excluded(is_deleted)),
+            last_transaction_version.eq(excluded(last_transaction_version)),
+            inserted_at.eq(excluded(inserted_at)),
+        ))
+        .filter(
+            schema::current_table_items::last_transaction_version.le(excluded(
+                schema::current_table_items::last_transaction_version,
             )),
-        Some(" WHERE current_table_items.last_transaction_version <= excluded.last_transaction_version "),
-    )
+        )
 }
 
 pub fn insert_table_metadata_query(
     items_to_insert: Vec<PostgresTableMetadata>,
-) -> (
-    impl QueryFragment<Pg> + diesel::query_builder::QueryId + Send,
-    Option<&'static str>,
-) {
+) -> impl QueryFragment<Pg> + diesel::query_builder::QueryId + Send {
     use schema::table_metadatas::dsl::*;
 
-    (
-        diesel::insert_into(schema::table_metadatas::table)
-            .values(items_to_insert)
-            .on_conflict(handle)
-            .do_nothing(),
-        None,
-    )
+    diesel::insert_into(schema::table_metadatas::table)
+        .values(items_to_insert)
+        .on_conflict(handle)
+        .do_nothing()
 }
 
 pub fn insert_move_modules_query(
     items_to_insert: Vec<PostgresMoveModule>,
-) -> (
-    impl QueryFragment<Pg> + diesel::query_builder::QueryId + Send,
-    Option<&'static str>,
-) {
+) -> impl QueryFragment<Pg> + diesel::query_builder::QueryId + Send {
     use schema::move_modules::dsl::*;
 
-    (
-        diesel::insert_into(schema::move_modules::table)
-            .values(items_to_insert)
-            .on_conflict(transaction_version)
-            .do_nothing(),
-        None,
-    )
+    diesel::insert_into(schema::move_modules::table)
+        .values(items_to_insert)
+        .on_conflict(transaction_version)
+        .do_nothing()
 }

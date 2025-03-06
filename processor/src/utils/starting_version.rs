@@ -192,7 +192,6 @@ async fn get_starting_version_from_db(
                                 backfill_processor_status::backfill_end_version
                                     .eq(excluded(backfill_processor_status::backfill_end_version)),
                             )),
-                        None,
                     )
                     .await?;
                     return Ok(None);
