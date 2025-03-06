@@ -207,7 +207,6 @@ pub fn get_config_table_chunk_size<T: field_count::FieldCount>(
 ) -> usize {
     let chunk_size = per_table_chunk_sizes.get(table_name).copied();
     chunk_size.unwrap_or_else(|| {
-        tracing::warn!("No chunk size found for table: {}", table_name);
         MAX_DIESEL_PARAM_SIZE / T::field_count()
     })
 }
