@@ -199,9 +199,6 @@ mod sdk_fungible_asset_processor_tests {
     #[tokio::test(flavor = "multi_thread", worker_threads = 2)]
     async fn test_out_of_order_balances_multiple_batches() {
         sequential_multi_transaction_helper_function(
-            // &[&[IMPORTED_TESTNET_TXNS_6643353877_FA_TRANSFER_2], &[
-            //     IMPORTED_TESTNET_TXNS_6643353707_FA_TRANSFER_EVENTS_V2,
-            // ]],
             &[&[IMPORTED_TESTNET_TXNS_6643353877_FA_TRANSFER_2], &[
                 IMPORTED_TESTNET_TXNS_6643353707_FA_TRANSFER_EVENTS_V2,
             ]],
