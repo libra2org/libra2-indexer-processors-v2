@@ -86,9 +86,11 @@ impl UserTransaction {
             Some(signature) => get_fee_payer_address(signature, version),
             None => None,
         };
+        let block_timestamp: chrono::NaiveDateTime =
+            parse_timestamp(timestamp, version).naive_utc();
         let num_signatures =
-            UserTransaction::get_signatures(user_request, version, block_height).len() as i64;
-
+            UserTransaction::get_signatures(user_request, version, block_height, block_timestamp)
+                .len() as i64;
         (
             Self {
                 txn_version: version,
@@ -106,7 +108,7 @@ impl UserTransaction {
                 max_gas_amount: u64_to_bigdecimal(user_request.max_gas_amount),
                 expiration_timestamp_secs: user_request.expiration_timestamp_secs.unwrap(),
                 gas_unit_price: u64_to_bigdecimal(user_request.gas_unit_price),
-                block_timestamp: parse_timestamp(timestamp, version).naive_utc(),
+                block_timestamp,
                 entry_function_id_str: get_entry_function_from_user_request(user_request)
                     .unwrap_or_default(),
                 epoch,
@@ -130,7 +132,7 @@ impl UserTransaction {
                 gas_fee_payer_address,
                 num_signatures, // Corrected to use the calculated number of signatures
             },
-            Self::get_signatures(user_request, version, block_height),
+            Self::get_signatures(user_request, version, block_height, block_timestamp),
         )
     }
 
@@ -139,12 +141,19 @@ impl UserTransaction {
         user_request: &UserTransactionRequest,
         version: i64,
         block_height: i64,
+        block_timestamp: chrono::NaiveDateTime,
     ) -> Vec<Signature> {
         user_request
             .signature
             .as_ref()
             .map(|s| {
-                Signature::from_user_transaction(s, &user_request.sender, version, block_height)
+                Signature::from_user_transaction(
+                    s,
+                    &user_request.sender,
+                    version,
+                    block_height,
+                    block_timestamp,
+                )
             })
             .unwrap_or_default()
     }

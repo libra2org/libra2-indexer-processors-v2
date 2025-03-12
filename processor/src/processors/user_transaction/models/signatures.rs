@@ -30,6 +30,7 @@ pub struct Signature {
     pub signature: String,
     pub threshold: i64,
     pub public_key_indices: serde_json::Value,
+    pub block_timestamp: chrono::NaiveDateTime,
 }
 
 impl Signature {
@@ -39,6 +40,7 @@ impl Signature {
         sender: &String,
         transaction_version: i64,
         transaction_block_height: i64,
+        block_timestamp: chrono::NaiveDateTime,
     ) -> Vec<Self> {
         from_parent_signature(
             s,
@@ -48,6 +50,7 @@ impl Signature {
             true,
             0,
             None,
+            block_timestamp,
         )
     }
 }
@@ -141,7 +144,7 @@ impl From<Signature> for ParquetSignature {
             public_key: raw.public_key,
             signature: raw.signature,
             threshold: Some(raw.threshold),
-            block_timestamp: chrono::NaiveDateTime::default(), // Need to populate separately
+            block_timestamp: raw.block_timestamp,
         }
     }
 }

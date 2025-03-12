@@ -245,7 +245,11 @@ pub fn parse_ans(
 
                             // Include all v1 lookups in v2 data
                             let (current_ans_lookup_v2, ans_lookup_v2) =
-                                CurrentAnsLookupV2::get_v2_from_v1(current_ans_lookup, ans_lookup);
+                                CurrentAnsLookupV2::get_v2_from_v1(
+                                    current_ans_lookup,
+                                    ans_lookup,
+                                    block_timestamp,
+                                );
                             all_current_ans_lookups_v2
                                 .insert(current_ans_lookup_v2.pk(), current_ans_lookup_v2);
                             all_ans_lookups_v2.push(ans_lookup_v2);
@@ -300,7 +304,11 @@ pub fn parse_ans(
 
                             // Include all v1 lookups in v2 data
                             let (current_ans_lookup_v2, ans_lookup_v2) =
-                                CurrentAnsLookupV2::get_v2_from_v1(current_ans_lookup, ans_lookup);
+                                CurrentAnsLookupV2::get_v2_from_v1(
+                                    current_ans_lookup,
+                                    ans_lookup,
+                                    block_timestamp,
+                                );
                             all_current_ans_lookups_v2
                                 .insert(current_ans_lookup_v2.pk(), current_ans_lookup_v2);
                             all_ans_lookups_v2.push(ans_lookup_v2);
@@ -340,6 +348,7 @@ pub fn parse_ans(
                                 txn_version,
                                 wsc_index as i64,
                                 &v2_address_to_subdomain_ext,
+                                block_timestamp,
                             )
                             .unwrap_or_else(|e| {
                                 error!(
