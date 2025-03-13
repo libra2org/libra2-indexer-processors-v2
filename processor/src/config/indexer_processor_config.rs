@@ -1,7 +1,9 @@
 // Copyright © Aptos Foundation
 // SPDX-License-Identifier: Apache-2.0
 
-use super::{db_config::DbConfig, processor_config::ProcessorConfig};
+use super::{
+    db_config::DbConfig, processor_config::ProcessorConfig, processor_mode::ProcessorMode,
+};
 use crate::{
     parquet_processors::{
         parquet_account_transactions::parquet_account_transactions_processor::ParquetAccountTransactionsProcessor,
@@ -46,6 +48,15 @@ pub struct IndexerProcessorConfig {
     pub transaction_stream_config: TransactionStreamConfig,
     pub db_config: DbConfig,
     pub backfill_config: Option<BackfillConfig>,
+}
+
+#[derive(Clone, Debug, Deserialize, Serialize)]
+#[serde(deny_unknown_fields)]
+pub struct IndexerProcessorConfigV2 {
+    pub processor_config: ProcessorConfig,
+    pub transaction_stream_config: TransactionStreamConfig,
+    pub db_config: DbConfig,
+    pub processor_mode: ProcessorMode,
 }
 
 #[async_trait::async_trait]
