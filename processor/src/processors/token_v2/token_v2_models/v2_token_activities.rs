@@ -370,7 +370,7 @@ pub struct ParquetTokenActivityV2 {
     pub event_account_address: String,
     pub token_data_id: String,
     pub property_version_v1: u64, // BigDecimal
-    pub type_: String,
+    pub event_type: String,
     pub from_address: Option<String>,
     pub to_address: Option<String>,
     pub token_amount: String, // BigDecimal
@@ -401,7 +401,7 @@ impl From<TokenActivityV2> for ParquetTokenActivityV2 {
             event_account_address: raw_item.event_account_address,
             token_data_id: raw_item.token_data_id,
             property_version_v1: raw_item.property_version_v1.to_u64().unwrap(),
-            type_: raw_item.type_,
+            event_type: raw_item.type_,
             from_address: raw_item.from_address,
             to_address: raw_item.to_address,
             token_amount: raw_item.token_amount.to_string(),
