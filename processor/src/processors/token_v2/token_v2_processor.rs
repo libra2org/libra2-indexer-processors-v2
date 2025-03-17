@@ -2,7 +2,7 @@ use crate::{
     config::{
         db_config::DbConfig,
         indexer_processor_config::{
-            IndexerProcessorConfigV2, QUERY_DEFAULT_RETRIES, QUERY_DEFAULT_RETRY_DELAY_MS,
+            IndexerProcessorConfig, QUERY_DEFAULT_RETRIES, QUERY_DEFAULT_RETRY_DELAY_MS,
         },
         processor_config::{DefaultProcessorConfig, ProcessorConfig},
     },
@@ -50,12 +50,12 @@ impl TokenV2ProcessorConfig {
     }
 }
 pub struct TokenV2Processor {
-    pub config: IndexerProcessorConfigV2,
+    pub config: IndexerProcessorConfig,
     pub db_pool: ArcDbPool,
 }
 
 impl TokenV2Processor {
-    pub async fn new(config: IndexerProcessorConfigV2) -> Result<Self> {
+    pub async fn new(config: IndexerProcessorConfig) -> Result<Self> {
         match config.db_config {
             DbConfig::PostgresConfig(ref postgres_config) => {
                 let conn_pool = new_db_pool(
@@ -132,11 +132,7 @@ impl ProcessorTrait for TokenV2Processor {
         );
         let token_v2_storer = TokenV2Storer::new(self.db_pool.clone(), processor_config.clone());
         let version_tracker = VersionTrackerStep::new(
-            PostgresProcessorStatusSaver::new(
-                self.name(),
-                self.config.processor_mode.clone(),
-                self.db_pool.clone(),
-            ),
+            PostgresProcessorStatusSaver::new(self.config.clone(), self.db_pool.clone()),
             DEFAULT_UPDATE_PROCESSOR_STATUS_SECS,
         );
         // Connect processor steps together

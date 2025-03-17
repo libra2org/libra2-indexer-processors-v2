@@ -1,7 +1,7 @@
 use crate::{
     config::{
         db_config::DbConfig,
-        indexer_processor_config::IndexerProcessorConfigV2,
+        indexer_processor_config::IndexerProcessorConfig,
         processor_config::{DefaultProcessorConfig, ProcessorConfig},
     },
     processors::{
@@ -38,12 +38,12 @@ pub struct AnsProcessorConfig {
 }
 
 pub struct AnsProcessor {
-    pub config: IndexerProcessorConfigV2,
+    pub config: IndexerProcessorConfig,
     pub db_pool: ArcDbPool,
 }
 
 impl AnsProcessor {
-    pub async fn new(config: IndexerProcessorConfigV2) -> Result<Self> {
+    pub async fn new(config: IndexerProcessorConfig) -> Result<Self> {
         match config.db_config {
             DbConfig::PostgresConfig(ref postgres_config) => {
                 let conn_pool = new_db_pool(
@@ -121,11 +121,7 @@ impl ProcessorTrait for AnsProcessor {
         let acc_txns_extractor = AnsExtractor::new(self.config.processor_config.clone());
         let acc_txns_storer = AnsStorer::new(self.db_pool.clone(), processor_config);
         let version_tracker = VersionTrackerStep::new(
-            PostgresProcessorStatusSaver::new(
-                self.name(),
-                self.config.processor_mode.clone(),
-                self.db_pool.clone(),
-            ),
+            PostgresProcessorStatusSaver::new(self.config.clone(), self.db_pool.clone()),
             DEFAULT_UPDATE_PROCESSOR_STATUS_SECS,
         );
 

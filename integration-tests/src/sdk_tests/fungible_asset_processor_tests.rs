@@ -2,7 +2,7 @@ use ahash::AHashMap;
 use aptos_indexer_testing_framework::sdk_test_context::SdkTestContext;
 use processor::config::{
     db_config::{DbConfig, PostgresConfig},
-    indexer_processor_config::IndexerProcessorConfigV2,
+    indexer_processor_config::IndexerProcessorConfig,
     processor_config::{DefaultProcessorConfig, ProcessorConfig},
     processor_mode::{ProcessorMode, TestingConfig},
 };
@@ -11,7 +11,7 @@ use std::collections::HashSet;
 pub fn setup_fa_processor_config(
     test_context: &SdkTestContext,
     db_url: &str,
-) -> (IndexerProcessorConfigV2, &'static str) {
+) -> (IndexerProcessorConfig, &'static str) {
     let transaction_stream_config = test_context.create_transaction_stream_config();
     let postgres_config = PostgresConfig {
         connection_string: db_url.to_string(),
@@ -29,13 +29,13 @@ pub fn setup_fa_processor_config(
 
     let processor_name = processor_config.name();
     (
-        IndexerProcessorConfigV2 {
+        IndexerProcessorConfig {
             processor_config,
-            transaction_stream_config,
+            transaction_stream_config: transaction_stream_config.clone(),
             db_config,
             processor_mode: ProcessorMode::Testing(TestingConfig {
-                override_starting_version: test_context.get_request_start_version(),
-                ending_version: None,
+                override_starting_version: transaction_stream_config.starting_version.unwrap(),
+                ending_version: transaction_stream_config.request_ending_version,
             }),
         },
         processor_name,

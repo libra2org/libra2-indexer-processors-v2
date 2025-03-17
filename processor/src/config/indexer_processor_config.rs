@@ -41,18 +41,9 @@ use serde::{Deserialize, Serialize};
 pub const QUERY_DEFAULT_RETRIES: u32 = 5;
 pub const QUERY_DEFAULT_RETRY_DELAY_MS: u64 = 500;
 
-// #[derive(Clone, Debug, Deserialize, Serialize)]
-// #[serde(deny_unknown_fields)]
-// pub struct IndexerProcessorConfig {
-//     pub processor_config: ProcessorConfig,
-//     pub transaction_stream_config: TransactionStreamConfig,
-//     pub db_config: DbConfig,
-//     pub backfill_config: Option<BackfillConfig>,
-// }
-
 #[derive(Clone, Debug, Deserialize, Serialize)]
 #[serde(deny_unknown_fields)]
-pub struct IndexerProcessorConfigV2 {
+pub struct IndexerProcessorConfig {
     pub processor_config: ProcessorConfig,
     pub transaction_stream_config: TransactionStreamConfig,
     pub db_config: DbConfig,
@@ -60,7 +51,7 @@ pub struct IndexerProcessorConfigV2 {
 }
 
 #[async_trait::async_trait]
-impl RunnableConfig for IndexerProcessorConfigV2 {
+impl RunnableConfig for IndexerProcessorConfig {
     async fn run(&self) -> Result<()> {
         match self.processor_config {
             ProcessorConfig::AccountTransactionsProcessor(_) => {

@@ -3,7 +3,7 @@
 use anyhow::Result;
 use aptos_indexer_processor_sdk_server_framework::ServerArgs;
 use clap::Parser;
-use processor::config::indexer_processor_config::IndexerProcessorConfigV2;
+use processor::config::indexer_processor_config::IndexerProcessorConfig;
 
 #[cfg(unix)]
 #[global_allocator]
@@ -24,7 +24,7 @@ fn main() -> Result<()> {
         .unwrap()
         .block_on(async {
             let args = ServerArgs::parse();
-            args.run::<IndexerProcessorConfigV2>(tokio::runtime::Handle::current())
+            args.run::<IndexerProcessorConfig>(tokio::runtime::Handle::current())
                 .await
         })
 }

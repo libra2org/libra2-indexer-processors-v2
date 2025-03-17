@@ -3,7 +3,7 @@ use super::parquet_utils::{
 };
 use crate::{
     config::{
-        indexer_processor_config::IndexerProcessorConfigV2,
+        indexer_processor_config::IndexerProcessorConfig,
         processor_mode::{BackfillConfig, BootStrapConfig, ProcessorMode, TestingConfig},
     },
     db::{
@@ -25,12 +25,12 @@ use diesel::{upsert::excluded, ExpressionMethods};
 
 /// A trait implementation of ProcessorStatusSaver for Parquet.
 pub struct ParquetProcessorStatusSaver {
-    pub config: IndexerProcessorConfigV2,
+    pub config: IndexerProcessorConfig,
     pub db_pool: ArcDbPool,
 }
 
 impl ParquetProcessorStatusSaver {
-    pub fn new(config: IndexerProcessorConfigV2, db_pool: ArcDbPool) -> Self {
+    pub fn new(config: IndexerProcessorConfig, db_pool: ArcDbPool) -> Self {
         Self { config, db_pool }
     }
 }
@@ -58,7 +58,7 @@ impl ParquetProcessorStatusSaverTrait for ParquetProcessorStatusSaver {
 /// This will return the minimum of the last success version of the processors in the list.
 /// If no processor has a checkpoint, this will return the `starting_version` from the config, or 0 if not set.
 pub async fn get_parquet_starting_version(
-    config: &IndexerProcessorConfigV2,
+    config: &IndexerProcessorConfig,
     db_pool: ArcDbPool,
 ) -> Result<Option<u64>, ProcessorError> {
     let table_names = config
@@ -194,7 +194,7 @@ pub async fn get_parquet_starting_version(
 }
 
 pub async fn get_parquet_end_version(
-    config: &IndexerProcessorConfigV2,
+    config: &IndexerProcessorConfig,
     db_pool: ArcDbPool,
 ) -> Result<Option<u64>, ProcessorError> {
     let table_names = config
@@ -354,7 +354,7 @@ mod tests {
     use crate::{
         config::{
             db_config::{DbConfig, ParquetConfig},
-            indexer_processor_config::IndexerProcessorConfigV2,
+            indexer_processor_config::IndexerProcessorConfig,
             processor_config::{ParquetDefaultProcessorConfig, ProcessorConfig},
         },
         db::processor_status::ProcessorStatus,
@@ -370,7 +370,7 @@ mod tests {
     fn create_indexer_config(
         db_url: String,
         processor_mode: ProcessorMode,
-    ) -> IndexerProcessorConfigV2 {
+    ) -> IndexerProcessorConfig {
         let processor_config =
             ProcessorConfig::ParquetDefaultProcessor(ParquetDefaultProcessorConfig::default());
         let postgres_config = ParquetConfig {
@@ -381,7 +381,7 @@ mod tests {
             bucket_root: "test".to_string(),
         };
         let db_config = DbConfig::ParquetConfig(postgres_config);
-        IndexerProcessorConfigV2 {
+        IndexerProcessorConfig {
             processor_config,
             db_config,
             processor_mode,

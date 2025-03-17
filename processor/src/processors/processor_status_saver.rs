@@ -1,6 +1,6 @@
 use crate::{
     config::{
-        indexer_processor_config::IndexerProcessorConfigV2,
+        indexer_processor_config::IndexerProcessorConfig,
         processor_mode::{BackfillConfig, BootStrapConfig, ProcessorMode, TestingConfig},
     },
     db::{
@@ -23,12 +23,12 @@ use diesel::{query_dsl::methods::FilterDsl, upsert::excluded, ExpressionMethods}
 
 /// A trait implementation of ProcessorStatusSaver for Postgres.
 pub struct PostgresProcessorStatusSaver {
-    pub config: IndexerProcessorConfigV2,
+    pub config: IndexerProcessorConfig,
     pub db_pool: ArcDbPool,
 }
 
 impl PostgresProcessorStatusSaver {
-    pub fn new(config: IndexerProcessorConfigV2, db_pool: ArcDbPool) -> Self {
+    pub fn new(config: IndexerProcessorConfig, db_pool: ArcDbPool) -> Self {
         Self { config, db_pool }
     }
 }
@@ -156,7 +156,7 @@ pub async fn save_processor_status(
 }
 
 pub async fn get_starting_version(
-    config: &IndexerProcessorConfigV2,
+    config: &IndexerProcessorConfig,
     db_pool: ArcDbPool,
 ) -> Result<Option<u64>, ProcessorError> {
     let processor_name = config.processor_config.name();
@@ -274,7 +274,7 @@ pub async fn get_starting_version(
 }
 
 pub async fn get_end_version(
-    config: &IndexerProcessorConfigV2,
+    config: &IndexerProcessorConfig,
     db_pool: ArcDbPool,
 ) -> Result<Option<u64>, ProcessorError> {
     let processor_name = config.processor_config.name();
@@ -336,7 +336,7 @@ mod tests {
     use crate::{
         config::{
             db_config::{DbConfig, PostgresConfig},
-            indexer_processor_config::IndexerProcessorConfigV2,
+            indexer_processor_config::IndexerProcessorConfig,
             processor_config::{DefaultProcessorConfig, ProcessorConfig},
         },
         db::{
@@ -357,7 +357,7 @@ mod tests {
     fn create_indexer_config(
         db_url: String,
         processor_mode: ProcessorMode,
-    ) -> IndexerProcessorConfigV2 {
+    ) -> IndexerProcessorConfig {
         let default_processor_config = DefaultProcessorConfig {
             per_table_chunk_sizes: AHashMap::new(),
             channel_size: 100,
@@ -369,7 +369,7 @@ mod tests {
             db_pool_size: 100,
         };
         let db_config = DbConfig::PostgresConfig(postgres_config);
-        IndexerProcessorConfigV2 {
+        IndexerProcessorConfig {
             processor_config,
             db_config,
             processor_mode,

@@ -1,6 +1,6 @@
 use crate::{
     config::{
-        db_config::DbConfig, indexer_processor_config::IndexerProcessorConfigV2,
+        db_config::DbConfig, indexer_processor_config::IndexerProcessorConfig,
         processor_config::ProcessorConfig,
     },
     parquet_processors::{
@@ -46,12 +46,12 @@ use std::{collections::HashMap, sync::Arc};
 use tracing::{debug, info};
 
 pub struct ParquetTokenV2Processor {
-    pub config: IndexerProcessorConfigV2,
+    pub config: IndexerProcessorConfig,
     pub db_pool: ArcDbPool,
 }
 
 impl ParquetTokenV2Processor {
-    pub async fn new(config: IndexerProcessorConfigV2) -> anyhow::Result<Self> {
+    pub async fn new(config: IndexerProcessorConfig) -> anyhow::Result<Self> {
         let db_pool = initialize_database_pool(&config.db_config).await?;
         Ok(Self { config, db_pool })
     }
