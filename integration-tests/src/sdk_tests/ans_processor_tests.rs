@@ -3,8 +3,9 @@ use aptos_indexer_testing_framework::sdk_test_context::SdkTestContext;
 use processor::{
     config::{
         db_config::{DbConfig, PostgresConfig},
-        indexer_processor_config::IndexerProcessorConfig,
+        indexer_processor_config::IndexerProcessorConfigV2,
         processor_config::{DefaultProcessorConfig, ProcessorConfig},
+        processor_mode::{ProcessorMode, TestingConfig},
     },
     processors::ans::ans_processor::AnsProcessorConfig,
 };
@@ -13,7 +14,7 @@ use std::collections::HashSet;
 pub fn setup_ans_processor_config(
     test_context: &SdkTestContext,
     db_url: &str,
-) -> (IndexerProcessorConfig, &'static str) {
+) -> (IndexerProcessorConfigV2, &'static str) {
     let transaction_stream_config = test_context.create_transaction_stream_config(); // since this will be always 1, we can remove from the arg list
     let postgres_config = PostgresConfig {
         connection_string: db_url.to_string(),
@@ -39,11 +40,14 @@ pub fn setup_ans_processor_config(
     let processor_config = ProcessorConfig::AnsProcessor(ans_processor_config);
     let processor_name = processor_config.name();
     (
-        IndexerProcessorConfig {
+        IndexerProcessorConfigV2 {
             processor_config,
             transaction_stream_config,
             db_config,
-            backfill_config: None,
+            processor_mode: ProcessorMode::Testing(TestingConfig {
+                override_starting_version: test_context.get_request_start_version(),
+                ending_version: None,
+            }),
         },
         processor_name,
     )

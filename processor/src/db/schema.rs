@@ -847,7 +847,7 @@ diesel::table! {
         creator_address -> Varchar,
         #[max_length = 32]
         name -> Varchar,
-        #[max_length = 10]
+        #[max_length = 32]
         symbol -> Varchar,
         decimals -> Int4,
         #[max_length = 512]

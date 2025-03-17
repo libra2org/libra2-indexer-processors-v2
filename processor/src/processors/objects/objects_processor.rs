@@ -2,18 +2,19 @@ use crate::{
     config::{
         db_config::DbConfig,
         indexer_processor_config::{
-            IndexerProcessorConfig, QUERY_DEFAULT_RETRIES, QUERY_DEFAULT_RETRY_DELAY_MS,
+            IndexerProcessorConfigV2, QUERY_DEFAULT_RETRIES, QUERY_DEFAULT_RETRY_DELAY_MS,
         },
         processor_config::{DefaultProcessorConfig, ProcessorConfig},
     },
     processors::{
         objects::{objects_extractor::ObjectsExtractor, objects_storer::ObjectsStorer},
-        processor_status_saver::get_processor_status_saver,
+        processor_status_saver::{
+            get_end_version, get_starting_version, PostgresProcessorStatusSaver,
+        },
     },
     utils::{
         chain_id::check_or_update_chain_id,
         database::{new_db_pool, run_migrations, ArcDbPool},
-        starting_version::get_starting_version,
     },
 };
 use anyhow::Result;
@@ -49,12 +50,12 @@ impl ObjectsProcessorConfig {
     }
 }
 pub struct ObjectsProcessor {
-    pub config: IndexerProcessorConfig,
+    pub config: IndexerProcessorConfigV2,
     pub db_pool: ArcDbPool,
 }
 
 impl ObjectsProcessor {
-    pub async fn new(config: IndexerProcessorConfig) -> Result<Self> {
+    pub async fn new(config: IndexerProcessorConfigV2) -> Result<Self> {
         match config.db_config {
             DbConfig::PostgresConfig(ref postgres_config) => {
                 let conn_pool = new_db_pool(
@@ -99,7 +100,10 @@ impl ProcessorTrait for ObjectsProcessor {
         }
 
         // Merge the starting version from config and the latest processed version from the DB
-        let starting_version = get_starting_version(&self.config, self.db_pool.clone()).await?;
+        let (starting_version, ending_version) = (
+            get_starting_version(&self.config, self.db_pool.clone()).await?,
+            get_end_version(&self.config, self.db_pool.clone()).await?,
+        );
 
         // Check and update the ledger chain id to ensure we're indexing the correct chain
         let grpc_chain_id = TransactionStream::new(self.config.transaction_stream_config.clone())
@@ -117,7 +121,8 @@ impl ProcessorTrait for ObjectsProcessor {
 
         // Define processor steps
         let transaction_stream = TransactionStreamStep::new(TransactionStreamConfig {
-            starting_version: Some(starting_version),
+            starting_version,
+            request_ending_version: ending_version,
             ..self.config.transaction_stream_config.clone()
         })
         .await?;
@@ -130,7 +135,11 @@ impl ProcessorTrait for ObjectsProcessor {
             ObjectsStorer::new(self.db_pool.clone(), per_table_chunk_sizes.clone());
 
         let version_tracker = VersionTrackerStep::new(
-            get_processor_status_saver(self.db_pool.clone(), self.config.clone()),
+            PostgresProcessorStatusSaver::new(
+                self.name(),
+                self.config.processor_mode.clone(),
+                self.db_pool.clone(),
+            ),
             DEFAULT_UPDATE_PROCESSOR_STATUS_SECS,
         );
         // Connect processor steps together

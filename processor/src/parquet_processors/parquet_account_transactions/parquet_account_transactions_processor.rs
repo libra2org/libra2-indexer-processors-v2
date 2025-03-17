@@ -1,27 +1,25 @@
 use crate::{
     config::{
-        db_config::DbConfig, indexer_processor_config::IndexerProcessorConfig,
+        db_config::DbConfig, indexer_processor_config::IndexerProcessorConfigV2,
         processor_config::ProcessorConfig,
     },
     parquet_processors::{
         initialize_database_pool, initialize_gcs_client, initialize_parquet_buffer_step,
         parquet_account_transactions::parquet_account_transactions_extractor::ParquetAccountTransactionsExtractor,
+        parquet_processor_status_saver::{
+            get_parquet_end_version, get_parquet_starting_version, ParquetProcessorStatusSaver,
+        },
         parquet_utils::{
             parquet_version_tracker_step::ParquetVersionTrackerStep, util::HasParquetSchema,
         },
         set_backfill_table_flag, ParquetTypeEnum,
     },
-    processors::{
-        account_transactions::account_transactions_model::ParquetAccountTransaction,
-        processor_status_saver::get_processor_status_saver,
-    },
+    processors::account_transactions::account_transactions_model::ParquetAccountTransaction,
     utils::{
         chain_id::check_or_update_chain_id,
         database::{run_migrations, ArcDbPool},
-        starting_version::get_min_last_success_version_parquet,
     },
 };
-use anyhow::Context;
 use aptos_indexer_processor_sdk::{
     aptos_indexer_transaction_stream::{TransactionStream, TransactionStreamConfig},
     builder::ProcessorBuilder,
@@ -33,12 +31,12 @@ use std::{collections::HashMap, sync::Arc};
 use tracing::{debug, info};
 
 pub struct ParquetAccountTransactionsProcessor {
-    pub config: IndexerProcessorConfig,
+    pub config: IndexerProcessorConfigV2,
     pub db_pool: ArcDbPool,
 }
 
 impl ParquetAccountTransactionsProcessor {
-    pub async fn new(config: IndexerProcessorConfig) -> anyhow::Result<Self> {
+    pub async fn new(config: IndexerProcessorConfigV2) -> anyhow::Result<Self> {
         let db_pool = initialize_database_pool(&config.db_config).await?;
         Ok(Self { config, db_pool })
     }
@@ -88,23 +86,17 @@ impl ProcessorTrait for ParquetAccountTransactionsProcessor {
             },
         };
 
-        let processor_status_table_names = self
-            .config
-            .processor_config
-            .get_processor_status_table_names()
-            .context("Failed to get table names for the processor status table")?;
-
-        let starting_version = get_min_last_success_version_parquet(
-            &self.config,
-            self.db_pool.clone(),
-            processor_status_table_names,
-        )
-        .await?;
+        let (starting_version, ending_version) = (
+            get_parquet_starting_version(&self.config, self.db_pool.clone()).await?,
+            get_parquet_end_version(&self.config, self.db_pool.clone()).await?,
+        );
         println!("Starting version: {:?}", starting_version);
+        println!("Ending version: {:?}", ending_version);
 
         // Define processor transaction stream config
         let transaction_stream = TransactionStreamStep::new(TransactionStreamConfig {
-            starting_version: Some(starting_version),
+            starting_version,
+            request_ending_version: ending_version,
             ..self.config.transaction_stream_config.clone()
         })
         .await?;
@@ -139,7 +131,7 @@ impl ProcessorTrait for ParquetAccountTransactionsProcessor {
         });
 
         let parquet_version_tracker_step = ParquetVersionTrackerStep::new(
-            get_processor_status_saver(self.db_pool.clone(), self.config.clone()),
+            ParquetProcessorStatusSaver::new(self.config.clone(), self.db_pool.clone()),
             DEFAULT_UPDATE_PROCESSOR_STATUS_SECS,
         );
 

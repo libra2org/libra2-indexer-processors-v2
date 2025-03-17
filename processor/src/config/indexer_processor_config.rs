@@ -41,14 +41,14 @@ use serde::{Deserialize, Serialize};
 pub const QUERY_DEFAULT_RETRIES: u32 = 5;
 pub const QUERY_DEFAULT_RETRY_DELAY_MS: u64 = 500;
 
-#[derive(Clone, Debug, Deserialize, Serialize)]
-#[serde(deny_unknown_fields)]
-pub struct IndexerProcessorConfig {
-    pub processor_config: ProcessorConfig,
-    pub transaction_stream_config: TransactionStreamConfig,
-    pub db_config: DbConfig,
-    pub backfill_config: Option<BackfillConfig>,
-}
+// #[derive(Clone, Debug, Deserialize, Serialize)]
+// #[serde(deny_unknown_fields)]
+// pub struct IndexerProcessorConfig {
+//     pub processor_config: ProcessorConfig,
+//     pub transaction_stream_config: TransactionStreamConfig,
+//     pub db_config: DbConfig,
+//     pub backfill_config: Option<BackfillConfig>,
+// }
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
 #[serde(deny_unknown_fields)]
@@ -60,7 +60,7 @@ pub struct IndexerProcessorConfigV2 {
 }
 
 #[async_trait::async_trait]
-impl RunnableConfig for IndexerProcessorConfig {
+impl RunnableConfig for IndexerProcessorConfigV2 {
     async fn run(&self) -> Result<()> {
         match self.processor_config {
             ProcessorConfig::AccountTransactionsProcessor(_) => {
@@ -84,8 +84,7 @@ impl RunnableConfig for IndexerProcessorConfig {
                 events_processor.run_processor().await
             },
             ProcessorConfig::FungibleAssetProcessor(_) => {
-                let fungible_asset_processor =
-                    FungibleAssetProcessor::new(self.clone(), None).await?;
+                let fungible_asset_processor = FungibleAssetProcessor::new(self.clone()).await?;
                 fungible_asset_processor.run_processor().await
             },
             ProcessorConfig::UserTransactionProcessor(_) => {

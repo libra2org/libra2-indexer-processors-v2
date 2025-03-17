@@ -2,15 +2,16 @@ use ahash::AHashMap;
 use aptos_indexer_testing_framework::sdk_test_context::SdkTestContext;
 use processor::config::{
     db_config::{DbConfig, PostgresConfig},
-    indexer_processor_config::IndexerProcessorConfig,
+    indexer_processor_config::IndexerProcessorConfigV2,
     processor_config::{DefaultProcessorConfig, ProcessorConfig},
+    processor_mode::{ProcessorMode, TestingConfig},
 };
 use std::collections::HashSet;
 
 pub fn setup_fa_processor_config(
     test_context: &SdkTestContext,
     db_url: &str,
-) -> (IndexerProcessorConfig, &'static str) {
+) -> (IndexerProcessorConfigV2, &'static str) {
     let transaction_stream_config = test_context.create_transaction_stream_config();
     let postgres_config = PostgresConfig {
         connection_string: db_url.to_string(),
@@ -28,11 +29,14 @@ pub fn setup_fa_processor_config(
 
     let processor_name = processor_config.name();
     (
-        IndexerProcessorConfig {
+        IndexerProcessorConfigV2 {
             processor_config,
             transaction_stream_config,
             db_config,
-            backfill_config: None,
+            processor_mode: ProcessorMode::Testing(TestingConfig {
+                override_starting_version: test_context.get_request_start_version(),
+                ending_version: None,
+            }),
         },
         processor_name,
     )
@@ -352,11 +356,9 @@ mod sdk_fungible_asset_processor_tests {
         let (indexer_processor_config, processor_name) =
             setup_fa_processor_config(&test_context, &db_url);
 
-        let starting_version = test_context.get_request_start_version();
-        let fungible_asset_processor =
-            FungibleAssetProcessor::new(indexer_processor_config, Some(starting_version))
-                .await
-                .expect("Failed to create FungibleAssetProcessor");
+        let fungible_asset_processor = FungibleAssetProcessor::new(indexer_processor_config)
+            .await
+            .expect("Failed to create FungibleAssetProcessor");
 
         match run_processor_test(
             &mut test_context,
