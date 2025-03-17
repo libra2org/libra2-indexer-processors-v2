@@ -19,6 +19,7 @@ use crate::{
                 token_royalty::ParquetCurrentTokenRoyaltyV1,
             },
             token_v2_models::{
+                v2_collections::ParquetCollectionV2,
                 v2_token_activities::ParquetTokenActivityV2,
                 v2_token_datas::{ParquetCurrentTokenDataV2, ParquetTokenDataV2},
                 v2_token_metadata::ParquetCurrentTokenV2Metadata,
@@ -159,6 +160,10 @@ impl ProcessorTrait for ParquetTokenV2Processor {
             (
                 ParquetTypeEnum::CurrentTokenOwnershipsV2,
                 ParquetCurrentTokenOwnershipV2::schema(),
+            ),
+            (
+                ParquetTypeEnum::CollectionsV2,
+                ParquetCollectionV2::schema(),
             ),
         ]
         .into_iter()

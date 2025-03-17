@@ -375,11 +375,10 @@ impl TokenOwnershipV2 {
                     None => {
                         match db_context {
                             None => {
-                                // TODO: update message
-                                tracing::error!(
+                                tracing::debug!(
                                     transaction_version = txn_version,
                                     lookup_key = &token_address,
-                                    "Failed to find current_token_ownership_v2 for burned token. You probably should backfill db."
+                                    "Avoiding db lookup for Parquet."
                                 );
                                 DEFAULT_OWNER_ADDRESS.to_string()
                             },

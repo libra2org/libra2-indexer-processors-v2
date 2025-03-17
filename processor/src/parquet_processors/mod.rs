@@ -43,6 +43,7 @@ use crate::{
                 token_royalty::ParquetCurrentTokenRoyaltyV1,
             },
             token_v2_models::{
+                v2_collections::ParquetCollectionV2,
                 v2_token_activities::ParquetTokenActivityV2,
                 v2_token_datas::{ParquetCurrentTokenDataV2, ParquetTokenDataV2},
                 v2_token_metadata::ParquetCurrentTokenV2Metadata,
@@ -148,6 +149,7 @@ pub enum ParquetTypeEnum {
     CurrentTokenDatasV2,
     TokenOwnershipsV2,
     CurrentTokenOwnershipsV2,
+    CollectionsV2,
     // stake
     DelegatedStakingActivities,
     CurrentDelegatorBalances,
@@ -290,6 +292,7 @@ impl_parquet_trait!(ParquetDelegatorBalance, ParquetTypeEnum::DelegatorBalances)
 impl_parquet_trait!(ParquetProposalVote, ParquetTypeEnum::ProposalVotes);
 impl_parquet_trait!(ParquetObject, ParquetTypeEnum::Objects);
 impl_parquet_trait!(ParquetCurrentObject, ParquetTypeEnum::CurrentObjects);
+impl_parquet_trait!(ParquetCollectionV2, ParquetTypeEnum::CollectionsV2);
 
 #[derive(Debug, Clone)]
 #[enum_dispatch(ParquetTypeTrait)]
@@ -333,6 +336,7 @@ pub enum ParquetTypeStructs {
     CurrentTokenDataV2(Vec<ParquetCurrentTokenDataV2>),
     TokenOwnershipV2(Vec<ParquetTokenOwnershipV2>),
     CurrentTokenOwnershipV2(Vec<ParquetCurrentTokenOwnershipV2>),
+    CollectionV2(Vec<ParquetCollectionV2>),
     // Stake
     DelegatedStakingActivity(Vec<ParquetDelegatedStakingActivity>),
     CurrentDelegatorBalance(Vec<ParquetCurrentDelegatorBalance>),
@@ -417,6 +421,7 @@ impl ParquetTypeStructs {
             ParquetTypeEnum::ProposalVotes => ParquetTypeStructs::ProposalVote(Vec::new()),
             ParquetTypeEnum::Objects => ParquetTypeStructs::Object(Vec::new()),
             ParquetTypeEnum::CurrentObjects => ParquetTypeStructs::CurrentObject(Vec::new()),
+            ParquetTypeEnum::CollectionsV2 => ParquetTypeStructs::CollectionV2(Vec::new()),
         }
     }
 
@@ -644,6 +649,12 @@ impl ParquetTypeStructs {
             (
                 ParquetTypeStructs::CurrentObject(self_data),
                 ParquetTypeStructs::CurrentObject(other_data),
+            ) => {
+                handle_append!(self_data, other_data)
+            },
+            (
+                ParquetTypeStructs::CollectionV2(self_data),
+                ParquetTypeStructs::CollectionV2(other_data),
             ) => {
                 handle_append!(self_data, other_data)
             },

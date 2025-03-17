@@ -9,6 +9,7 @@ use crate::{
             token_royalty::ParquetCurrentTokenRoyaltyV1, tokens::TableMetadataForToken,
         },
         token_v2_models::{
+            v2_collections::ParquetCollectionV2,
             v2_token_activities::ParquetTokenActivityV2,
             v2_token_datas::{ParquetCurrentTokenDataV2, ParquetTokenDataV2},
             v2_token_metadata::ParquetCurrentTokenV2Metadata,
@@ -26,7 +27,6 @@ use aptos_indexer_processor_sdk::{
 };
 use async_trait::async_trait;
 use std::collections::HashMap;
-use tracing::debug;
 
 /// Extracts parquet data from transactions, allowing optional selection of specific tables.
 pub struct ParquetTokenV2Extractor
@@ -54,7 +54,7 @@ impl Processable for ParquetTokenV2Extractor {
             TableMetadataForToken::get_table_handle_to_owner_from_transactions(&transactions.data);
 
         let (
-            _collections_v2,
+            collections_v2,
             raw_token_datas_v2,
             raw_token_ownerships_v2,
             _current_collections_v2,
@@ -125,39 +125,10 @@ impl Processable for ParquetTokenV2Extractor {
                 .map(ParquetCurrentTokenOwnershipV2::from)
                 .collect();
 
-        // Print the size of each extracted data type
-        debug!("Processed data sizes:");
-        debug!(
-            " - CurrentTokenPendingClaim: {}",
-            parquet_current_token_claims.len()
-        );
-        debug!(
-            " - CurrentTokenRoyaltyV1: {}",
-            parquet_current_token_royalties_v1.len()
-        );
-        debug!(
-            " - CurrentTokenV2Metadata: {}",
-            parquet_current_token_v2_metadata.len()
-        );
-        debug!(" - TokenActivityV2: {}", parquet_token_activities_v2.len());
-        debug!(" - TokenDataV2: {}", parquet_token_datas_v2.len());
-        debug!(
-            " - CurrentTokenDataV2: {}",
-            parquet_current_token_datas_v2.len()
-        );
-        debug!(
-            " - CurrentDeletedTokenDataV2: {}",
-            parquet_deleted_current_token_datss_v2.len()
-        );
-        debug!(" - TokenOwnershipV2: {}", parquet_token_ownerships_v2.len());
-        debug!(
-            " - CurrentTokenOwnershipV2: {}",
-            parquet_current_token_ownerships_v2.len()
-        );
-        debug!(
-            " - CurrentDeletedTokenOwnershipV2: {}",
-            parquet_deleted_current_token_ownerships_v2.len()
-        );
+        let parquet_collections_v2: Vec<ParquetCollectionV2> = collections_v2
+            .into_iter()
+            .map(ParquetCollectionV2::from)
+            .collect();
 
         // We are merging these two tables, b/c they are essentially the same table
         let mut combined_current_token_datas_v2: Vec<ParquetCurrentTokenDataV2> = Vec::new();
@@ -220,6 +191,11 @@ impl Processable for ParquetTokenV2Extractor {
                 TableFlags::CURRENT_TOKEN_OWNERSHIPS_V2,
                 ParquetTypeEnum::CurrentTokenOwnershipsV2,
                 ParquetTypeStructs::CurrentTokenOwnershipV2(merged_current_token_ownerships_v2),
+            ),
+            (
+                TableFlags::COLLECTIONS_V2,
+                ParquetTypeEnum::CollectionsV2,
+                ParquetTypeStructs::CollectionV2(parquet_collections_v2),
             ),
         ];
 

@@ -7,6 +7,7 @@
 
 use crate::{
     db::resources::FromWriteResource,
+    parquet_processors::parquet_utils::util::{HasVersion, NamedTable},
     processors::{
         objects::v2_object_utils::ObjectAggregatedDataMapping,
         token_v2::{
@@ -19,8 +20,9 @@ use crate::{
         },
     },
     schema::{collections_v2, current_collections_v2},
-    utils::database::DbPoolConnection,
+    utils::database::{DbContext, DbPoolConnection},
 };
+use allocative_derive::Allocative;
 use anyhow::Context;
 use aptos_indexer_processor_sdk::utils::convert::standardize_address;
 use aptos_protos::transaction::v1::{WriteResource, WriteTableItem};
@@ -28,10 +30,13 @@ use bigdecimal::{BigDecimal, Zero};
 use diesel::{prelude::*, sql_query, sql_types::Text};
 use diesel_async::RunQueryDsl;
 use field_count::FieldCount;
+use parquet_derive::ParquetRecordWriter;
 use serde::{Deserialize, Serialize};
 
 // PK of current_collections_v2, i.e. collection_id
 pub type CurrentCollectionV2PK = String;
+
+pub const DEFAULT_CREATOR_ADDRESS: &str = "unknown";
 
 #[derive(Clone, Debug, Deserialize, FieldCount, Identifiable, Insertable, Serialize)]
 #[diesel(primary_key(transaction_version, write_set_change_index))]
@@ -200,9 +205,7 @@ impl CollectionV2 {
         write_set_change_index: i64,
         txn_timestamp: chrono::NaiveDateTime,
         table_handle_to_owner: &TableHandleToOwner,
-        conn: &mut DbPoolConnection<'_>,
-        query_retries: u32,
-        query_retry_delay_ms: u64,
+        db_context: &mut Option<DbContext<'_>>,
     ) -> anyhow::Result<Option<(Self, CurrentCollectionV2)>> {
         let table_item_data = table_item.data.as_ref().unwrap();
 
@@ -222,36 +225,48 @@ impl CollectionV2 {
             let mut creator_address = match maybe_creator_address {
                 Some(ca) => ca,
                 None => {
-                    match Self::get_collection_creator_for_v1(
-                        conn,
-                        &table_handle,
-                        query_retries,
-                        query_retry_delay_ms,
-                    )
-                    .await
-                    .context(format!(
-                        "Failed to get collection creator for table handle {}, txn version {}",
-                        table_handle, txn_version
-                    )) {
-                        Ok(ca) => ca,
-                        Err(_) => {
-                            // Try our best by getting from the older collection data
-                            match CollectionData::get_collection_creator(
-                                conn,
+                    match db_context {
+                        None => {
+                            tracing::debug!(
+                                transaction_version = txn_version,
+                                lookup_key = &table_handle,
+                                "Avoiding db lookup for Parquet."
+                            );
+                            DEFAULT_CREATOR_ADDRESS.to_string()
+                        },
+                        Some(db_context) => {
+                            match Self::get_collection_creator_for_v1(
+                                &mut db_context.conn,
                                 &table_handle,
-                                query_retries,
-                                query_retry_delay_ms,
+                                db_context.query_retries,
+                                db_context.query_retry_delay_ms,
                             )
                             .await
-                            {
-                                Ok(creator) => creator,
+                            .context(format!(
+                                "Failed to get collection creator for table handle {}, txn version {}",
+                                table_handle, txn_version
+                            )) {
+                                Ok(ca) => ca,
                                 Err(_) => {
-                                    tracing::error!(
-                                        transaction_version = txn_version,
-                                        lookup_key = &table_handle,
-                                        "Failed to get collection v2 creator for table handle. You probably should backfill db."
-                                    );
-                                    return Ok(None);
+                                    // Try our best by getting from the older collection data
+                                    match CollectionData::get_collection_creator(
+                                        &mut db_context.conn,
+                                        &table_handle,
+                                        db_context.query_retries,
+                                        db_context.query_retry_delay_ms,
+                                    )
+                                    .await
+                                    {
+                                        Ok(creator) => creator,
+                                        Err(_) => {
+                                            tracing::error!(
+                                                transaction_version = txn_version,
+                                                lookup_key = &table_handle,
+                                                "Failed to get collection v2 creator for table handle. You probably should backfill db."
+                                            );
+                                            return Ok(None);
+                                        },
+                                    }
                                 },
                             }
                         },
@@ -348,5 +363,62 @@ impl CollectionV2 {
             .context("collection result empty")?
             .context("collection result null")?
             .creator_address)
+    }
+}
+
+#[derive(
+    Allocative, Clone, Debug, Default, Deserialize, FieldCount, ParquetRecordWriter, Serialize,
+)]
+pub struct ParquetCollectionV2 {
+    pub txn_version: i64,
+    pub write_set_change_index: i64,
+    pub collection_id: String,
+    pub creator_address: String,
+    pub collection_name: String,
+    pub description: String,
+    pub uri: String,
+    pub current_supply: String,          // BigDecimal
+    pub max_supply: Option<String>,      // BigDecimal
+    pub total_minted_v2: Option<String>, // BigDecimal
+    pub mutable_description: Option<bool>,
+    pub mutable_uri: Option<bool>,
+    pub table_handle_v1: Option<String>,
+    pub collection_properties: Option<String>, // json
+    pub token_standard: String,
+    #[allocative(skip)]
+    pub block_timestamp: chrono::NaiveDateTime,
+}
+
+impl NamedTable for ParquetCollectionV2 {
+    const TABLE_NAME: &'static str = "collections_v2";
+}
+
+impl HasVersion for ParquetCollectionV2 {
+    fn version(&self) -> i64 {
+        self.txn_version
+    }
+}
+impl From<CollectionV2> for ParquetCollectionV2 {
+    fn from(collection: CollectionV2) -> Self {
+        ParquetCollectionV2 {
+            txn_version: collection.transaction_version,
+            write_set_change_index: collection.write_set_change_index,
+            collection_id: collection.collection_id,
+            creator_address: collection.creator_address,
+            collection_name: collection.collection_name,
+            description: collection.description,
+            uri: collection.uri,
+            current_supply: collection.current_supply.to_string(),
+            max_supply: collection.max_supply.map(|v| v.to_string()),
+            total_minted_v2: collection.total_minted_v2.map(|v| v.to_string()),
+            mutable_description: collection.mutable_description,
+            mutable_uri: collection.mutable_uri,
+            table_handle_v1: collection.table_handle_v1,
+            collection_properties: collection
+                .collection_properties
+                .map(|v| serde_json::to_string(&v).unwrap()),
+            token_standard: collection.token_standard,
+            block_timestamp: collection.transaction_timestamp,
+        }
     }
 }

@@ -262,29 +262,23 @@ pub async fn parse_v2_token(
                 let wsc_index = index as i64;
                 match wsc.change.as_ref().unwrap() {
                     Change::WriteTableItem(table_item) => {
-                        // TODO: revisit when we migrate collection_v2 for parquet
-                        // for not it will be only handled for postgres
-                        if let Some(ref mut db_context) = db_context {
-                            if let Some((collection, current_collection)) =
-                                CollectionV2::get_v1_from_write_table_item(
-                                    table_item,
-                                    txn_version,
-                                    wsc_index,
-                                    txn_timestamp,
-                                    table_handle_to_owner,
-                                    &mut db_context.conn,
-                                    db_context.query_retries,
-                                    db_context.query_retry_delay_ms,
-                                )
-                                .await
-                                .unwrap()
-                            {
-                                collections_v2.push(collection);
-                                current_collections_v2.insert(
-                                    current_collection.collection_id.clone(),
-                                    current_collection,
-                                );
-                            }
+                        if let Some((collection, current_collection)) =
+                            CollectionV2::get_v1_from_write_table_item(
+                                table_item,
+                                txn_version,
+                                wsc_index,
+                                txn_timestamp,
+                                table_handle_to_owner,
+                                db_context,
+                            )
+                            .await
+                            .unwrap()
+                        {
+                            collections_v2.push(collection);
+                            current_collections_v2.insert(
+                                current_collection.collection_id.clone(),
+                                current_collection,
+                            );
                         }
 
                         if let Some((token_data, current_token_data)) =
