@@ -43,6 +43,7 @@ pub struct AnsLookupV2 {
     pub token_name: String,
     pub is_deleted: bool,
     pub subdomain_expiration_policy: Option<i64>,
+    pub block_timestamp: chrono::NaiveDateTime,
 }
 
 #[derive(Clone, Debug, Deserialize, Serialize, PartialEq, Eq)]
@@ -74,7 +75,7 @@ impl PartialOrd for CurrentAnsLookupV2 {
 
 #[derive(Allocative, Clone, Debug, Default, Deserialize, ParquetRecordWriter, Serialize)]
 pub struct ParquetAnsLookupV2 {
-    pub transaction_version: i64,
+    pub txn_version: i64,
     pub write_set_change_index: i64,
     pub domain: String,
     pub subdomain: String,
@@ -85,6 +86,8 @@ pub struct ParquetAnsLookupV2 {
     pub token_name: String,
     pub is_deleted: bool,
     pub subdomain_expiration_policy: Option<i64>,
+    #[allocative(skip)]
+    pub block_timestamp: chrono::NaiveDateTime,
 }
 
 impl NamedTable for ParquetAnsLookupV2 {
@@ -93,14 +96,14 @@ impl NamedTable for ParquetAnsLookupV2 {
 
 impl HasVersion for ParquetAnsLookupV2 {
     fn version(&self) -> i64 {
-        self.transaction_version
+        self.txn_version
     }
 }
 
 impl From<AnsLookupV2> for ParquetAnsLookupV2 {
     fn from(raw_item: AnsLookupV2) -> Self {
         ParquetAnsLookupV2 {
-            transaction_version: raw_item.transaction_version,
+            txn_version: raw_item.transaction_version,
             write_set_change_index: raw_item.write_set_change_index,
             domain: raw_item.domain,
             subdomain: raw_item.subdomain,
@@ -110,6 +113,7 @@ impl From<AnsLookupV2> for ParquetAnsLookupV2 {
             token_name: raw_item.token_name,
             is_deleted: raw_item.is_deleted,
             subdomain_expiration_policy: raw_item.subdomain_expiration_policy,
+            block_timestamp: raw_item.block_timestamp,
         }
     }
 }
@@ -243,6 +247,7 @@ impl CurrentAnsLookupV2 {
     pub fn get_v2_from_v1(
         v1_current_ans_lookup: CurrentAnsLookup,
         v1_ans_lookup: AnsLookup,
+        block_timestamp: chrono::NaiveDateTime,
     ) -> (Self, AnsLookupV2) {
         (
             Self {
@@ -267,6 +272,7 @@ impl CurrentAnsLookupV2 {
                 token_name: v1_ans_lookup.token_name,
                 is_deleted: v1_ans_lookup.is_deleted,
                 subdomain_expiration_policy: None,
+                block_timestamp,
             },
         )
     }
@@ -277,6 +283,7 @@ impl CurrentAnsLookupV2 {
         txn_version: i64,
         write_set_change_index: i64,
         address_to_subdomain_ext: &AHashMap<String, SubdomainExtV2>,
+        block_timestamp: chrono::NaiveDateTime,
     ) -> anyhow::Result<Option<(Self, AnsLookupV2)>> {
         if let Some(inner) =
             NameRecordV2::from_write_resource(write_resource, ans_v2_contract_address, txn_version)
@@ -318,6 +325,7 @@ impl CurrentAnsLookupV2 {
                     token_name,
                     is_deleted: false,
                     subdomain_expiration_policy,
+                    block_timestamp,
                 },
             )));
         }

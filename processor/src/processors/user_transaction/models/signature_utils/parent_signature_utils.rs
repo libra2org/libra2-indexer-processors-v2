@@ -41,6 +41,7 @@ pub fn from_parent_signature(
     is_sender_primary: bool,
     multi_agent_index: i64,
     override_address: Option<&String>,
+    block_timestamp: chrono::NaiveDateTime,
 ) -> Vec<Signature> {
     match s.signature.as_ref().unwrap() {
         SignatureEnum::Ed25519(sig) => vec![parse_ed25519_signature(
@@ -52,6 +53,7 @@ pub fn from_parent_signature(
             is_sender_primary,
             multi_agent_index,
             override_address,
+            block_timestamp,
         )],
         SignatureEnum::MultiEd25519(sig) => parse_multi_ed25519_signature(
             sig,
@@ -62,16 +64,29 @@ pub fn from_parent_signature(
             is_sender_primary,
             multi_agent_index,
             override_address,
+            block_timestamp,
         ),
-        SignatureEnum::MultiAgent(sig) => {
-            parse_multi_agent_signature(sig, sender, transaction_version, transaction_block_height)
-        },
-        SignatureEnum::FeePayer(sig) => {
-            parse_fee_payer_signature(sig, sender, transaction_version, transaction_block_height)
-        },
-        SignatureEnum::SingleSender(s) => {
-            parse_single_sender(s, sender, transaction_version, transaction_block_height)
-        },
+        SignatureEnum::MultiAgent(sig) => parse_multi_agent_signature(
+            sig,
+            sender,
+            transaction_version,
+            transaction_block_height,
+            block_timestamp,
+        ),
+        SignatureEnum::FeePayer(sig) => parse_fee_payer_signature(
+            sig,
+            sender,
+            transaction_version,
+            transaction_block_height,
+            block_timestamp,
+        ),
+        SignatureEnum::SingleSender(s) => parse_single_sender(
+            s,
+            sender,
+            transaction_version,
+            transaction_block_height,
+            block_timestamp,
+        ),
     }
 }
 
@@ -84,11 +99,13 @@ pub fn parse_ed25519_signature(
     is_sender_primary: bool,
     multi_agent_index: i64,
     override_address: Option<&String>,
+    block_timestamp: chrono::NaiveDateTime,
 ) -> Signature {
     let signer = standardize_address(override_address.unwrap_or(sender));
     Signature {
         transaction_version,
         transaction_block_height,
+        block_timestamp,
         signer,
         is_sender_primary,
         account_signature_type: account_signature_type.to_string(),
@@ -112,6 +129,7 @@ pub fn parse_multi_ed25519_signature(
     is_sender_primary: bool,
     multi_agent_index: i64,
     override_address: Option<&String>,
+    block_timestamp: chrono::NaiveDateTime,
 ) -> Vec<Signature> {
     let mut signatures = Vec::default();
     let signer = standardize_address(override_address.unwrap_or(sender));
@@ -142,6 +160,7 @@ pub fn parse_multi_ed25519_signature(
             ),
             multi_agent_index,
             multi_sig_index: index as i64,
+            block_timestamp,
         });
     }
     signatures
@@ -161,6 +180,7 @@ pub fn parse_multi_agent_signature(
     sender: &String,
     transaction_version: i64,
     transaction_block_height: i64,
+    block_timestamp: chrono::NaiveDateTime,
 ) -> Vec<Signature> {
     let mut signatures = Vec::default();
     // process sender signature
@@ -172,6 +192,7 @@ pub fn parse_multi_agent_signature(
         true,
         0,
         None,
+        block_timestamp,
     ));
     for (index, address) in s.secondary_signer_addresses.iter().enumerate() {
         let secondary_sig = match s.secondary_signers.get(index) {
@@ -196,6 +217,7 @@ pub fn parse_multi_agent_signature(
             false,
             index as i64,
             Some(&address.to_string()),
+            block_timestamp,
         ));
     }
     signatures
@@ -206,6 +228,7 @@ pub fn parse_fee_payer_signature(
     sender: &String,
     transaction_version: i64,
     transaction_block_height: i64,
+    block_timestamp: chrono::NaiveDateTime,
 ) -> Vec<Signature> {
     let mut signatures = Vec::default();
     // process sender signature
@@ -217,6 +240,7 @@ pub fn parse_fee_payer_signature(
         true,
         0,
         None,
+        block_timestamp,
     ));
     for (index, address) in s.secondary_signer_addresses.iter().enumerate() {
         let secondary_sig = match s.secondary_signers.get(index) {
@@ -241,6 +265,7 @@ pub fn parse_fee_payer_signature(
             false,
             index as i64,
             Some(&address.to_string()),
+            block_timestamp,
         ));
     }
     signatures
@@ -266,6 +291,7 @@ pub fn parse_single_sender(
     sender: &String,
     transaction_version: i64,
     transaction_block_height: i64,
+    block_timestamp: chrono::NaiveDateTime,
 ) -> Vec<Signature> {
     let signature = s.sender.as_ref().unwrap();
     if signature.signature.is_none() {
@@ -283,5 +309,6 @@ pub fn parse_single_sender(
         true,
         0,
         None,
+        block_timestamp,
     )
 }

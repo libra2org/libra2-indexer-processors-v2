@@ -41,6 +41,7 @@ pub fn from_account_signature(
     is_sender_primary: bool,
     multi_agent_index: i64,
     override_address: Option<&String>, // Used to get proper signer in fee_payer_signature
+    block_timestamp: chrono::NaiveDateTime,
 ) -> Vec<Signature> {
     // Skip parsing if unknown signature is found.
     if s.signature.as_ref().is_none() {
@@ -64,6 +65,7 @@ pub fn from_account_signature(
             is_sender_primary,
             multi_agent_index,
             override_address,
+            block_timestamp,
         )],
         AccountSignatureEnum::MultiEd25519(sig) => parse_multi_ed25519_signature(
             sig,
@@ -74,6 +76,7 @@ pub fn from_account_signature(
             is_sender_primary,
             multi_agent_index,
             override_address,
+            block_timestamp,
         ),
         AccountSignatureEnum::SingleKeySignature(sig) => {
             vec![parse_single_key_signature(
@@ -85,6 +88,7 @@ pub fn from_account_signature(
                 is_sender_primary,
                 multi_agent_index,
                 override_address,
+                block_timestamp,
             )]
         },
         AccountSignatureEnum::MultiKeySignature(sig) => parse_multi_key_signature(
@@ -96,6 +100,7 @@ pub fn from_account_signature(
             is_sender_primary,
             multi_agent_index,
             override_address,
+            block_timestamp,
         ),
         AccountSignatureEnum::Abstraction(_sig) => {
             vec![parse_abstraction_signature(
@@ -106,6 +111,7 @@ pub fn from_account_signature(
                 is_sender_primary,
                 multi_agent_index,
                 override_address,
+                block_timestamp,
             )]
         },
     }
@@ -120,6 +126,7 @@ pub fn parse_single_key_signature(
     is_sender_primary: bool,
     multi_agent_index: i64,
     override_address: Option<&String>,
+    block_timestamp: chrono::NaiveDateTime,
 ) -> Signature {
     let signer = standardize_address(override_address.unwrap_or(sender));
     let any_signature = s.signature.as_ref().unwrap();
@@ -130,6 +137,7 @@ pub fn parse_single_key_signature(
     Signature {
         transaction_version,
         transaction_block_height,
+        block_timestamp,
         signer,
         is_sender_primary,
         account_signature_type: account_signature_type.to_string(),
@@ -156,6 +164,7 @@ pub fn parse_multi_key_signature(
     is_sender_primary: bool,
     multi_agent_index: i64,
     override_address: Option<&String>,
+    block_timestamp: chrono::NaiveDateTime,
 ) -> Vec<Signature> {
     let signer = standardize_address(override_address.unwrap_or(sender));
     let mut signatures = Vec::default();
@@ -173,6 +182,7 @@ pub fn parse_multi_key_signature(
         signatures.push(Signature {
             transaction_version,
             transaction_block_height,
+            block_timestamp,
             signer: signer.clone(),
             is_sender_primary,
             account_signature_type: account_signature_type.to_string(),
@@ -206,11 +216,13 @@ pub fn parse_abstraction_signature(
     is_sender_primary: bool,
     multi_agent_index: i64,
     override_address: Option<&String>,
+    block_timestamp: chrono::NaiveDateTime,
 ) -> Signature {
     let signer = standardize_address(override_address.unwrap_or(sender));
     Signature {
         transaction_version,
         transaction_block_height,
+        block_timestamp,
         signer,
         is_sender_primary,
         account_signature_type: account_signature_type.to_string(),

@@ -30,6 +30,7 @@ pub struct Signature {
     pub signature: String,
     pub threshold: i64,
     pub public_key_indices: serde_json::Value,
+    pub block_timestamp: chrono::NaiveDateTime,
 }
 
 impl Signature {
@@ -39,6 +40,7 @@ impl Signature {
         sender: &String,
         transaction_version: i64,
         transaction_block_height: i64,
+        block_timestamp: chrono::NaiveDateTime,
     ) -> Vec<Self> {
         from_parent_signature(
             s,
@@ -48,6 +50,7 @@ impl Signature {
             true,
             0,
             None,
+            block_timestamp,
         )
     }
 }
@@ -101,6 +104,9 @@ impl From<Signature> for PostgresSignature {
 #[derive(Allocative, Clone, Debug, Default, Deserialize, ParquetRecordWriter, Serialize)]
 pub struct ParquetSignature {
     pub txn_version: i64,
+    pub multi_agent_index: i64,
+    pub multi_sig_index: i64,
+    pub is_sender_primary: bool,
     pub block_height: i64,
     pub signer: String,
     pub account_signature_type: String,
@@ -127,6 +133,9 @@ impl From<Signature> for ParquetSignature {
     fn from(raw: Signature) -> Self {
         ParquetSignature {
             txn_version: raw.transaction_version,
+            multi_agent_index: raw.multi_agent_index,
+            multi_sig_index: raw.multi_sig_index,
+            is_sender_primary: raw.is_sender_primary,
             block_height: raw.transaction_block_height,
             signer: raw.signer,
             account_signature_type: raw.account_signature_type,
@@ -135,7 +144,7 @@ impl From<Signature> for ParquetSignature {
             public_key: raw.public_key,
             signature: raw.signature,
             threshold: Some(raw.threshold),
-            block_timestamp: chrono::NaiveDateTime::default(), // Need to populate separately
+            block_timestamp: raw.block_timestamp,
         }
     }
 }
