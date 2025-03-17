@@ -79,6 +79,7 @@ pub mod parquet_default;
 pub mod parquet_events;
 pub mod parquet_fungible_asset;
 pub mod parquet_objects;
+pub mod parquet_processor_status_saver;
 pub mod parquet_stake;
 pub mod parquet_token_v2;
 pub mod parquet_transaction_metadata;
