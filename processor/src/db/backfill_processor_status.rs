@@ -3,7 +3,8 @@
 
 #![allow(clippy::extra_unused_lifetimes)]
 
-use crate::{schema::backfill_processor_status, utils::database::DbPoolConnection};
+use crate::schema::backfill_processor_status;
+use aptos_indexer_processor_sdk::postgres::utils::database::DbPoolConnection;
 use diesel::{
     deserialize,
     deserialize::{FromSql, FromSqlRow},

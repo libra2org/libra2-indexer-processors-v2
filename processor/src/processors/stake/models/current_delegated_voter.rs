@@ -10,10 +10,11 @@ use crate::{
         delegator_balances::CurrentDelegatorBalance, stake_utils::VoteDelegationTableItem,
     },
     schema::current_delegated_voter,
-    utils::database::DbPoolConnection,
 };
 use ahash::AHashMap;
-use aptos_indexer_processor_sdk::utils::convert::standardize_address;
+use aptos_indexer_processor_sdk::{
+    postgres::utils::database::DbPoolConnection, utils::convert::standardize_address,
+};
 use aptos_protos::transaction::v1::WriteTableItem;
 use diesel::prelude::*;
 use diesel_async::RunQueryDsl;

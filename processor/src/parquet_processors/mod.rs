@@ -54,12 +54,12 @@ use crate::{
             signatures::ParquetSignature, user_transactions::ParquetUserTransaction,
         },
     },
-    utils::{
-        database::{new_db_pool, ArcDbPool},
-        table_flags::TableFlags,
-    },
+    utils::table_flags::TableFlags,
 };
-use aptos_indexer_processor_sdk::utils::errors::ProcessorError;
+use aptos_indexer_processor_sdk::{
+    postgres::utils::database::{new_db_pool, ArcDbPool},
+    utils::errors::ProcessorError,
+};
 use async_trait::async_trait;
 use enum_dispatch::enum_dispatch;
 use google_cloud_storage::client::{Client as GCSClient, ClientConfig as GcsClientConfig};

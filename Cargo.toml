@@ -18,11 +18,15 @@ processor = { path = "processor" }
 
 ahash = { version = "0.8.7", features = ["serde"] }
 anyhow = "1.0.86"
-aptos-indexer-processor-sdk = { git = "https://github.com/aptos-labs/aptos-indexer-processor-sdk.git", rev = "707b8bf33cad1a8143b9e81762d644f1be0451bb" }
-aptos-indexer-processor-sdk-server-framework = { git = "https://github.com/aptos-labs/aptos-indexer-processor-sdk.git", rev = "707b8bf33cad1a8143b9e81762d644f1be0451bb" }
+# Do NOT enable the postgres_full feature here, it is conditionally enabled in a feature
+# block in the Cargo.toml file for the processor crate.
+# https://github.com/aptos-labs/aptos-indexer-processors/pull/325
+aptos-indexer-processor-sdk = { git = "https://github.com/aptos-labs/aptos-indexer-processor-sdk.git", rev = "83e2f8651e5b4ae1287823779ab61417fd7eef47", features = [
+    "postgres_partial",
+    "testing_framework",
+] }
 aptos-protos = { git = "https://github.com/aptos-labs/aptos-core.git", rev = "1d8460a995503574ec4e9699d3442d0150d7f3b9" }
 aptos-indexer-test-transactions = { git = "https://github.com/aptos-labs/aptos-core.git", rev = "ba63c8b8f0d41b02fed23a5cf5982404c5eda195" }
-aptos-indexer-testing-framework = { git = "https://github.com/aptos-labs/aptos-indexer-processor-sdk.git", rev = "707b8bf33cad1a8143b9e81762d644f1be0451bb" }
 async-trait = "0.1.53"
 backtrace = "0.3.58"
 base64 = "0.13.0"

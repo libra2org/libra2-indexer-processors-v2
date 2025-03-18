@@ -1,13 +1,13 @@
 // Copyright © Aptos Foundation
 // SPDX-License-Identifier: Apache-2.0
 
-use super::database::DbPoolConnection;
 use crate::{
     db::property_map::{PropertyMap, TokenObjectPropertyMap},
     utils::table_flags::TableFlags,
 };
 use aptos_indexer_processor_sdk::{
     aptos_indexer_transaction_stream::utils::time::MAX_TIMESTAMP_SECS,
+    postgres::utils::database::DbPoolConnection,
     utils::{
         convert::standardize_address,
         extract::{get_clean_entry_function_payload, EntryFunctionPayloadClean},

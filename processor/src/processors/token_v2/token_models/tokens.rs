@@ -12,13 +12,13 @@ use super::{
     token_utils::{TokenResource, TokenWriteSet},
 };
 use crate::{
-    processors::default::models::move_resources::MoveResource,
-    schema::tokens,
-    utils::{counters::PROCESSOR_UNKNOWN_TYPE_COUNT, database::DbPoolConnection},
+    processors::default::models::move_resources::MoveResource, schema::tokens,
+    utils::counters::PROCESSOR_UNKNOWN_TYPE_COUNT,
 };
 use ahash::AHashMap;
 use aptos_indexer_processor_sdk::{
     aptos_indexer_transaction_stream::utils::time::parse_timestamp,
+    postgres::utils::database::DbPoolConnection,
     utils::convert::{ensure_not_negative, standardize_address},
 };
 use aptos_protos::transaction::v1::{

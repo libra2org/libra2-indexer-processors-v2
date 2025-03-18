@@ -1,5 +1,5 @@
 use ahash::AHashMap;
-use aptos_indexer_testing_framework::sdk_test_context::SdkTestContext;
+use aptos_indexer_processor_sdk::testing_framework::sdk_test_context::SdkTestContext;
 use processor::config::{
     db_config::{DbConfig, PostgresConfig},
     indexer_processor_config::IndexerProcessorConfig,
@@ -51,13 +51,15 @@ mod tests {
             run_processor_test, setup_test_environment, validate_json, DEFAULT_OUTPUT_FOLDER,
         },
     };
+    use aptos_indexer_processor_sdk::testing_framework::{
+        cli_parser::get_test_config, database::TestDatabase,
+    };
     use aptos_indexer_test_transactions::json_transactions::generated_transactions::{
         IMPORTED_MAINNET_TXNS_145959468_ACCOUNT_TRANSACTION,
         IMPORTED_MAINNET_TXNS_423176063_ACCOUNT_TRANSACTION_DELETE,
         IMPORTED_MAINNET_TXNS_513424821_DEFAULT_BLOCK_METADATA_TRANSACTIONS,
         IMPORTED_TESTNET_TXNS_1_GENESIS, IMPORTED_TESTNET_TXNS_5523474016_VALIDATOR_TXN,
     };
-    use aptos_indexer_testing_framework::{cli_parser::get_test_config, database::TestDatabase};
     use processor::processors::account_transactions::account_transactions_processor::AccountTransactionsProcessor;
 
     /**

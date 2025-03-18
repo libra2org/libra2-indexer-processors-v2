@@ -1,5 +1,5 @@
 use ahash::AHashMap;
-use aptos_indexer_testing_framework::sdk_test_context::SdkTestContext;
+use aptos_indexer_processor_sdk::testing_framework::sdk_test_context::SdkTestContext;
 use processor::{
     config::{
         db_config::{DbConfig, PostgresConfig},
@@ -60,6 +60,9 @@ mod tests {
             DEFAULT_OUTPUT_FOLDER,
         },
     };
+    use aptos_indexer_processor_sdk::testing_framework::{
+        cli_parser::get_test_config, database::TestDatabase,
+    };
     use aptos_indexer_test_transactions::json_transactions::generated_transactions::{
         IMPORTED_MAINNET_TXNS_118489_PROPOSAL_VOTE,
         IMPORTED_MAINNET_TXNS_121508544_STAKE_DISTRIBUTE,
@@ -68,7 +71,6 @@ mod tests {
         IMPORTED_MAINNET_TXNS_1831971037_STAKE_DELEGATION_POOL,
         IMPORTED_MAINNET_TXNS_4827964_STAKE_INITIALIZE,
     };
-    use aptos_indexer_testing_framework::{cli_parser::get_test_config, database::TestDatabase};
     use processor::processors::stake::stake_processor::StakeProcessor;
 
     /**

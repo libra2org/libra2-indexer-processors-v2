@@ -10,11 +10,13 @@ use crate::{
     parquet_processors::parquet_utils::util::{HasVersion, NamedTable},
     processors::default::models::move_resources::MoveResource,
     schema::{current_objects, objects},
-    utils::database::{DbContext, DbPoolConnection},
 };
 use ahash::AHashMap;
 use allocative_derive::Allocative;
-use aptos_indexer_processor_sdk::utils::convert::standardize_address;
+use aptos_indexer_processor_sdk::{
+    postgres::utils::database::{DbContext, DbPoolConnection},
+    utils::convert::standardize_address,
+};
 use aptos_protos::transaction::v1::{DeleteResource, WriteResource};
 use bigdecimal::{BigDecimal, ToPrimitive};
 use diesel::prelude::*;

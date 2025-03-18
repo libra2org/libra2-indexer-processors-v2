@@ -6,19 +6,18 @@ use crate::{
         indexer_processor_config::IndexerProcessorConfig,
         processor_mode::{BackfillConfig, BootStrapConfig, ProcessorMode, TestingConfig},
     },
-    db::{
-        backfill_processor_status::{
-            BackfillProcessorStatus, BackfillProcessorStatusQuery, BackfillStatus,
-        },
-        processor_status::ProcessorStatusQuery,
+    db::backfill_processor_status::{
+        BackfillProcessorStatus, BackfillProcessorStatusQuery, BackfillStatus,
     },
     processors::processor_status_saver::{log_ascii_warning, save_processor_status},
     schema::backfill_processor_status,
-    utils::database::{execute_with_better_error, ArcDbPool},
 };
 use anyhow::Result;
 use aptos_indexer_processor_sdk::{
-    types::transaction_context::TransactionContext, utils::errors::ProcessorError,
+    postgres::models::processor_status::ProcessorStatusQuery,
+    postgres::utils::database::{execute_with_better_error, ArcDbPool},
+    types::transaction_context::TransactionContext,
+    utils::errors::ProcessorError,
 };
 use async_trait::async_trait;
 use diesel::{upsert::excluded, ExpressionMethods};
@@ -357,13 +356,17 @@ mod tests {
             indexer_processor_config::IndexerProcessorConfig,
             processor_config::{ParquetDefaultProcessorConfig, ProcessorConfig},
         },
-        db::processor_status::ProcessorStatus,
-        utils::database::{new_db_pool, run_migrations},
+        db::backfill_processor_status::{BackfillProcessorStatus, BackfillStatus},
+        MIGRATIONS,
     };
-    use aptos_indexer_processor_sdk::aptos_indexer_transaction_stream::{
-        utils::additional_headers::AdditionalHeaders, TransactionStreamConfig,
+    use aptos_indexer_processor_sdk::{
+        aptos_indexer_transaction_stream::{
+            utils::additional_headers::AdditionalHeaders, TransactionStreamConfig,
+        },
+        postgres::models::processor_status::ProcessorStatus,
+        postgres::utils::database::{new_db_pool, run_migrations},
+        testing_framework::database::{PostgresTestDatabase, TestDatabase},
     };
-    use aptos_indexer_testing_framework::database::{PostgresTestDatabase, TestDatabase};
     use diesel_async::RunQueryDsl;
     use url::Url;
 
@@ -415,7 +418,7 @@ mod tests {
         let conn_pool = new_db_pool(db.get_db_url().as_str(), Some(10))
             .await
             .expect("Failed to create connection pool");
-        run_migrations(db.get_db_url(), conn_pool.clone()).await;
+        run_migrations(db.get_db_url(), conn_pool.clone(), MIGRATIONS).await;
 
         let (starting_version, end_version) = (
             get_parquet_starting_version(&indexer_processor_config, conn_pool.clone())
@@ -448,22 +451,24 @@ mod tests {
         let conn_pool = new_db_pool(db.get_db_url().as_str(), Some(10))
             .await
             .expect("Failed to create connection pool");
-        run_migrations(db.get_db_url(), conn_pool.clone()).await;
+        run_migrations(db.get_db_url(), conn_pool.clone(), MIGRATIONS).await;
         let table_names = indexer_processor_config
             .processor_config
             .get_processor_status_table_names()
             .unwrap();
 
         for (i, table_name) in table_names.into_iter().enumerate() {
-            diesel::insert_into(crate::schema::processor_status::table)
-                .values(ProcessorStatus {
-                    processor: table_name,
-                    last_success_version: last_success_version + i as i64,
-                    last_transaction_timestamp: None,
-                })
-                .execute(&mut conn_pool.clone().get().await.unwrap())
-                .await
-                .expect("Failed to insert processor status");
+            diesel::insert_into(
+                aptos_indexer_processor_sdk::postgres::processor_metadata_schema::processor_metadata::processor_status::table,
+            )
+            .values(ProcessorStatus {
+                processor: table_name,
+                last_success_version: last_success_version + i as i64,
+                last_transaction_timestamp: None,
+            })
+            .execute(&mut conn_pool.clone().get().await.unwrap())
+            .await
+            .expect("Failed to insert processor status");
         }
 
         let (starting_version, end_version) = (
@@ -488,7 +493,7 @@ mod tests {
         let conn_pool = new_db_pool(db.get_db_url().as_str(), Some(10))
             .await
             .expect("Failed to create connection pool");
-        run_migrations(db.get_db_url(), conn_pool.clone()).await;
+        run_migrations(db.get_db_url(), conn_pool.clone(), MIGRATIONS).await;
 
         let indexer_processor_config = create_indexer_config(
             db.get_db_url(),
@@ -513,7 +518,6 @@ mod tests {
         assert_eq!(end_version, Some(20));
     }
 
-    // Commenting out for now because the names are too long
     // #[tokio::test]
     // #[allow(clippy::needless_return)]
     // async fn test_backfill_with_checkpoint_in_db_overwrite_false() {
@@ -524,7 +528,7 @@ mod tests {
     //     let conn_pool = new_db_pool(db.get_db_url().as_str(), Some(10))
     //         .await
     //         .expect("Failed to create connection pool");
-    //     run_migrations(db.get_db_url(), conn_pool.clone()).await;
+    //     run_migrations(db.get_db_url(), conn_pool.clone(), MIGRATIONS).await;
 
     //     let indexer_processor_config = create_indexer_config(
     //         db.get_db_url(),
@@ -578,7 +582,7 @@ mod tests {
     //     let conn_pool = new_db_pool(db.get_db_url().as_str(), Some(10))
     //         .await
     //         .expect("Failed to create connection pool");
-    //     run_migrations(db.get_db_url(), conn_pool.clone()).await;
+    //     run_migrations(db.get_db_url(), conn_pool.clone(), MIGRATIONS).await;
 
     //     let indexer_processor_config = create_indexer_config(
     //         db.get_db_url(),
@@ -651,22 +655,24 @@ mod tests {
         let conn_pool = new_db_pool(db.get_db_url().as_str(), Some(10))
             .await
             .expect("Failed to create connection pool");
-        run_migrations(db.get_db_url(), conn_pool.clone()).await;
+        run_migrations(db.get_db_url(), conn_pool.clone(), MIGRATIONS).await;
         let table_names = indexer_processor_config
             .processor_config
             .get_processor_status_table_names()
             .unwrap();
 
         for (i, table_name) in table_names.into_iter().enumerate() {
-            diesel::insert_into(crate::schema::processor_status::table)
-                .values(ProcessorStatus {
-                    processor: table_name,
-                    last_success_version: head_processor_last_success_version + i as i64,
-                    last_transaction_timestamp: None,
-                })
-                .execute(&mut conn_pool.clone().get().await.unwrap())
-                .await
-                .expect("Failed to insert processor status");
+            diesel::insert_into(
+                aptos_indexer_processor_sdk::postgres::processor_metadata_schema::processor_metadata::processor_status::table,
+            )
+            .values(ProcessorStatus {
+                processor: table_name,
+                last_success_version: head_processor_last_success_version + i as i64,
+                last_transaction_timestamp: None,
+            })
+            .execute(&mut conn_pool.clone().get().await.unwrap())
+            .await
+            .expect("Failed to insert processor status");
         }
 
         let (starting_version, end_version) = (
@@ -693,7 +699,7 @@ mod tests {
         let conn_pool = new_db_pool(db.get_db_url().as_str(), Some(10))
             .await
             .expect("Failed to create connection pool");
-        run_migrations(db.get_db_url(), conn_pool.clone()).await;
+        run_migrations(db.get_db_url(), conn_pool.clone(), MIGRATIONS).await;
 
         let indexer_processor_config = create_indexer_config(
             db.get_db_url(),
@@ -724,7 +730,7 @@ mod tests {
         let conn_pool = new_db_pool(db.get_db_url().as_str(), Some(10))
             .await
             .expect("Failed to create connection pool");
-        run_migrations(db.get_db_url(), conn_pool.clone()).await;
+        run_migrations(db.get_db_url(), conn_pool.clone(), MIGRATIONS).await;
 
         let indexer_processor_config = create_indexer_config(
             db.get_db_url(),
