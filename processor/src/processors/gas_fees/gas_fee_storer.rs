@@ -86,17 +86,11 @@ impl AsyncStep for GasFeeStorer {}
 
 fn insert_gas_fee_query(
     items_to_insert: Vec<GasFee>,
-) -> (
-    impl QueryFragment<Pg> + diesel::query_builder::QueryId + Send,
-    Option<&'static str>,
-) {
+) -> impl QueryFragment<Pg> + diesel::query_builder::QueryId + Send {
     use schema::gas_fees::dsl::*;
 
-    (
-        diesel::insert_into(schema::gas_fees::table)
-            .values(items_to_insert)
-            .on_conflict(transaction_version)
-            .do_nothing(),
-        None,
-    )
+    diesel::insert_into(schema::gas_fees::table)
+        .values(items_to_insert)
+        .on_conflict(transaction_version)
+        .do_nothing()
 }
