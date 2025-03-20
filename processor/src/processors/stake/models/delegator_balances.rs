@@ -19,7 +19,7 @@ use aptos_indexer_processor_sdk::{
     aptos_indexer_transaction_stream::utils::time::parse_timestamp,
     postgres::utils::database::DbPoolConnection, utils::convert::standardize_address,
 };
-use aptos_protos::transaction::v1::{
+use aptos_indexer_processor_sdk::aptos_protos::transaction::v1::{
     write_set_change::Change, DeleteTableItem, Transaction, WriteResource, WriteTableItem,
 };
 use bigdecimal::{BigDecimal, Zero};

@@ -22,7 +22,7 @@ use aptos_indexer_processor_sdk::{
     types::transaction_context::TransactionContext,
     utils::{convert::standardize_address, errors::ProcessorError},
 };
-use aptos_protos::transaction::v1::{
+use aptos_indexer_processor_sdk::aptos_protos::transaction::v1::{
     transaction::TxnData, write_set_change::Change as WriteSetChange, Transaction,
 };
 use async_trait::async_trait;

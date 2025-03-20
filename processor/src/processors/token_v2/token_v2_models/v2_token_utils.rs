@@ -17,7 +17,7 @@ use aptos_indexer_processor_sdk::utils::{
     convert::{deserialize_from_string, standardize_address, truncate_str},
     extract::{Aggregator, AggregatorSnapshot, DerivedStringSnapshot},
 };
-use aptos_protos::transaction::v1::{Event, WriteResource};
+use aptos_indexer_processor_sdk::aptos_protos::transaction::v1::{Event, WriteResource};
 use bigdecimal::BigDecimal;
 use serde::{Deserialize, Serialize};
 use std::{

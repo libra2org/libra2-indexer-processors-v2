@@ -17,7 +17,7 @@ use aptos_indexer_processor_sdk::{
     postgres::utils::database::{DbContext, DbPoolConnection},
     utils::convert::standardize_address,
 };
-use aptos_protos::transaction::v1::{DeleteResource, WriteResource};
+use aptos_indexer_processor_sdk::aptos_protos::transaction::v1::{DeleteResource, WriteResource};
 use bigdecimal::{BigDecimal, ToPrimitive};
 use diesel::prelude::*;
 use diesel_async::RunQueryDsl;

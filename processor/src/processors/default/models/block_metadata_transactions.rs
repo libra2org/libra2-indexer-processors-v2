@@ -15,7 +15,7 @@ use aptos_indexer_processor_sdk::{
     aptos_indexer_transaction_stream::utils::time::parse_timestamp,
     utils::convert::standardize_address,
 };
-use aptos_protos::{
+use aptos_indexer_processor_sdk::aptos_protos::{
     transaction::v1::BlockMetadataTransaction as ProtoBlockMetadataTransaction,
     util::timestamp::Timestamp,
 };

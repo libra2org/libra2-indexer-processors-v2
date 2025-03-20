@@ -6,7 +6,7 @@ use crate::processors::{
 };
 use anyhow::{Context, Result};
 use aptos_indexer_processor_sdk::utils::convert::{deserialize_from_string, standardize_address};
-use aptos_protos::transaction::v1::WriteResource;
+use aptos_indexer_processor_sdk::aptos_protos::transaction::v1::WriteResource;
 use bigdecimal::BigDecimal;
 use serde::{Deserialize, Serialize};
 use tracing::error;

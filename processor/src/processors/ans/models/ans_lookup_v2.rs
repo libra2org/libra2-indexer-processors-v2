@@ -19,7 +19,7 @@ use crate::{
 use ahash::AHashMap;
 use allocative::Allocative;
 use aptos_indexer_processor_sdk::utils::convert::standardize_address;
-use aptos_protos::transaction::v1::WriteResource;
+use aptos_indexer_processor_sdk::aptos_protos::transaction::v1::WriteResource;
 use diesel::prelude::*;
 use field_count::FieldCount;
 use parquet_derive::ParquetRecordWriter;

@@ -21,7 +21,7 @@ use crate::{
 };
 use allocative_derive::Allocative;
 use aptos_indexer_processor_sdk::utils::convert::standardize_address;
-use aptos_protos::transaction::v1::Event;
+use aptos_indexer_processor_sdk::aptos_protos::transaction::v1::Event;
 use bigdecimal::{BigDecimal, One, ToPrimitive, Zero};
 use field_count::FieldCount;
 use parquet_derive::ParquetRecordWriter;

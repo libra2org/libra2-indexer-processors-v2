@@ -15,7 +15,7 @@ use aptos_indexer_processor_sdk::utils::{
     convert::standardize_address,
     extract::{get_clean_payload, get_clean_writeset, get_payload_type},
 };
-use aptos_protos::transaction::v1::{
+use aptos_indexer_processor_sdk::aptos_protos::transaction::v1::{
     transaction::{TransactionType, TxnData},
     Transaction as TransactionPB, TransactionInfo, TransactionSizeInfo,
 };

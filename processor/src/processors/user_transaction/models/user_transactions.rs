@@ -30,7 +30,7 @@ use aptos_indexer_processor_sdk::{
         extract::get_entry_function_from_user_request,
     },
 };
-use aptos_protos::{
+use aptos_indexer_processor_sdk::aptos_protos::{
     transaction::v1::{
         TransactionInfo, UserTransaction as UserTransactionPB, UserTransactionRequest,
     },

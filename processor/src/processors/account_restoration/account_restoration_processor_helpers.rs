@@ -14,7 +14,7 @@ use ahash::AHashMap;
 use aptos_indexer_processor_sdk::utils::{
     convert::standardize_address, extract::get_entry_function_from_user_request,
 };
-use aptos_protos::transaction::v1::{
+use aptos_indexer_processor_sdk::aptos_protos::transaction::v1::{
     transaction::TxnData, write_set_change::Change, Transaction, WriteResource,
 };
 use lazy_static::lazy_static;

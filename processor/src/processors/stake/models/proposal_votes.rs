@@ -15,7 +15,7 @@ use aptos_indexer_processor_sdk::{
     aptos_indexer_transaction_stream::utils::time::parse_timestamp,
     utils::convert::standardize_address,
 };
-use aptos_protos::transaction::v1::{transaction::TxnData, Transaction};
+use aptos_indexer_processor_sdk::aptos_protos::transaction::v1::{transaction::TxnData, Transaction};
 use bigdecimal::BigDecimal;
 use field_count::FieldCount;
 use parquet_derive::ParquetRecordWriter;

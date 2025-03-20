@@ -8,7 +8,7 @@ use super::{
 };
 use crate::processors::user_transaction::models::signatures::Signature;
 use aptos_indexer_processor_sdk::utils::convert::standardize_address;
-use aptos_protos::transaction::v1::{
+use aptos_indexer_processor_sdk::aptos_protos::transaction::v1::{
     account_signature::{Signature as AccountSignatureEnum, Type as AccountSignatureTypeEnum},
     AccountSignature, MultiKeySignature, SingleKeySignature,
 };

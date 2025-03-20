@@ -11,7 +11,7 @@ use anyhow::Context;
 use aptos_indexer_processor_sdk::utils::convert::{
     bigdecimal_to_u64, deserialize_from_string, standardize_address, truncate_str,
 };
-use aptos_protos::transaction::v1::{Event, WriteResource};
+use aptos_indexer_processor_sdk::aptos_protos::transaction::v1::{Event, WriteResource};
 use bigdecimal::BigDecimal;
 use serde::{Deserialize, Serialize};
 

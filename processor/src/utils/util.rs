@@ -13,7 +13,7 @@ use aptos_indexer_processor_sdk::{
         extract::{get_clean_entry_function_payload, EntryFunctionPayloadClean},
     },
 };
-use aptos_protos::{
+use aptos_indexer_processor_sdk::aptos_protos::{
     transaction::v1::{
         multisig_transaction_payload::Payload as MultisigPayloadType,
         transaction_payload::Payload as PayloadType, UserTransactionRequest,

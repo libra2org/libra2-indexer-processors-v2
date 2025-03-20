@@ -399,6 +399,7 @@ mod tests {
                 indexer_grpc_reconnection_timeout_secs: 1,
                 indexer_grpc_response_item_timeout_secs: 1,
                 additional_headers: AdditionalHeaders::default(),
+                transaction_filter: None,
             },
         }
     }

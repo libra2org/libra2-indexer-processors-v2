@@ -20,7 +20,7 @@ use aptos_indexer_processor_sdk::{
     aptos_indexer_transaction_stream::utils::time::parse_timestamp,
     postgres::utils::database::DbContext, utils::convert::standardize_address,
 };
-use aptos_protos::transaction::v1::{write_set_change::Change, Transaction};
+use aptos_indexer_processor_sdk::aptos_protos::transaction::v1::{write_set_change::Change, Transaction};
 
 pub async fn process_objects(
     transactions: Vec<Transaction>,

@@ -27,7 +27,7 @@ use ahash::AHashMap;
 use allocative::Allocative;
 use anyhow::Context;
 use aptos_indexer_processor_sdk::utils::convert::{bigdecimal_to_u64, standardize_address};
-use aptos_protos::transaction::v1::{Event, TransactionInfo, UserTransactionRequest};
+use aptos_indexer_processor_sdk::aptos_protos::transaction::v1::{Event, TransactionInfo, UserTransactionRequest};
 use bigdecimal::{BigDecimal, Zero};
 use field_count::FieldCount;
 use parquet_derive::ParquetRecordWriter;

@@ -12,7 +12,7 @@ use crate::{
 };
 use anyhow::Context;
 use aptos_indexer_processor_sdk::utils::constants::APTOS_COIN_TYPE_STR;
-use aptos_protos::transaction::v1::WriteTableItem;
+use aptos_indexer_processor_sdk::aptos_protos::transaction::v1::WriteTableItem;
 use bigdecimal::BigDecimal;
 use field_count::FieldCount;
 use serde::{Deserialize, Serialize};

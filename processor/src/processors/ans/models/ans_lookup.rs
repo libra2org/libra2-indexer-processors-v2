@@ -10,7 +10,7 @@ use crate::schema::{ans_lookup, ans_primary_name, current_ans_lookup, current_an
 use aptos_indexer_processor_sdk::utils::{
     convert::standardize_address, extract::get_name_from_unnested_move_type,
 };
-use aptos_protos::transaction::v1::{DeleteTableItem, WriteTableItem};
+use aptos_indexer_processor_sdk::aptos_protos::transaction::v1::{DeleteTableItem, WriteTableItem};
 use diesel::prelude::*;
 use field_count::FieldCount;
 use serde::{Deserialize, Serialize};

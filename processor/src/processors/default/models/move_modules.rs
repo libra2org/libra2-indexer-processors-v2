@@ -9,7 +9,7 @@ use crate::{
 };
 use allocative_derive::Allocative;
 use aptos_indexer_processor_sdk::utils::convert::standardize_address;
-use aptos_protos::transaction::v1::{
+use aptos_indexer_processor_sdk::aptos_protos::transaction::v1::{
     DeleteModule, MoveModule as MoveModulePB, MoveModuleBytecode, WriteModule,
 };
 use field_count::FieldCount;

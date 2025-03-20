@@ -12,7 +12,7 @@ use aptos_indexer_processor_sdk::utils::{
     convert::{deserialize_from_string, truncate_str},
     extract::Aggregator,
 };
-use aptos_protos::transaction::v1::WriteResource;
+use aptos_indexer_processor_sdk::aptos_protos::transaction::v1::WriteResource;
 use bigdecimal::BigDecimal;
 use field_count::FieldCount;
 use serde::{Deserialize, Serialize};

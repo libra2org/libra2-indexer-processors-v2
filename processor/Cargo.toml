@@ -17,7 +17,6 @@ allocative = { workspace = true }
 allocative_derive = { workspace = true }
 anyhow = { workspace = true }
 aptos-indexer-processor-sdk = { workspace = true }
-aptos-protos = { workspace = true }
 async-trait = { workspace = true }
 bcs = { workspace = true }
 bigdecimal = { workspace = true }

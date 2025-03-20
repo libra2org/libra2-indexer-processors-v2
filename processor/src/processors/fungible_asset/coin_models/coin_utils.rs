@@ -12,7 +12,7 @@ use anyhow::{bail, Context, Result};
 use aptos_indexer_processor_sdk::utils::convert::{
     deserialize_from_string, standardize_address, truncate_str,
 };
-use aptos_protos::transaction::v1::{move_type::Content, DeleteResource, MoveType, WriteResource};
+use aptos_indexer_processor_sdk::aptos_protos::transaction::v1::{move_type::Content, DeleteResource, MoveType, WriteResource};
 use bigdecimal::BigDecimal;
 use once_cell::sync::Lazy;
 use regex::Regex;
