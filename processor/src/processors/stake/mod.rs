@@ -6,28 +6,24 @@ pub mod stake_extractor;
 pub mod stake_processor;
 pub mod stake_storer;
 
-use crate::{
-    processors::stake::models::{
-        current_delegated_voter::CurrentDelegatedVoter,
-        delegator_activities::DelegatedStakingActivity,
-        delegator_balances::{
-            CurrentDelegatorBalance, CurrentDelegatorBalanceMap, DelegatorBalance,
-        },
-        delegator_pools::{
-            CurrentDelegatorPoolBalance, DelegatorPool, DelegatorPoolBalance, DelegatorPoolMap,
-        },
-        proposal_votes::ProposalVote,
-        stake_utils::DelegationVoteGovernanceRecordsResource,
-        staking_pool_voter::{CurrentStakingPoolVoter, StakingPoolVoterMap},
+use crate::processors::stake::models::{
+    current_delegated_voter::CurrentDelegatedVoter,
+    delegator_activities::DelegatedStakingActivity,
+    delegator_balances::{CurrentDelegatorBalance, CurrentDelegatorBalanceMap, DelegatorBalance},
+    delegator_pools::{
+        CurrentDelegatorPoolBalance, DelegatorPool, DelegatorPoolBalance, DelegatorPoolMap,
     },
-    utils::database::DbPoolConnection,
+    proposal_votes::ProposalVote,
+    stake_utils::DelegationVoteGovernanceRecordsResource,
+    staking_pool_voter::{CurrentStakingPoolVoter, StakingPoolVoterMap},
 };
 use ahash::AHashMap;
 use aptos_indexer_processor_sdk::{
     aptos_indexer_transaction_stream::utils::time::parse_timestamp,
+    aptos_protos::transaction::v1::{write_set_change::Change, Transaction},
+    postgres::utils::database::DbPoolConnection,
     utils::convert::standardize_address,
 };
-use aptos_protos::transaction::v1::{write_set_change::Change, Transaction};
 
 pub async fn parse_stake_data(
     transactions: &Vec<Transaction>,

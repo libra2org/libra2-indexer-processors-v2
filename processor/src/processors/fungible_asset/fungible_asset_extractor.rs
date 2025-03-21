@@ -1,25 +1,23 @@
-use crate::{
-    processors::fungible_asset::{
-        coin_models::coin_supply::CoinSupply,
-        fungible_asset_models::{
-            v2_fungible_asset_activities::PostgresFungibleAssetActivity,
-            v2_fungible_asset_balances::{
-                PostgresCurrentUnifiedFungibleAssetBalance, PostgresFungibleAssetBalance,
-            },
-            v2_fungible_asset_to_coin_mappings::{
-                FungibleAssetToCoinMapping, FungibleAssetToCoinMappings,
-                PostgresFungibleAssetToCoinMapping,
-            },
-            v2_fungible_metadata::PostgresFungibleAssetMetadataModel,
+use crate::processors::fungible_asset::{
+    coin_models::coin_supply::CoinSupply,
+    fungible_asset_models::{
+        v2_fungible_asset_activities::PostgresFungibleAssetActivity,
+        v2_fungible_asset_balances::{
+            PostgresCurrentUnifiedFungibleAssetBalance, PostgresFungibleAssetBalance,
         },
-        fungible_asset_processor_helpers::{get_fa_to_coin_mapping, parse_v2_coin},
+        v2_fungible_asset_to_coin_mappings::{
+            FungibleAssetToCoinMapping, FungibleAssetToCoinMappings,
+            PostgresFungibleAssetToCoinMapping,
+        },
+        v2_fungible_metadata::PostgresFungibleAssetMetadataModel,
     },
-    utils::database::ArcDbPool,
+    fungible_asset_processor_helpers::{get_fa_to_coin_mapping, parse_v2_coin},
 };
 use ahash::AHashMap;
 use anyhow::Result;
 use aptos_indexer_processor_sdk::{
     aptos_protos::transaction::v1::Transaction,
+    postgres::utils::database::ArcDbPool,
     traits::{async_step::AsyncRunType, AsyncStep, NamedStep, Processable},
     types::transaction_context::TransactionContext,
     utils::errors::ProcessorError,

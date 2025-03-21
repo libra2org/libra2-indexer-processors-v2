@@ -1,5 +1,5 @@
 use ahash::AHashMap;
-use aptos_indexer_testing_framework::sdk_test_context::SdkTestContext;
+use aptos_indexer_processor_sdk::testing_framework::sdk_test_context::SdkTestContext;
 use processor::config::{
     db_config::{DbConfig, PostgresConfig},
     indexer_processor_config::IndexerProcessorConfig,
@@ -52,6 +52,9 @@ mod sdk_user_txn_processor_tests {
             run_processor_test, setup_test_environment, validate_json, DEFAULT_OUTPUT_FOLDER,
         },
     };
+    use aptos_indexer_processor_sdk::testing_framework::{
+        cli_parser::get_test_config, database::TestDatabase,
+    };
     use aptos_indexer_test_transactions::json_transactions::generated_transactions::{
         IMPORTED_MAINNET_TXNS_103958588_MULTI_AGENTS,
         IMPORTED_MAINNET_TXNS_1803170308_USER_TXN_MULTI_KEY_KEYLESS,
@@ -65,7 +68,6 @@ mod sdk_user_txn_processor_tests {
         IMPORTED_MAINNET_TXNS_976087151_USER_TXN_SINGLE_SENDER_KEYLESS,
         IMPORTED_TESTNET_TXNS_769222973_MULTISIG,
     };
-    use aptos_indexer_testing_framework::{cli_parser::get_test_config, database::TestDatabase};
     use processor::processors::user_transaction::user_transaction_processor::UserTransactionProcessor;
 
     #[tokio::test(flavor = "multi_thread", worker_threads = 2)]

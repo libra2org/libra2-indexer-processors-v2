@@ -4,13 +4,14 @@
 // This is required because a diesel macro makes clippy sad
 #![allow(clippy::extra_unused_lifetimes)]
 
-use crate::{
-    db::resources::TOKEN_ADDR,
-    utils::util::{deserialize_property_map_from_bcs_hexstring, hash_str},
-};
+use crate::db::resources::TOKEN_ADDR;
 use anyhow::{Context, Result};
-use aptos_indexer_processor_sdk::utils::convert::{
-    deserialize_from_string, deserialize_string_from_hexstring, standardize_address, truncate_str,
+use aptos_indexer_processor_sdk::utils::{
+    convert::{
+        deserialize_from_string, deserialize_string_from_hexstring, standardize_address,
+        truncate_str,
+    },
+    extract::{deserialize_property_map_from_bcs_hexstring, hash_str},
 };
 use bigdecimal::BigDecimal;
 use serde::{Deserialize, Serialize};

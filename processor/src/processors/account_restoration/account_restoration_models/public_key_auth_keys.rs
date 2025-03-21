@@ -14,7 +14,7 @@ use crate::{
     schema::public_key_auth_keys,
 };
 use ahash::AHashMap;
-use aptos_protos::transaction::v1::{
+use aptos_indexer_processor_sdk::aptos_protos::transaction::v1::{
     account_signature::Signature as AccountSignature, signature::Signature as SignatureEnum,
     Signature,
 };

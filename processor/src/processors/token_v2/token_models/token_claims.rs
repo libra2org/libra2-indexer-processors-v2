@@ -15,8 +15,10 @@ use crate::{
 };
 use ahash::AHashMap;
 use allocative_derive::Allocative;
-use aptos_indexer_processor_sdk::utils::convert::standardize_address;
-use aptos_protos::transaction::v1::{DeleteTableItem, WriteTableItem};
+use aptos_indexer_processor_sdk::{
+    aptos_protos::transaction::v1::{DeleteTableItem, WriteTableItem},
+    utils::convert::standardize_address,
+};
 use bigdecimal::{BigDecimal, ToPrimitive, Zero};
 use field_count::FieldCount;
 use parquet_derive::ParquetRecordWriter;

@@ -32,10 +32,9 @@ use crate::{
 };
 use anyhow::Result;
 use aptos_indexer_processor_sdk::{
-    aptos_indexer_transaction_stream::TransactionStreamConfig,
+    aptos_indexer_transaction_stream::TransactionStreamConfig, server_framework::RunnableConfig,
     traits::processor_trait::ProcessorTrait,
 };
-use aptos_indexer_processor_sdk_server_framework::RunnableConfig;
 use serde::{Deserialize, Serialize};
 
 pub const QUERY_DEFAULT_RETRIES: u32 = 5;

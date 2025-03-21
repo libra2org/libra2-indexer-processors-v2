@@ -6,19 +6,20 @@ use crate::{
         indexer_processor_config::IndexerProcessorConfig,
         processor_mode::{BackfillConfig, BootStrapConfig, ProcessorMode, TestingConfig},
     },
-    db::{
-        backfill_processor_status::{
-            BackfillProcessorStatus, BackfillProcessorStatusQuery, BackfillStatus,
-        },
-        processor_status::ProcessorStatusQuery,
+    db::backfill_processor_status::{
+        BackfillProcessorStatus, BackfillProcessorStatusQuery, BackfillStatus,
     },
     processors::processor_status_saver::{log_ascii_warning, save_processor_status},
     schema::backfill_processor_status,
-    utils::database::{execute_with_better_error, ArcDbPool},
 };
 use anyhow::Result;
 use aptos_indexer_processor_sdk::{
-    types::transaction_context::TransactionContext, utils::errors::ProcessorError,
+    postgres::{
+        models::processor_status::ProcessorStatusQuery,
+        utils::database::{execute_with_better_error, ArcDbPool},
+    },
+    types::transaction_context::TransactionContext,
+    utils::errors::ProcessorError,
 };
 use async_trait::async_trait;
 use diesel::{upsert::excluded, ExpressionMethods};
@@ -357,13 +358,19 @@ mod tests {
             indexer_processor_config::IndexerProcessorConfig,
             processor_config::{ParquetDefaultProcessorConfig, ProcessorConfig},
         },
-        db::processor_status::ProcessorStatus,
-        utils::database::{new_db_pool, run_migrations},
+        db::backfill_processor_status::{BackfillProcessorStatus, BackfillStatus},
+        MIGRATIONS,
     };
-    use aptos_indexer_processor_sdk::aptos_indexer_transaction_stream::{
-        utils::additional_headers::AdditionalHeaders, TransactionStreamConfig,
+    use aptos_indexer_processor_sdk::{
+        aptos_indexer_transaction_stream::{
+            utils::additional_headers::AdditionalHeaders, TransactionStreamConfig,
+        },
+        postgres::{
+            models::processor_status::ProcessorStatus,
+            utils::database::{new_db_pool, run_migrations},
+        },
+        testing_framework::database::{PostgresTestDatabase, TestDatabase},
     };
-    use aptos_indexer_testing_framework::database::{PostgresTestDatabase, TestDatabase};
     use diesel_async::RunQueryDsl;
     use url::Url;
 
@@ -396,6 +403,7 @@ mod tests {
                 indexer_grpc_reconnection_timeout_secs: 1,
                 indexer_grpc_response_item_timeout_secs: 1,
                 additional_headers: AdditionalHeaders::default(),
+                transaction_filter: None,
             },
         }
     }
@@ -415,7 +423,7 @@ mod tests {
         let conn_pool = new_db_pool(db.get_db_url().as_str(), Some(10))
             .await
             .expect("Failed to create connection pool");
-        run_migrations(db.get_db_url(), conn_pool.clone()).await;
+        run_migrations(db.get_db_url(), conn_pool.clone(), MIGRATIONS).await;
 
         let (starting_version, end_version) = (
             get_parquet_starting_version(&indexer_processor_config, conn_pool.clone())
@@ -448,22 +456,24 @@ mod tests {
         let conn_pool = new_db_pool(db.get_db_url().as_str(), Some(10))
             .await
             .expect("Failed to create connection pool");
-        run_migrations(db.get_db_url(), conn_pool.clone()).await;
+        run_migrations(db.get_db_url(), conn_pool.clone(), MIGRATIONS).await;
         let table_names = indexer_processor_config
             .processor_config
             .get_processor_status_table_names()
             .unwrap();
 
         for (i, table_name) in table_names.into_iter().enumerate() {
-            diesel::insert_into(crate::schema::processor_status::table)
-                .values(ProcessorStatus {
-                    processor: table_name,
-                    last_success_version: last_success_version + i as i64,
-                    last_transaction_timestamp: None,
-                })
-                .execute(&mut conn_pool.clone().get().await.unwrap())
-                .await
-                .expect("Failed to insert processor status");
+            diesel::insert_into(
+                aptos_indexer_processor_sdk::postgres::processor_metadata_schema::processor_metadata::processor_status::table,
+            )
+            .values(ProcessorStatus {
+                processor: table_name,
+                last_success_version: last_success_version + i as i64,
+                last_transaction_timestamp: None,
+            })
+            .execute(&mut conn_pool.clone().get().await.unwrap())
+            .await
+            .expect("Failed to insert processor status");
         }
 
         let (starting_version, end_version) = (
@@ -488,7 +498,7 @@ mod tests {
         let conn_pool = new_db_pool(db.get_db_url().as_str(), Some(10))
             .await
             .expect("Failed to create connection pool");
-        run_migrations(db.get_db_url(), conn_pool.clone()).await;
+        run_migrations(db.get_db_url(), conn_pool.clone(), MIGRATIONS).await;
 
         let indexer_processor_config = create_indexer_config(
             db.get_db_url(),
@@ -513,124 +523,113 @@ mod tests {
         assert_eq!(end_version, Some(20));
     }
 
-    // Commenting out for now because the names are too long
-    // #[tokio::test]
-    // #[allow(clippy::needless_return)]
-    // async fn test_backfill_with_checkpoint_in_db_overwrite_false() {
-    //     let last_success_version = 10;
-    //     let backfill_id = "backfill_id".to_string();
-    //     let mut db = PostgresTestDatabase::new();
-    //     db.setup().await.unwrap();
-    //     let conn_pool = new_db_pool(db.get_db_url().as_str(), Some(10))
-    //         .await
-    //         .expect("Failed to create connection pool");
-    //     run_migrations(db.get_db_url(), conn_pool.clone()).await;
+    #[tokio::test]
+    #[allow(clippy::needless_return)]
+    async fn test_backfill_with_checkpoint_in_db_overwrite_false() {
+        let last_success_version = 10;
+        let backfill_id = "backfill_id".to_string();
+        let mut db = PostgresTestDatabase::new();
+        db.setup().await.unwrap();
+        let conn_pool = new_db_pool(db.get_db_url().as_str(), Some(10))
+            .await
+            .expect("Failed to create connection pool");
+        run_migrations(db.get_db_url(), conn_pool.clone(), MIGRATIONS).await;
 
-    //     let indexer_processor_config = create_indexer_config(
-    //         db.get_db_url(),
-    //         ProcessorMode::Backfill(BackfillConfig {
-    //             backfill_id: backfill_id.clone(),
-    //             initial_starting_version: 0,
-    //             ending_version: Some(20),
-    //             overwrite_checkpoint: false,
-    //         }),
-    //     );
+        let indexer_processor_config = create_indexer_config(
+            db.get_db_url(),
+            ProcessorMode::Backfill(BackfillConfig {
+                backfill_id: backfill_id.clone(),
+                initial_starting_version: 0,
+                ending_version: Some(20),
+                overwrite_checkpoint: false,
+            }),
+        );
 
-    //     let table_names = indexer_processor_config
-    //         .processor_config
-    //         .get_processor_status_table_names()
-    //         .unwrap();
+        let table_names = indexer_processor_config
+            .processor_config
+            .get_processor_status_table_names()
+            .unwrap();
 
-    //     for (_, table_name) in table_names.into_iter().enumerate() {
-    //         diesel::insert_into(crate::schema::backfill_processor_status::table)
-    //             .values(BackfillProcessorStatus {
-    //                 backfill_alias: format!("{}_{}", table_name, backfill_id),
-    //                 backfill_status: BackfillStatus::InProgress,
-    //                 last_success_version: 10,
-    //                 last_transaction_timestamp: None,
-    //                 backfill_start_version: 0,
-    //                 backfill_end_version: Some(10),
-    //             })
-    //             .execute(&mut conn_pool.clone().get().await.unwrap())
-    //             .await
-    //             .expect("Failed to insert backfill processor status");
-    //     }
+        for table_name in table_names.into_iter() {
+            diesel::insert_into(crate::schema::backfill_processor_status::table)
+                .values(BackfillProcessorStatus {
+                    backfill_alias: format!("{}_{}", table_name, backfill_id),
+                    backfill_status: BackfillStatus::InProgress,
+                    last_success_version: 10,
+                    last_transaction_timestamp: None,
+                    backfill_start_version: 0,
+                    backfill_end_version: Some(10),
+                })
+                .execute(&mut conn_pool.clone().get().await.unwrap())
+                .await
+                .expect("Failed to insert backfill processor status");
+        }
 
-    //     let (starting_version, end_version) = (
-    //         get_parquet_starting_version(&indexer_processor_config, conn_pool.clone())
-    //             .await
-    //             .unwrap(),
-    //         get_parquet_end_version(&indexer_processor_config, conn_pool)
-    //             .await
-    //             .unwrap(),
-    //     );
+        let (starting_version, end_version) = (
+            get_parquet_starting_version(&indexer_processor_config, conn_pool.clone())
+                .await
+                .unwrap(),
+            get_parquet_end_version(&indexer_processor_config, conn_pool)
+                .await
+                .unwrap(),
+        );
 
-    //     assert_eq!(starting_version, Some(last_success_version as u64 + 1));
-    //     assert_eq!(end_version, Some(20));
-    // }
+        assert_eq!(starting_version, Some(last_success_version as u64 + 1));
+        assert_eq!(end_version, Some(20));
+    }
 
-    // #[tokio::test]
-    // #[allow(clippy::needless_return)]
-    // async fn test_backfill_with_checkpoint_in_db_overwrite_true() {
-    //     let backfill_id = "backfill_id".to_string();
-    //     let mut db = PostgresTestDatabase::new();
-    //     db.setup().await.unwrap();
-    //     let conn_pool = new_db_pool(db.get_db_url().as_str(), Some(10))
-    //         .await
-    //         .expect("Failed to create connection pool");
-    //     run_migrations(db.get_db_url(), conn_pool.clone()).await;
+    #[tokio::test]
+    #[allow(clippy::needless_return)]
+    async fn test_backfill_with_checkpoint_in_db_overwrite_true() {
+        let backfill_id = "backfill_id".to_string();
+        let mut db = PostgresTestDatabase::new();
+        db.setup().await.unwrap();
+        let conn_pool = new_db_pool(db.get_db_url().as_str(), Some(10))
+            .await
+            .expect("Failed to create connection pool");
+        run_migrations(db.get_db_url(), conn_pool.clone(), MIGRATIONS).await;
 
-    //     let indexer_processor_config = create_indexer_config(
-    //         db.get_db_url(),
-    //         ProcessorMode::Backfill(BackfillConfig {
-    //             backfill_id: backfill_id.clone(),
-    //             initial_starting_version: 0,
-    //             ending_version: Some(20),
-    //             overwrite_checkpoint: true,
-    //         }),
-    //     );
-    //     let table_names = indexer_processor_config
-    //         .processor_config
-    //         .get_processor_status_table_names()
-    //         .unwrap();
+        let indexer_processor_config = create_indexer_config(
+            db.get_db_url(),
+            ProcessorMode::Backfill(BackfillConfig {
+                backfill_id: backfill_id.clone(),
+                initial_starting_version: 0,
+                ending_version: Some(20),
+                overwrite_checkpoint: true,
+            }),
+        );
+        let table_names = indexer_processor_config
+            .processor_config
+            .get_processor_status_table_names()
+            .unwrap();
 
-    //     for (_, table_name) in table_names.into_iter().enumerate() {
-    //         diesel::insert_into(crate::schema::backfill_processor_status::table)
-    //             .values(BackfillProcessorStatus {
-    //                 backfill_alias: format!("{}_{}", table_name, backfill_id),
-    //                 backfill_status: BackfillStatus::InProgress,
-    //                 last_success_version: 10,
-    //                 last_transaction_timestamp: None,
-    //                 backfill_start_version: 0,
-    //                 backfill_end_version: Some(10),
-    //             })
-    //             .execute(&mut conn_pool.clone().get().await.unwrap())
-    //             .await
-    //             .expect("Failed to insert backfill processor status");
-    //     }
+        for table_name in table_names.into_iter() {
+            diesel::insert_into(crate::schema::backfill_processor_status::table)
+                .values(BackfillProcessorStatus {
+                    backfill_alias: format!("{}_{}", table_name, backfill_id),
+                    backfill_status: BackfillStatus::InProgress,
+                    last_success_version: 10,
+                    last_transaction_timestamp: None,
+                    backfill_start_version: 0,
+                    backfill_end_version: Some(10),
+                })
+                .execute(&mut conn_pool.clone().get().await.unwrap())
+                .await
+                .expect("Failed to insert backfill processor status");
+        }
 
-    //     let (starting_version, end_version) = (
-    //         get_parquet_starting_version(&indexer_processor_config, conn_pool.clone())
-    //             .await
-    //             .unwrap(),
-    //         get_parquet_end_version(&indexer_processor_config, conn_pool.clone())
-    //             .await
-    //             .unwrap(),
-    //     );
-    //     let backfill_status = BackfillProcessorStatusQuery::get_by_processor(
-    //         indexer_processor_config.processor_config.name(),
-    //         &backfill_id,
-    //         &mut conn_pool.get().await.unwrap(),
-    //     )
-    //     .await
-    //     .unwrap()
-    //     .unwrap();
+        let (starting_version, end_version) = (
+            get_parquet_starting_version(&indexer_processor_config, conn_pool.clone())
+                .await
+                .unwrap(),
+            get_parquet_end_version(&indexer_processor_config, conn_pool.clone())
+                .await
+                .unwrap(),
+        );
 
-    //     assert_eq!(starting_version, Some(0));
-    //     assert_eq!(end_version, Some(20));
-    //     assert_eq!(backfill_status.backfill_status, BackfillStatus::InProgress);
-    //     assert_eq!(backfill_status.last_success_version, 0);
-    // }
+        assert_eq!(starting_version, Some(0));
+        assert_eq!(end_version, Some(20));
+    }
 
     #[tokio::test]
     #[allow(clippy::needless_return)]
@@ -651,22 +650,24 @@ mod tests {
         let conn_pool = new_db_pool(db.get_db_url().as_str(), Some(10))
             .await
             .expect("Failed to create connection pool");
-        run_migrations(db.get_db_url(), conn_pool.clone()).await;
+        run_migrations(db.get_db_url(), conn_pool.clone(), MIGRATIONS).await;
         let table_names = indexer_processor_config
             .processor_config
             .get_processor_status_table_names()
             .unwrap();
 
         for (i, table_name) in table_names.into_iter().enumerate() {
-            diesel::insert_into(crate::schema::processor_status::table)
-                .values(ProcessorStatus {
-                    processor: table_name,
-                    last_success_version: head_processor_last_success_version + i as i64,
-                    last_transaction_timestamp: None,
-                })
-                .execute(&mut conn_pool.clone().get().await.unwrap())
-                .await
-                .expect("Failed to insert processor status");
+            diesel::insert_into(
+                aptos_indexer_processor_sdk::postgres::processor_metadata_schema::processor_metadata::processor_status::table,
+            )
+            .values(ProcessorStatus {
+                processor: table_name,
+                last_success_version: head_processor_last_success_version + i as i64,
+                last_transaction_timestamp: None,
+            })
+            .execute(&mut conn_pool.clone().get().await.unwrap())
+            .await
+            .expect("Failed to insert processor status");
         }
 
         let (starting_version, end_version) = (
@@ -693,7 +694,7 @@ mod tests {
         let conn_pool = new_db_pool(db.get_db_url().as_str(), Some(10))
             .await
             .expect("Failed to create connection pool");
-        run_migrations(db.get_db_url(), conn_pool.clone()).await;
+        run_migrations(db.get_db_url(), conn_pool.clone(), MIGRATIONS).await;
 
         let indexer_processor_config = create_indexer_config(
             db.get_db_url(),
@@ -724,7 +725,7 @@ mod tests {
         let conn_pool = new_db_pool(db.get_db_url().as_str(), Some(10))
             .await
             .expect("Failed to create connection pool");
-        run_migrations(db.get_db_url(), conn_pool.clone()).await;
+        run_migrations(db.get_db_url(), conn_pool.clone(), MIGRATIONS).await;
 
         let indexer_processor_config = create_indexer_config(
             db.get_db_url(),

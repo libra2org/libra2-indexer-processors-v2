@@ -10,10 +10,10 @@ use crate::{
     parquet_processors::parquet_utils::util::{HasVersion, NamedTable},
     processors::fungible_asset::fungible_asset_models::v2_fungible_asset_balances::get_paired_metadata_address,
     schema::fungible_asset_to_coin_mappings,
-    utils::database::DbPoolConnection,
 };
 use ahash::AHashMap;
 use allocative_derive::Allocative;
+use aptos_indexer_processor_sdk::postgres::utils::database::DbPoolConnection;
 use diesel::query_dsl::methods::SelectDsl;
 use diesel_async::RunQueryDsl;
 use field_count::FieldCount;

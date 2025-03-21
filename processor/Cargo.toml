@@ -17,9 +17,6 @@ allocative = { workspace = true }
 allocative_derive = { workspace = true }
 anyhow = { workspace = true }
 aptos-indexer-processor-sdk = { workspace = true }
-aptos-indexer-processor-sdk-server-framework = { workspace = true }
-aptos-indexer-testing-framework = { workspace = true }
-aptos-protos = { workspace = true }
 async-trait = { workspace = true }
 bcs = { workspace = true }
 bigdecimal = { workspace = true }
@@ -40,9 +37,7 @@ google-cloud-pubsub = { workspace = true }
 google-cloud-storage = { workspace = true }
 hex = { workspace = true }
 hyper = { workspace = true }
-indexmap = { workspace = true }
 itertools = { workspace = true }
-
 jemallocator = { workspace = true }
 lazy_static = { workspace = true }
 log = { workspace = true }
@@ -77,7 +72,7 @@ url = { workspace = true }
 jemallocator = { workspace = true }
 
 [features]
-libpq = ["diesel/postgres"]
+libpq = ["aptos-indexer-processor-sdk/postgres_full", "diesel/postgres"]
 # When using the default features we enable the diesel/postgres feature. We configure
 # it in a feature so the CLI can opt out, since it cannot tolerate the libpq dep.
 # Recall that features should always be additive.

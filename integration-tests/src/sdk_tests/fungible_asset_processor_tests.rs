@@ -1,5 +1,5 @@
 use ahash::AHashMap;
-use aptos_indexer_testing_framework::sdk_test_context::SdkTestContext;
+use aptos_indexer_processor_sdk::testing_framework::sdk_test_context::SdkTestContext;
 use processor::config::{
     db_config::{DbConfig, PostgresConfig},
     indexer_processor_config::IndexerProcessorConfig,
@@ -52,6 +52,11 @@ mod sdk_fungible_asset_processor_tests {
             validate_json, DEFAULT_OUTPUT_FOLDER,
         },
     };
+    use aptos_indexer_processor_sdk::testing_framework::{
+        cli_parser::get_test_config,
+        database::{PostgresTestDatabase, TestDatabase},
+        sdk_test_context::SdkTestContext,
+    };
     use aptos_indexer_test_transactions::json_transactions::generated_transactions::{
         IMPORTED_MAINNET_TXNS_1680592683_FA_MIGRATION_COIN_INFO,
         IMPORTED_MAINNET_TXNS_1737056775_COIN_TRANSFER_BURN_EVENT,
@@ -71,11 +76,6 @@ mod sdk_fungible_asset_processor_tests {
         IMPORTED_TESTNET_TXNS_5992795934_FA_ACTIVITIES, IMPORTED_TESTNET_TXNS_646928741_NO_EVENTS,
         IMPORTED_TESTNET_TXNS_6643353707_FA_TRANSFER_EVENTS_V2,
         IMPORTED_TESTNET_TXNS_6643353877_FA_TRANSFER_2,
-    };
-    use aptos_indexer_testing_framework::{
-        cli_parser::get_test_config,
-        database::{PostgresTestDatabase, TestDatabase},
-        sdk_test_context::SdkTestContext,
     };
     use processor::processors::fungible_asset::fungible_asset_processor::FungibleAssetProcessor;
 

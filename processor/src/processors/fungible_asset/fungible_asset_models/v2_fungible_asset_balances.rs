@@ -30,11 +30,13 @@ use crate::{
 };
 use ahash::AHashMap;
 use allocative_derive::Allocative;
-use aptos_indexer_processor_sdk::utils::{
-    constants::{APTOS_COIN_TYPE_STR, APT_METADATA_ADDRESS_HEX, APT_METADATA_ADDRESS_RAW},
-    convert::{hex_to_raw_bytes, sha3_256, standardize_address},
+use aptos_indexer_processor_sdk::{
+    aptos_protos::transaction::v1::{DeleteResource, WriteResource},
+    utils::{
+        constants::{APTOS_COIN_TYPE_STR, APT_METADATA_ADDRESS_HEX, APT_METADATA_ADDRESS_RAW},
+        convert::{hex_to_raw_bytes, sha3_256, standardize_address},
+    },
 };
-use aptos_protos::transaction::v1::{DeleteResource, WriteResource};
 use bigdecimal::{BigDecimal, Zero};
 use field_count::FieldCount;
 use lazy_static::lazy_static;

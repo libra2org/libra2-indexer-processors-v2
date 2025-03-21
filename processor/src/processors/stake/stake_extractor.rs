@@ -1,21 +1,19 @@
-use crate::{
-    processors::stake::{
-        models::{
-            current_delegated_voter::CurrentDelegatedVoter,
-            delegator_activities::PostgresDelegatedStakingActivity,
-            delegator_balances::{PostgresCurrentDelegatorBalance, PostgresDelegatorBalance},
-            delegator_pools::{
-                DelegatorPool, PostgresCurrentDelegatorPoolBalance, PostgresDelegatorPoolBalance,
-            },
-            proposal_votes::PostgresProposalVote,
-            staking_pool_voter::PostgresCurrentStakingPoolVoter,
+use crate::processors::stake::{
+    models::{
+        current_delegated_voter::CurrentDelegatedVoter,
+        delegator_activities::PostgresDelegatedStakingActivity,
+        delegator_balances::{PostgresCurrentDelegatorBalance, PostgresDelegatorBalance},
+        delegator_pools::{
+            DelegatorPool, PostgresCurrentDelegatorPoolBalance, PostgresDelegatorPoolBalance,
         },
-        parse_stake_data,
+        proposal_votes::PostgresProposalVote,
+        staking_pool_voter::PostgresCurrentStakingPoolVoter,
     },
-    utils::database::ArcDbPool,
+    parse_stake_data,
 };
 use aptos_indexer_processor_sdk::{
     aptos_protos::transaction::v1::Transaction,
+    postgres::utils::database::ArcDbPool,
     traits::{async_step::AsyncRunType, AsyncStep, NamedStep, Processable},
     types::transaction_context::TransactionContext,
     utils::errors::ProcessorError,

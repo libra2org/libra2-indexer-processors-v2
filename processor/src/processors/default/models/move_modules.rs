@@ -8,9 +8,11 @@ use crate::{
     schema::move_modules,
 };
 use allocative_derive::Allocative;
-use aptos_indexer_processor_sdk::utils::convert::standardize_address;
-use aptos_protos::transaction::v1::{
-    DeleteModule, MoveModule as MoveModulePB, MoveModuleBytecode, WriteModule,
+use aptos_indexer_processor_sdk::{
+    aptos_protos::transaction::v1::{
+        DeleteModule, MoveModule as MoveModulePB, MoveModuleBytecode, WriteModule,
+    },
+    utils::convert::standardize_address,
 };
 use field_count::FieldCount;
 use parquet_derive::ParquetRecordWriter;

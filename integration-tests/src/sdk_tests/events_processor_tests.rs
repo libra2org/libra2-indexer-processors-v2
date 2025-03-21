@@ -1,5 +1,5 @@
 use ahash::AHashMap;
-use aptos_indexer_testing_framework::sdk_test_context::SdkTestContext;
+use aptos_indexer_processor_sdk::testing_framework::sdk_test_context::SdkTestContext;
 use processor::config::{
     db_config::{DbConfig, PostgresConfig},
     indexer_processor_config::IndexerProcessorConfig,
@@ -51,7 +51,11 @@ mod tests {
             setup_test_environment, validate_json, DEFAULT_OUTPUT_FOLDER,
         },
     };
-    use aptos_indexer_processor_sdk::traits::processor_trait::ProcessorTrait;
+    use aptos_indexer_processor_sdk::{
+        aptos_protos::transaction::v1::Transaction,
+        testing_framework::{cli_parser::get_test_config, database::TestDatabase},
+        traits::processor_trait::ProcessorTrait,
+    };
     use aptos_indexer_test_transactions::json_transactions::generated_transactions::{
         IMPORTED_DEVNET_TXNS_78753831_TOKEN_V1_MINT_TRANSFER_WITH_V2_EVENTS,
         IMPORTED_DEVNET_TXNS_78753832_TOKEN_V2_MINT_TRANSFER_WITH_V2_EVENTS,
@@ -64,8 +68,6 @@ mod tests {
         IMPORTED_TESTNET_TXNS_5992795934_FA_ACTIVITIES,
         IMPORTED_TESTNET_TXNS_6643353707_FA_TRANSFER_EVENTS_V2,
     };
-    use aptos_indexer_testing_framework::{cli_parser::get_test_config, database::TestDatabase};
-    use aptos_protos::transaction::v1::Transaction;
     use processor::processors::events::events_processor::EventsProcessor;
 
     #[tokio::test(flavor = "multi_thread", worker_threads = 2)]

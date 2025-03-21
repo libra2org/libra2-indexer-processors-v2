@@ -1,5 +1,5 @@
 use ahash::AHashMap;
-use aptos_indexer_testing_framework::sdk_test_context::SdkTestContext;
+use aptos_indexer_processor_sdk::testing_framework::sdk_test_context::SdkTestContext;
 use processor::config::{
     db_config::{DbConfig, PostgresConfig},
     indexer_processor_config::IndexerProcessorConfig,
@@ -52,6 +52,9 @@ mod sdk_account_restoration_processor_tests {
             run_processor_test, validate_json, PostgresTestDatabase, DEFAULT_OUTPUT_FOLDER,
         },
     };
+    use aptos_indexer_processor_sdk::testing_framework::{
+        cli_parser::get_test_config, database::TestDatabase, sdk_test_context::SdkTestContext,
+    };
     use aptos_indexer_test_transactions::json_transactions::generated_transactions::{
         IMPORTED_MAINNET_TXNS_2200077591_ACCOUNT_RESTORATION_SINGLE_ED25519,
         IMPORTED_MAINNET_TXNS_2200077673_ACCOUNT_RESTORATION_UNVERIFIED_KEY_ROTATION_TO_MULTI_KEY_TXN,
@@ -59,9 +62,6 @@ mod sdk_account_restoration_processor_tests {
         IMPORTED_MAINNET_TXNS_2200077877_ACCOUNT_RESTORATION_SINGLE_SECP256K1_TXN_POST_ROTATION,
         IMPORTED_TESTNET_TXNS_6617300504_ACCOUNT_RESTORATION_VERIFIED_KEY_ROTATION_TO_MULTI_ED_TXN,
         IMPORTED_TESTNET_TXNS_6617355090_MULTI_ED_TXN,
-    };
-    use aptos_indexer_testing_framework::{
-        cli_parser::get_test_config, database::TestDatabase, sdk_test_context::SdkTestContext,
     };
     use processor::{
         config::processor_config::ProcessorConfig,

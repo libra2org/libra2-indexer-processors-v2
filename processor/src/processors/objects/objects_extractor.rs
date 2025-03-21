@@ -1,12 +1,10 @@
-use crate::{
-    processors::objects::{
-        process_objects,
-        v2_objects_models::{PostgresCurrentObject, PostgresObject},
-    },
-    utils::database::{ArcDbPool, DbContext},
+use crate::processors::objects::{
+    process_objects,
+    v2_objects_models::{PostgresCurrentObject, PostgresObject},
 };
 use aptos_indexer_processor_sdk::{
     aptos_protos::transaction::v1::Transaction,
+    postgres::utils::database::{ArcDbPool, DbContext},
     traits::{async_step::AsyncRunType, AsyncStep, NamedStep, Processable},
     types::transaction_context::TransactionContext,
     utils::errors::ProcessorError,

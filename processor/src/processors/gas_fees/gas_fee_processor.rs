@@ -5,22 +5,25 @@ use crate::{
     },
     processors::{
         gas_fees::{gas_fee_extractor::GasFeeExtractor, gas_fee_storer::GasFeeStorer},
-        processor_status_saver::get_processor_status_saver,
+        processor_status_saver::{
+            get_end_version, get_starting_version, PostgresProcessorStatusSaver,
+        },
     },
-    utils::{
-        chain_id::check_or_update_chain_id,
-        database::{new_db_pool, run_migrations, ArcDbPool},
-        starting_version::get_starting_version,
-    },
+    MIGRATIONS,
 };
 use anyhow::Result;
 use aptos_indexer_processor_sdk::{
-    aptos_indexer_transaction_stream::{TransactionStream, TransactionStreamConfig},
+    aptos_indexer_transaction_stream::TransactionStreamConfig,
     builder::ProcessorBuilder,
     common_steps::{
         TransactionStreamStep, VersionTrackerStep, DEFAULT_UPDATE_PROCESSOR_STATUS_SECS,
     },
+    postgres::utils::{
+        checkpoint::PostgresChainIdChecker,
+        database::{new_db_pool, run_migrations, ArcDbPool},
+    },
     traits::{processor_trait::ProcessorTrait, IntoRunnableStep},
+    utils::chain_id_check::check_or_update_chain_id,
 };
 use tracing::{debug, info};
 
@@ -70,19 +73,23 @@ impl ProcessorTrait for GasFeeProcessor {
             run_migrations(
                 postgres_config.connection_string.clone(),
                 self.db_pool.clone(),
+                MIGRATIONS,
             )
             .await;
         }
 
-        // Merge the starting version from config and the latest processed version from the DB
-        let starting_version = get_starting_version(&self.config, self.db_pool.clone()).await?;
+        //  Merge the starting version from config and the latest processed version from the DB
+        let (starting_version, ending_version) = (
+            get_starting_version(&self.config, self.db_pool.clone()).await?,
+            get_end_version(&self.config, self.db_pool.clone()).await?,
+        );
 
         // Check and update the ledger chain id to ensure we're indexing the correct chain
-        let grpc_chain_id = TransactionStream::new(self.config.transaction_stream_config.clone())
-            .await?
-            .get_chain_id()
-            .await?;
-        check_or_update_chain_id(grpc_chain_id as i64, self.db_pool.clone()).await?;
+        check_or_update_chain_id(
+            &self.config.transaction_stream_config,
+            &PostgresChainIdChecker::new(self.db_pool.clone()),
+        )
+        .await?;
 
         let processor_config = match &self.config.processor_config {
             ProcessorConfig::GasFeeProcessor(processor_config) => processor_config,
@@ -92,7 +99,8 @@ impl ProcessorTrait for GasFeeProcessor {
 
         // Define processor steps
         let transaction_stream = TransactionStreamStep::new(TransactionStreamConfig {
-            starting_version: Some(starting_version),
+            starting_version,
+            request_ending_version: ending_version,
             ..self.config.transaction_stream_config.clone()
         })
         .await?;
@@ -100,7 +108,7 @@ impl ProcessorTrait for GasFeeProcessor {
         let gas_fee_extractor = GasFeeExtractor {};
         let gas_fee_storer = GasFeeStorer::new(self.db_pool.clone(), processor_config.clone());
         let version_tracker = VersionTrackerStep::new(
-            get_processor_status_saver(self.db_pool.clone(), self.config.clone()),
+            PostgresProcessorStatusSaver::new(self.config.clone(), self.db_pool.clone()),
             DEFAULT_UPDATE_PROCESSOR_STATUS_SECS,
         );
         // Connect processor steps together

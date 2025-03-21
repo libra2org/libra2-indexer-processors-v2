@@ -14,14 +14,14 @@ use crate::{
         },
         v2_objects_models::{CurrentObject, Object},
     },
-    utils::database::DbContext,
 };
 use ahash::AHashMap;
 use aptos_indexer_processor_sdk::{
     aptos_indexer_transaction_stream::utils::time::parse_timestamp,
+    aptos_protos::transaction::v1::{write_set_change::Change, Transaction},
+    postgres::utils::database::DbContext,
     utils::convert::standardize_address,
 };
-use aptos_protos::transaction::v1::{write_set_change::Change, Transaction};
 
 pub async fn process_objects(
     transactions: Vec<Transaction>,

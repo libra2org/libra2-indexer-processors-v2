@@ -15,11 +15,12 @@ use crate::{
         },
         fungible_asset_processor_helpers::{get_fa_to_coin_mapping, parse_v2_coin},
     },
-    utils::{database::ArcDbPool, table_flags::TableFlags},
+    utils::table_flags::TableFlags,
 };
 use ahash::AHashMap;
 use aptos_indexer_processor_sdk::{
     aptos_protos::transaction::v1::Transaction,
+    postgres::utils::database::ArcDbPool,
     traits::{async_step::AsyncRunType, AsyncStep, NamedStep, Processable},
     types::transaction_context::TransactionContext,
     utils::errors::ProcessorError,

@@ -20,12 +20,14 @@ use crate::{
         },
     },
     schema::{collections_v2, current_collections_v2},
-    utils::database::{DbContext, DbPoolConnection},
 };
 use allocative_derive::Allocative;
 use anyhow::Context;
-use aptos_indexer_processor_sdk::utils::convert::standardize_address;
-use aptos_protos::transaction::v1::{WriteResource, WriteTableItem};
+use aptos_indexer_processor_sdk::{
+    aptos_protos::transaction::v1::{WriteResource, WriteTableItem},
+    postgres::utils::database::{DbContext, DbPoolConnection},
+    utils::convert::standardize_address,
+};
 use bigdecimal::{BigDecimal, Zero};
 use diesel::{prelude::*, sql_query, sql_types::Text};
 use diesel_async::RunQueryDsl;

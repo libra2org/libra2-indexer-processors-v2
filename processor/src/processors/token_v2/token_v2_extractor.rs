@@ -1,20 +1,18 @@
-use crate::{
-    processors::token_v2::{
-        token_models::{
-            token_claims::PostgresCurrentTokenPendingClaim,
-            token_royalty::PostgresCurrentTokenRoyaltyV1, tokens::TableMetadataForToken,
-        },
-        token_v2_models::{
-            v2_collections::CurrentCollectionV2, v2_token_activities::PostgresTokenActivityV2,
-            v2_token_datas::PostgresCurrentTokenDataV2,
-            v2_token_ownerships::PostgresCurrentTokenOwnershipV2,
-        },
-        token_v2_processor_helpers::parse_v2_token,
+use crate::processors::token_v2::{
+    token_models::{
+        token_claims::PostgresCurrentTokenPendingClaim,
+        token_royalty::PostgresCurrentTokenRoyaltyV1, tokens::TableMetadataForToken,
     },
-    utils::database::{ArcDbPool, DbContext},
+    token_v2_models::{
+        v2_collections::CurrentCollectionV2, v2_token_activities::PostgresTokenActivityV2,
+        v2_token_datas::PostgresCurrentTokenDataV2,
+        v2_token_ownerships::PostgresCurrentTokenOwnershipV2,
+    },
+    token_v2_processor_helpers::parse_v2_token,
 };
 use aptos_indexer_processor_sdk::{
     aptos_protos::transaction::v1::Transaction,
+    postgres::utils::database::{ArcDbPool, DbContext},
     traits::{async_step::AsyncRunType, AsyncStep, NamedStep, Processable},
     types::transaction_context::TransactionContext,
     utils::errors::ProcessorError,

@@ -7,10 +7,12 @@ use super::{
     parent_signature_utils::{parse_ed25519_signature, parse_multi_ed25519_signature},
 };
 use crate::processors::user_transaction::models::signatures::Signature;
-use aptos_indexer_processor_sdk::utils::convert::standardize_address;
-use aptos_protos::transaction::v1::{
-    account_signature::{Signature as AccountSignatureEnum, Type as AccountSignatureTypeEnum},
-    AccountSignature, MultiKeySignature, SingleKeySignature,
+use aptos_indexer_processor_sdk::{
+    aptos_protos::transaction::v1::{
+        account_signature::{Signature as AccountSignatureEnum, Type as AccountSignatureTypeEnum},
+        AccountSignature, MultiKeySignature, SingleKeySignature,
+    },
+    utils::convert::standardize_address,
 };
 use tracing::warn;
 

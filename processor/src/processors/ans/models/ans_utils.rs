@@ -4,14 +4,15 @@
 // This is required because a diesel macro makes clippy sad
 #![allow(clippy::extra_unused_lifetimes)]
 
-use crate::{
-    processors::default::models::move_resources::MoveResource, utils::util::parse_timestamp_secs,
-};
+use crate::processors::default::models::move_resources::MoveResource;
 use anyhow::Context;
-use aptos_indexer_processor_sdk::utils::convert::{
-    bigdecimal_to_u64, deserialize_from_string, standardize_address, truncate_str,
+use aptos_indexer_processor_sdk::{
+    aptos_indexer_transaction_stream::utils::time::parse_timestamp_secs,
+    aptos_protos::transaction::v1::{Event, WriteResource},
+    utils::convert::{
+        bigdecimal_to_u64, deserialize_from_string, standardize_address, truncate_str,
+    },
 };
-use aptos_protos::transaction::v1::{Event, WriteResource};
 use bigdecimal::BigDecimal;
 use serde::{Deserialize, Serialize};
 
@@ -91,7 +92,7 @@ pub struct NameRecordV1 {
 
 impl NameRecordV1 {
     pub fn get_expiration_time(&self) -> chrono::NaiveDateTime {
-        parse_timestamp_secs(bigdecimal_to_u64(&self.expiration_time_sec), 0)
+        parse_timestamp_secs(bigdecimal_to_u64(&self.expiration_time_sec), 0).naive_utc()
     }
 
     pub fn get_target_address(&self) -> Option<String> {
@@ -144,7 +145,7 @@ impl NameRecordV2 {
     }
 
     pub fn get_expiration_time(&self) -> chrono::NaiveDateTime {
-        parse_timestamp_secs(bigdecimal_to_u64(&self.expiration_time_sec), 0)
+        parse_timestamp_secs(bigdecimal_to_u64(&self.expiration_time_sec), 0).naive_utc()
     }
 
     pub fn get_target_address(&self) -> Option<String> {
