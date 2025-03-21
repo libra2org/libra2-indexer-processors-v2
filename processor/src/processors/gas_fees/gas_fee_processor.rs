@@ -3,9 +3,11 @@ use crate::{
         db_config::DbConfig, indexer_processor_config::IndexerProcessorConfig,
         processor_config::ProcessorConfig,
     },
-    processors::gas_fees::{gas_fee_extractor::GasFeeExtractor, gas_fee_storer::GasFeeStorer},
-    processors::processor_status_saver::{
-        get_end_version, get_starting_version, PostgresProcessorStatusSaver,
+    processors::{
+        gas_fees::{gas_fee_extractor::GasFeeExtractor, gas_fee_storer::GasFeeStorer},
+        processor_status_saver::{
+            get_end_version, get_starting_version, PostgresProcessorStatusSaver,
+        },
     },
     MIGRATIONS,
 };

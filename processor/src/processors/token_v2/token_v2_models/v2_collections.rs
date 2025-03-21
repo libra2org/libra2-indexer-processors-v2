@@ -25,8 +25,7 @@ use allocative_derive::Allocative;
 use anyhow::Context;
 use aptos_indexer_processor_sdk::{
     aptos_protos::transaction::v1::{WriteResource, WriteTableItem},
-    postgres::utils::database::DbContext,
-    postgres::utils::database::DbPoolConnection,
+    postgres::utils::database::{DbContext, DbPoolConnection},
     utils::convert::standardize_address,
 };
 use bigdecimal::{BigDecimal, Zero};
