@@ -1,3 +1,5 @@
+// TODO: Delete and replace this file with processor_status_saver.rs
+
 use super::database::ArcDbPool;
 use crate::{
     config::indexer_processor_config::IndexerProcessorConfig,

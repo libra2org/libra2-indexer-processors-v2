@@ -11,11 +11,11 @@ use async_trait::async_trait;
 use std::collections::HashMap;
 use tracing::debug;
 
-/// The ParquetProcessorStatusSaver trait object is intended to save
+/// The ParquetProcessorStatusSaverTrait intended to save
 /// the latest successfully processed transaction version to storage,
 /// ensuring that the processor_status is persistently stored.
 #[async_trait]
-pub trait ParquetProcessorStatusSaver {
+pub trait ParquetProcessorStatusSaverTrait {
     async fn save_parquet_processor_status(
         &self,
         last_success_batch: &TransactionContext<()>,
@@ -31,7 +31,7 @@ pub trait ParquetProcessorStatusSaver {
 pub struct ParquetVersionTrackerStep<S>
 where
     Self: Sized + Send + 'static,
-    S: ParquetProcessorStatusSaver + Send + 'static,
+    S: ParquetProcessorStatusSaverTrait + Send + 'static,
 {
     // Last successful batch of sequentially processed transactions. Includes metadata to write to storage.
     last_success_batch: HashMap<ParquetTypeEnum, TransactionContext<()>>,
@@ -42,7 +42,7 @@ where
 impl<S> ParquetVersionTrackerStep<S>
 where
     Self: Sized + Send + 'static,
-    S: ParquetProcessorStatusSaver + Send + 'static,
+    S: ParquetProcessorStatusSaverTrait + Send + 'static,
 {
     pub fn new(processor_status_saver: S, polling_interval_secs: u64) -> Self {
         Self {
@@ -67,7 +67,7 @@ where
 impl<S> Processable for ParquetVersionTrackerStep<S>
 where
     Self: Sized + Send + 'static,
-    S: ParquetProcessorStatusSaver + Send + 'static,
+    S: ParquetProcessorStatusSaverTrait + Send + 'static,
 {
     type Input = HashMap<ParquetTypeEnum, TransactionMetadata>;
     type Output = ();
@@ -136,7 +136,7 @@ where
 impl<S> PollableAsyncStep for ParquetVersionTrackerStep<S>
 where
     Self: Sized + Send + Sync + 'static,
-    S: ParquetProcessorStatusSaver + Send + Sync + 'static,
+    S: ParquetProcessorStatusSaverTrait + Send + Sync + 'static,
 {
     fn poll_interval(&self) -> std::time::Duration {
         std::time::Duration::from_secs(self.polling_interval_secs)
@@ -153,7 +153,7 @@ where
 impl<S> NamedStep for ParquetVersionTrackerStep<S>
 where
     Self: Sized + Send + 'static,
-    S: ParquetProcessorStatusSaver + Send + 'static,
+    S: ParquetProcessorStatusSaverTrait + Send + 'static,
 {
     fn name(&self) -> String {
         "ParquetVersionTrackerStep".to_string()

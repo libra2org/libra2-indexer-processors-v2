@@ -11,7 +11,7 @@ use crate::{
         processor_status::{ProcessorStatus, ProcessorStatusQuery},
     },
     parquet_processors::parquet_utils::{
-        parquet_version_tracker_step::ParquetProcessorStatusSaver, util::format_table_name,
+        parquet_version_tracker_step::ParquetProcessorStatusSaverTrait, util::format_table_name,
     },
     schema::{backfill_processor_status, processor_status},
     utils::database::{execute_with_better_error, ArcDbPool},
@@ -85,7 +85,7 @@ impl ProcessorStatusSaver for ProcessorStatusSaverEnum {
 }
 
 #[async_trait]
-impl ParquetProcessorStatusSaver for ProcessorStatusSaverEnum {
+impl ParquetProcessorStatusSaverTrait for ProcessorStatusSaverEnum {
     async fn save_parquet_processor_status(
         &self,
         last_success_batch: &TransactionContext<()>,
@@ -503,7 +503,7 @@ pub async fn get_end_version(
     }
 }
 
-fn log_ascii_warning(version: u64) {
+pub fn log_ascii_warning(version: u64) {
     println!(
         r#"
  ██╗    ██╗ █████╗ ██████╗ ███╗   ██╗██╗███╗   ██╗ ██████╗ ██╗

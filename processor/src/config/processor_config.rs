@@ -291,7 +291,7 @@ impl Default for DefaultProcessorConfig {
     }
 }
 
-#[derive(Clone, Debug, Deserialize, Serialize)]
+#[derive(Clone, Debug, Deserialize, Serialize, Default)]
 #[serde(deny_unknown_fields)]
 pub struct ParquetDefaultProcessorConfig {
     #[serde(default = "ParquetDefaultProcessorConfig::default_channel_size")]
