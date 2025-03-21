@@ -47,15 +47,6 @@ pub struct IndexerProcessorConfig {
     pub processor_config: ProcessorConfig,
     pub transaction_stream_config: TransactionStreamConfig,
     pub db_config: DbConfig,
-    pub backfill_config: Option<BackfillConfig>,
-}
-
-#[derive(Clone, Debug, Deserialize, Serialize)]
-#[serde(deny_unknown_fields)]
-pub struct IndexerProcessorConfigV2 {
-    pub processor_config: ProcessorConfig,
-    pub transaction_stream_config: TransactionStreamConfig,
-    pub db_config: DbConfig,
     pub processor_mode: ProcessorMode,
 }
 
@@ -84,8 +75,7 @@ impl RunnableConfig for IndexerProcessorConfig {
                 events_processor.run_processor().await
             },
             ProcessorConfig::FungibleAssetProcessor(_) => {
-                let fungible_asset_processor =
-                    FungibleAssetProcessor::new(self.clone(), None).await?;
+                let fungible_asset_processor = FungibleAssetProcessor::new(self.clone()).await?;
                 fungible_asset_processor.run_processor().await
             },
             ProcessorConfig::UserTransactionProcessor(_) => {

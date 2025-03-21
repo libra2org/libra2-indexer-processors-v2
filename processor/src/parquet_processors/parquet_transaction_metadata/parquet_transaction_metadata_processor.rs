@@ -5,6 +5,9 @@ use crate::{
     },
     parquet_processors::{
         initialize_database_pool, initialize_gcs_client, initialize_parquet_buffer_step,
+        parquet_processor_status_saver::{
+            get_parquet_end_version, get_parquet_starting_version, ParquetProcessorStatusSaver,
+        },
         parquet_transaction_metadata::{
             parquet_transaction_metadata_extractor::ParquetTransactionMetadataExtractor,
             transaction_metadata_models::write_set_size_info::ParquetWriteSetSize,
@@ -14,14 +17,11 @@ use crate::{
         },
         set_backfill_table_flag, ParquetTypeEnum,
     },
-    processors::processor_status_saver::get_processor_status_saver,
     utils::{
         chain_id::check_or_update_chain_id,
         database::{run_migrations, ArcDbPool},
-        starting_version::get_min_last_success_version_parquet,
     },
 };
-use anyhow::Context;
 use aptos_indexer_processor_sdk::{
     aptos_indexer_transaction_stream::{TransactionStream, TransactionStreamConfig},
     builder::ProcessorBuilder,
@@ -88,22 +88,15 @@ impl ProcessorTrait for ParquetTransactionMetadataProcessor {
             },
         };
 
-        let processor_status_table_names = self
-            .config
-            .processor_config
-            .get_processor_status_table_names()
-            .context("Failed to get table names for the processor status table")?;
-
-        let starting_version = get_min_last_success_version_parquet(
-            &self.config,
-            self.db_pool.clone(),
-            processor_status_table_names,
-        )
-        .await?;
+        let (starting_version, ending_version) = (
+            get_parquet_starting_version(&self.config, self.db_pool.clone()).await?,
+            get_parquet_end_version(&self.config, self.db_pool.clone()).await?,
+        );
 
         // Define processor transaction stream config
         let transaction_stream = TransactionStreamStep::new(TransactionStreamConfig {
-            starting_version: Some(starting_version),
+            starting_version,
+            request_ending_version: ending_version,
             ..self.config.transaction_stream_config.clone()
         })
         .await?;
@@ -136,7 +129,7 @@ impl ProcessorTrait for ParquetTransactionMetadataProcessor {
         });
 
         let parquet_version_tracker_step = ParquetVersionTrackerStep::new(
-            get_processor_status_saver(self.db_pool.clone(), self.config.clone()),
+            ParquetProcessorStatusSaver::new(self.config.clone(), self.db_pool.clone()),
             DEFAULT_UPDATE_PROCESSOR_STATUS_SECS,
         );
 

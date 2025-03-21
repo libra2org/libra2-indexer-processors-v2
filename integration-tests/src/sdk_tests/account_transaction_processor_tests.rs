@@ -4,6 +4,7 @@ use processor::config::{
     db_config::{DbConfig, PostgresConfig},
     indexer_processor_config::IndexerProcessorConfig,
     processor_config::{DefaultProcessorConfig, ProcessorConfig},
+    processor_mode::{ProcessorMode, TestingConfig},
 };
 use std::collections::HashSet;
 
@@ -29,9 +30,12 @@ pub fn setup_acc_txn_processor_config(
     (
         IndexerProcessorConfig {
             processor_config,
-            transaction_stream_config,
+            transaction_stream_config: transaction_stream_config.clone(),
             db_config,
-            backfill_config: None,
+            processor_mode: ProcessorMode::Testing(TestingConfig {
+                override_starting_version: transaction_stream_config.starting_version.unwrap(),
+                ending_version: transaction_stream_config.request_ending_version,
+            }),
         },
         processor_name,
     )

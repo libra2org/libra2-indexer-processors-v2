@@ -4,6 +4,7 @@ use processor::config::{
     db_config::{DbConfig, PostgresConfig},
     indexer_processor_config::IndexerProcessorConfig,
     processor_config::{DefaultProcessorConfig, ProcessorConfig},
+    processor_mode::{ProcessorMode, TestingConfig},
 };
 use std::collections::HashSet;
 
@@ -30,9 +31,12 @@ pub fn setup_fa_processor_config(
     (
         IndexerProcessorConfig {
             processor_config,
-            transaction_stream_config,
+            transaction_stream_config: transaction_stream_config.clone(),
             db_config,
-            backfill_config: None,
+            processor_mode: ProcessorMode::Testing(TestingConfig {
+                override_starting_version: transaction_stream_config.starting_version.unwrap(),
+                ending_version: transaction_stream_config.request_ending_version,
+            }),
         },
         processor_name,
     )
@@ -352,11 +356,9 @@ mod sdk_fungible_asset_processor_tests {
         let (indexer_processor_config, processor_name) =
             setup_fa_processor_config(&test_context, &db_url);
 
-        let starting_version = test_context.get_request_start_version();
-        let fungible_asset_processor =
-            FungibleAssetProcessor::new(indexer_processor_config, Some(starting_version))
-                .await
-                .expect("Failed to create FungibleAssetProcessor");
+        let fungible_asset_processor = FungibleAssetProcessor::new(indexer_processor_config)
+            .await
+            .expect("Failed to create FungibleAssetProcessor");
 
         match run_processor_test(
             &mut test_context,
