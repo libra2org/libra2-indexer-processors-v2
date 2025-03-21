@@ -13,9 +13,9 @@ use crate::{
 };
 use ahash::AHashMap;
 use aptos_indexer_processor_sdk::{
-    postgres::utils::database::DbPoolConnection, utils::convert::standardize_address,
+    aptos_protos::transaction::v1::WriteTableItem, postgres::utils::database::DbPoolConnection,
+    utils::convert::standardize_address,
 };
-use aptos_indexer_processor_sdk::aptos_protos::transaction::v1::WriteTableItem;
 use diesel::prelude::*;
 use diesel_async::RunQueryDsl;
 use field_count::FieldCount;

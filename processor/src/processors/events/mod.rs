@@ -9,8 +9,10 @@ pub mod events_model;
 use crate::{
     processors::events::events_model::Event, utils::counters::PROCESSOR_UNKNOWN_TYPE_COUNT,
 };
-use aptos_indexer_processor_sdk::aptos_indexer_transaction_stream::utils::time::parse_timestamp;
-use aptos_indexer_processor_sdk::aptos_protos::transaction::v1::{transaction::TxnData, Transaction};
+use aptos_indexer_processor_sdk::{
+    aptos_indexer_transaction_stream::utils::time::parse_timestamp,
+    aptos_protos::transaction::v1::{transaction::TxnData, Transaction},
+};
 use tracing::warn;
 
 pub fn parse_events(txn: &Transaction, processor_name: &str) -> Vec<Event> {

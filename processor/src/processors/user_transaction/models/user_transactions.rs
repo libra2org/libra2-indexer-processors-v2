@@ -15,26 +15,26 @@ use crate::{
     parquet_processors::parquet_utils::util::{HasVersion, NamedTable},
     processors::fungible_asset::fungible_asset_models::v2_fungible_asset_utils::FeeStatement,
     schema::user_transactions,
-    utils::util::{
-        get_entry_function_contract_address_from_user_request,
-        get_entry_function_function_name_from_user_request,
-        get_entry_function_module_name_from_user_request,
-    },
 };
 use allocative::Allocative;
 use anyhow::Result;
 use aptos_indexer_processor_sdk::{
     aptos_indexer_transaction_stream::utils::time::parse_timestamp,
+    aptos_protos::{
+        transaction::v1::{
+            TransactionInfo, UserTransaction as UserTransactionPB, UserTransactionRequest,
+        },
+        util::timestamp::Timestamp,
+    },
     utils::{
         convert::{bigdecimal_to_u64, standardize_address, u64_to_bigdecimal},
-        extract::get_entry_function_from_user_request,
+        extract::{
+            get_entry_function_contract_address_from_user_request,
+            get_entry_function_from_user_request,
+            get_entry_function_function_name_from_user_request,
+            get_entry_function_module_name_from_user_request,
+        },
     },
-};
-use aptos_indexer_processor_sdk::aptos_protos::{
-    transaction::v1::{
-        TransactionInfo, UserTransaction as UserTransactionPB, UserTransactionRequest,
-    },
-    util::timestamp::Timestamp,
 };
 use bigdecimal::BigDecimal;
 use field_count::FieldCount;

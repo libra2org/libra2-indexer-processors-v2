@@ -8,11 +8,12 @@
 use crate::{
     processors::default::models::table_items::{PostgresTableItem, TableItem},
     schema::coin_supply,
-    utils::util::hash_str,
 };
 use anyhow::Context;
-use aptos_indexer_processor_sdk::utils::constants::APTOS_COIN_TYPE_STR;
-use aptos_indexer_processor_sdk::aptos_protos::transaction::v1::WriteTableItem;
+use aptos_indexer_processor_sdk::{
+    aptos_protos::transaction::v1::WriteTableItem,
+    utils::{constants::APTOS_COIN_TYPE_STR, extract::hash_str},
+};
 use bigdecimal::BigDecimal;
 use field_count::FieldCount;
 use serde::{Deserialize, Serialize};

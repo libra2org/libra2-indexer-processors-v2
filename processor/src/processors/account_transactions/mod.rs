@@ -7,8 +7,10 @@ pub mod account_transactions_storer;
 // SPDX-License-Identifier: Apache-2.0
 
 use crate::processors::account_transactions::account_transactions_model::AccountTransaction;
-use aptos_indexer_processor_sdk::aptos_indexer_transaction_stream::utils::time::parse_timestamp;
-use aptos_indexer_processor_sdk::aptos_protos::transaction::v1::Transaction;
+use aptos_indexer_processor_sdk::{
+    aptos_indexer_transaction_stream::utils::time::parse_timestamp,
+    aptos_protos::transaction::v1::Transaction,
+};
 use rayon::prelude::*;
 
 pub fn parse_account_transactions(txns: Vec<Transaction>) -> Vec<AccountTransaction> {

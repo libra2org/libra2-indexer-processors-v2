@@ -5,15 +5,15 @@ use crate::{
     },
     schema::gas_fees,
 };
+use aptos_indexer_processor_sdk::aptos_protos::transaction::v1::{
+    transaction::TxnData, Transaction, TransactionInfo, UserTransactionRequest,
+};
 use aptos_indexer_processor_sdk::{
     aptos_indexer_transaction_stream::utils::time::parse_timestamp,
     utils::{
         convert::{standardize_address, u64_to_bigdecimal},
         extract::get_entry_function_from_user_request,
     },
-};
-use aptos_protos::transaction::v1::{
-    transaction::TxnData, Transaction, TransactionInfo, UserTransactionRequest,
 };
 use bigdecimal::{BigDecimal, Zero};
 use chrono::NaiveDateTime;

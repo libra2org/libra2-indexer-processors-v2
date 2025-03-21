@@ -11,8 +11,9 @@ use crate::{
     schema::{coin_balances, current_coin_balances},
 };
 use ahash::AHashMap;
-use aptos_indexer_processor_sdk::utils::convert::standardize_address;
-use aptos_indexer_processor_sdk::aptos_protos::transaction::v1::WriteResource;
+use aptos_indexer_processor_sdk::{
+    aptos_protos::transaction::v1::WriteResource, utils::convert::standardize_address,
+};
 use bigdecimal::BigDecimal;
 use field_count::FieldCount;
 use serde::{Deserialize, Serialize};

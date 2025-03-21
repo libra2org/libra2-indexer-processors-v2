@@ -11,11 +11,11 @@ use crate::{
     },
 };
 use ahash::AHashMap;
-use aptos_indexer_processor_sdk::utils::{
-    convert::standardize_address, extract::get_entry_function_from_user_request,
-};
-use aptos_indexer_processor_sdk::aptos_protos::transaction::v1::{
-    transaction::TxnData, write_set_change::Change, Transaction, WriteResource,
+use aptos_indexer_processor_sdk::{
+    aptos_protos::transaction::v1::{
+        transaction::TxnData, write_set_change::Change, Transaction, WriteResource,
+    },
+    utils::{convert::standardize_address, extract::get_entry_function_from_user_request},
 };
 use lazy_static::lazy_static;
 use rayon::prelude::*;

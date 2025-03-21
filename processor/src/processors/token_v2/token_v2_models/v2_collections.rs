@@ -24,9 +24,11 @@ use crate::{
 use allocative_derive::Allocative;
 use anyhow::Context;
 use aptos_indexer_processor_sdk::{
-    postgres::utils::database::DbPoolConnection, utils::convert::standardize_address,
+    aptos_protos::transaction::v1::{WriteResource, WriteTableItem},
+    postgres::utils::database::DbContext,
+    postgres::utils::database::DbPoolConnection,
+    utils::convert::standardize_address,
 };
-use aptos_indexer_processor_sdk::aptos_protos::transaction::v1::{WriteResource, WriteTableItem};
 use bigdecimal::{BigDecimal, Zero};
 use diesel::{prelude::*, sql_query, sql_types::Text};
 use diesel_async::RunQueryDsl;

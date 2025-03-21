@@ -12,9 +12,11 @@ use anyhow::Result;
 use aptos_indexer_processor_sdk::{
     aptos_indexer_transaction_stream::utils::time::parse_timestamp,
     common_steps::ProcessorStatusSaver,
-    postgres::models::processor_status::{ProcessorStatus, ProcessorStatusQuery},
-    postgres::processor_metadata_schema::processor_metadata::processor_status,
-    postgres::utils::database::{execute_with_better_error, ArcDbPool},
+    postgres::{
+        models::processor_status::{ProcessorStatus, ProcessorStatusQuery},
+        processor_metadata_schema::processor_metadata::processor_status,
+        utils::database::{execute_with_better_error, ArcDbPool},
+    },
     types::transaction_context::TransactionContext,
     utils::errors::ProcessorError,
 };
@@ -347,9 +349,11 @@ mod tests {
         aptos_indexer_transaction_stream::{
             utils::additional_headers::AdditionalHeaders, TransactionStreamConfig,
         },
-        postgres::models::processor_status::ProcessorStatus,
-        postgres::processor_metadata_schema::processor_metadata::processor_status,
-        postgres::utils::database::{new_db_pool, run_migrations},
+        postgres::{
+            models::processor_status::ProcessorStatus,
+            processor_metadata_schema::processor_metadata::processor_status,
+            utils::database::{new_db_pool, run_migrations},
+        },
         testing_framework::database::{PostgresTestDatabase, TestDatabase},
     };
     use diesel_async::RunQueryDsl;

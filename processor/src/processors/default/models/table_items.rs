@@ -1,11 +1,12 @@
 use crate::{
     parquet_processors::parquet_utils::util::{HasVersion, NamedTable},
     schema::{current_table_items, table_items, table_metadatas},
-    utils::util::hash_str,
 };
 use allocative_derive::Allocative;
-use aptos_indexer_processor_sdk::utils::convert::standardize_address;
-use aptos_indexer_processor_sdk::aptos_protos::transaction::v1::{DeleteTableItem, WriteTableItem};
+use aptos_indexer_processor_sdk::{
+    aptos_protos::transaction::v1::{DeleteTableItem, WriteTableItem},
+    utils::{convert::standardize_address, extract::hash_str},
+};
 use field_count::FieldCount;
 use parquet_derive::ParquetRecordWriter;
 use serde::{Deserialize, Serialize};

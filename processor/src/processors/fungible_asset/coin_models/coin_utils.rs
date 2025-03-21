@@ -4,15 +4,15 @@
 // This is required because a diesel macro makes clippy sad
 #![allow(clippy::extra_unused_lifetimes)]
 
-use crate::{
-    db::resources::COIN_ADDR, processors::default::models::move_resources::MoveResource,
-    utils::util::hash_str,
-};
+use crate::{db::resources::COIN_ADDR, processors::default::models::move_resources::MoveResource};
 use anyhow::{bail, Context, Result};
-use aptos_indexer_processor_sdk::utils::convert::{
-    deserialize_from_string, standardize_address, truncate_str,
+use aptos_indexer_processor_sdk::{
+    aptos_protos::transaction::v1::{move_type::Content, DeleteResource, MoveType, WriteResource},
+    utils::{
+        convert::{deserialize_from_string, standardize_address, truncate_str},
+        extract::hash_str,
+    },
 };
-use aptos_indexer_processor_sdk::aptos_protos::transaction::v1::{move_type::Content, DeleteResource, MoveType, WriteResource};
 use bigdecimal::BigDecimal;
 use once_cell::sync::Lazy;
 use regex::Regex;

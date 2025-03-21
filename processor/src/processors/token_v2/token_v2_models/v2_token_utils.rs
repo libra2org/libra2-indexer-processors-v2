@@ -4,20 +4,22 @@
 // This is required because a diesel macro makes clippy sad
 #![allow(clippy::extra_unused_lifetimes)]
 
-use crate::{
-    processors::{
-        objects::v2_object_utils::CurrentObjectPK,
-        token_v2::token_models::token_utils::{NAME_LENGTH, URI_LENGTH},
-    },
-    utils::util::deserialize_token_object_property_map_from_bcs_hexstring,
+use crate::processors::{
+    objects::v2_object_utils::CurrentObjectPK,
+    token_v2::token_models::token_utils::{NAME_LENGTH, URI_LENGTH},
 };
 use ahash::{AHashMap, AHashSet};
 use anyhow::{Context, Result};
-use aptos_indexer_processor_sdk::utils::{
-    convert::{deserialize_from_string, standardize_address, truncate_str},
-    extract::{Aggregator, AggregatorSnapshot, DerivedStringSnapshot},
+use aptos_indexer_processor_sdk::{
+    aptos_protos::transaction::v1::{Event, WriteResource},
+    utils::{
+        convert::{deserialize_from_string, standardize_address, truncate_str},
+        extract::{
+            deserialize_token_object_property_map_from_bcs_hexstring, Aggregator,
+            AggregatorSnapshot, DerivedStringSnapshot,
+        },
+    },
 };
-use aptos_indexer_processor_sdk::aptos_protos::transaction::v1::{Event, WriteResource};
 use bigdecimal::BigDecimal;
 use serde::{Deserialize, Serialize};
 use std::{

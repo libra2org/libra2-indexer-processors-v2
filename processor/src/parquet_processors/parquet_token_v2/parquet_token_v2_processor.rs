@@ -14,20 +14,17 @@ use crate::{
         },
         set_backfill_table_flag, ParquetTypeEnum,
     },
-    processors::{
-        processor_status_saver::get_processor_status_saver,
-        token_v2::{
-            token_models::{
-                token_claims::ParquetCurrentTokenPendingClaim,
-                token_royalty::ParquetCurrentTokenRoyaltyV1,
-            },
-            token_v2_models::{
-                v2_collections::ParquetCollectionV2,
-                v2_token_activities::ParquetTokenActivityV2,
-                v2_token_datas::{ParquetCurrentTokenDataV2, ParquetTokenDataV2},
-                v2_token_metadata::ParquetCurrentTokenV2Metadata,
-                v2_token_ownerships::{ParquetCurrentTokenOwnershipV2, ParquetTokenOwnershipV2},
-            },
+    processors::token_v2::{
+        token_models::{
+            token_claims::ParquetCurrentTokenPendingClaim,
+            token_royalty::ParquetCurrentTokenRoyaltyV1,
+        },
+        token_v2_models::{
+            v2_collections::ParquetCollectionV2,
+            v2_token_activities::ParquetTokenActivityV2,
+            v2_token_datas::{ParquetCurrentTokenDataV2, ParquetTokenDataV2},
+            v2_token_metadata::ParquetCurrentTokenV2Metadata,
+            v2_token_ownerships::{ParquetCurrentTokenOwnershipV2, ParquetTokenOwnershipV2},
         },
     },
     MIGRATIONS,

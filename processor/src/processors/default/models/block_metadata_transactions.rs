@@ -8,16 +8,16 @@
 use crate::{
     parquet_processors::parquet_utils::util::{HasVersion, NamedTable},
     schema::block_metadata_transactions,
-    utils::util::compute_nanos_since_epoch,
 };
 use allocative_derive::Allocative;
 use aptos_indexer_processor_sdk::{
+    aptos_indexer_transaction_stream::utils::time::compute_nanos_since_epoch,
     aptos_indexer_transaction_stream::utils::time::parse_timestamp,
+    aptos_protos::{
+        transaction::v1::BlockMetadataTransaction as ProtoBlockMetadataTransaction,
+        util::timestamp::Timestamp,
+    },
     utils::convert::standardize_address,
-};
-use aptos_indexer_processor_sdk::aptos_protos::{
-    transaction::v1::BlockMetadataTransaction as ProtoBlockMetadataTransaction,
-    util::timestamp::Timestamp,
 };
 use field_count::FieldCount;
 use parquet_derive::ParquetRecordWriter;
@@ -44,7 +44,7 @@ impl BlockMetadataTransaction {
         epoch: i64,
         timestamp: &Timestamp,
     ) -> Self {
-        let block_timestamp = parse_timestamp(timestamp, version).naive_utc();
+        let block_timestamp = parse_timestamp(timestamp, version);
         Self {
             version,
             block_height,
@@ -59,7 +59,7 @@ impl BlockMetadataTransaction {
                 .unwrap()
                 .to_string(),
             // time is in microseconds
-            timestamp: block_timestamp,
+            timestamp: block_timestamp.naive_utc(),
             ns_since_unix_epoch: compute_nanos_since_epoch(block_timestamp),
         }
     }
@@ -155,14 +155,15 @@ impl From<BlockMetadataTransaction> for ParquetBlockMetadataTransaction {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::{parquet::record::RecordWriter, utils::util::compute_nanos_since_epoch};
-    use chrono::NaiveDateTime;
+    use crate::parquet::record::RecordWriter;
+    use aptos_indexer_processor_sdk::aptos_indexer_transaction_stream::utils::time::compute_nanos_since_epoch;
+    use chrono::{DateTime, Utc};
     use parquet::file::writer::SerializedFileWriter;
     use serde_json::json;
 
     #[test]
     fn test_base_block_metadata_transaction() {
-        let time_stamp = NaiveDateTime::from_timestamp(1, 0);
+        let time_stamp = DateTime::<Utc>::from_timestamp(1, 0).unwrap();
         let samples = vec![ParquetBlockMetadataTransaction {
             txn_version: 1,
             block_height: 1,
@@ -172,7 +173,7 @@ mod tests {
             previous_block_votes_bitvec: json!([1, 2, 3]).to_string(),
             proposer: "proposer".to_string(),
             failed_proposer_indices: json!([1, 2, 3]).to_string(),
-            block_timestamp: time_stamp,
+            block_timestamp: time_stamp.naive_utc(),
             since_unix_epoch: compute_nanos_since_epoch(time_stamp),
         }];
 
@@ -191,7 +192,7 @@ mod tests {
 
     #[test]
     fn test_from_base() {
-        let time_stamp = NaiveDateTime::from_timestamp(1, 0);
+        let time_stamp = DateTime::<Utc>::from_timestamp(1, 0).unwrap();
         let base = BlockMetadataTransaction {
             version: 1,
             block_height: 1,
@@ -201,7 +202,7 @@ mod tests {
             previous_block_votes_bitvec: json!([1, 2, 3]).to_string(),
             proposer: "proposer".to_string(),
             failed_proposer_indices: json!([1, 2, 3]).to_string(),
-            timestamp: time_stamp,
+            timestamp: time_stamp.naive_utc(),
             ns_since_unix_epoch: compute_nanos_since_epoch(time_stamp),
         };
 
@@ -223,7 +224,7 @@ mod tests {
         );
         assert_eq!(
             block_metadata_transaction.block_timestamp,
-            NaiveDateTime::from_timestamp(1, 0)
+            DateTime::<Utc>::from_timestamp(1, 0).unwrap().naive_utc()
         );
 
         let samples = vec![block_metadata_transaction];

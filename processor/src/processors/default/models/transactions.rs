@@ -11,13 +11,15 @@ use crate::{
     utils::counters::PROCESSOR_UNKNOWN_TYPE_COUNT,
 };
 use allocative_derive::Allocative;
-use aptos_indexer_processor_sdk::utils::{
-    convert::standardize_address,
-    extract::{get_clean_payload, get_clean_writeset, get_payload_type},
-};
-use aptos_indexer_processor_sdk::aptos_protos::transaction::v1::{
-    transaction::{TransactionType, TxnData},
-    Transaction as TransactionPB, TransactionInfo, TransactionSizeInfo,
+use aptos_indexer_processor_sdk::{
+    aptos_protos::transaction::v1::{
+        transaction::{TransactionType, TxnData},
+        Transaction as TransactionPB, TransactionInfo, TransactionSizeInfo,
+    },
+    utils::{
+        convert::standardize_address,
+        extract::{get_clean_payload, get_clean_writeset, get_payload_type},
+    },
 };
 use field_count::FieldCount;
 use parquet_derive::ParquetRecordWriter;

@@ -17,10 +17,11 @@ use allocative::Allocative;
 use anyhow::Context;
 use aptos_indexer_processor_sdk::{
     aptos_indexer_transaction_stream::utils::time::parse_timestamp,
-    postgres::utils::database::DbPoolConnection, utils::convert::standardize_address,
-};
-use aptos_indexer_processor_sdk::aptos_protos::transaction::v1::{
-    write_set_change::Change, DeleteTableItem, Transaction, WriteResource, WriteTableItem,
+    aptos_protos::transaction::v1::{
+        write_set_change::Change, DeleteTableItem, Transaction, WriteResource, WriteTableItem,
+    },
+    postgres::utils::database::DbPoolConnection,
+    utils::convert::standardize_address,
 };
 use bigdecimal::{BigDecimal, Zero};
 use chrono::NaiveDateTime;

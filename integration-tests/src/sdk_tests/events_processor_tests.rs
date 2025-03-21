@@ -52,6 +52,7 @@ mod tests {
         },
     };
     use aptos_indexer_processor_sdk::{
+        aptos_protos::transaction::v1::Transaction,
         testing_framework::{cli_parser::get_test_config, database::TestDatabase},
         traits::processor_trait::ProcessorTrait,
     };
@@ -67,7 +68,6 @@ mod tests {
         IMPORTED_TESTNET_TXNS_5992795934_FA_ACTIVITIES,
         IMPORTED_TESTNET_TXNS_6643353707_FA_TRANSFER_EVENTS_V2,
     };
-    use aptos_indexer_processor_sdk::aptos_protos::transaction::v1::Transaction;
     use processor::processors::events::events_processor::EventsProcessor;
 
     #[tokio::test(flavor = "multi_thread", worker_threads = 2)]

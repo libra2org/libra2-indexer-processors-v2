@@ -14,8 +14,10 @@ use crate::{
 };
 use anyhow::Result;
 use aptos_indexer_processor_sdk::{
-    postgres::models::processor_status::ProcessorStatusQuery,
-    postgres::utils::database::{execute_with_better_error, ArcDbPool},
+    postgres::{
+        models::processor_status::ProcessorStatusQuery,
+        utils::database::{execute_with_better_error, ArcDbPool},
+    },
     types::transaction_context::TransactionContext,
     utils::errors::ProcessorError,
 };
@@ -363,8 +365,10 @@ mod tests {
         aptos_indexer_transaction_stream::{
             utils::additional_headers::AdditionalHeaders, TransactionStreamConfig,
         },
-        postgres::models::processor_status::ProcessorStatus,
-        postgres::utils::database::{new_db_pool, run_migrations},
+        postgres::{
+            models::processor_status::ProcessorStatus,
+            utils::database::{new_db_pool, run_migrations},
+        },
         testing_framework::database::{PostgresTestDatabase, TestDatabase},
     };
     use diesel_async::RunQueryDsl;

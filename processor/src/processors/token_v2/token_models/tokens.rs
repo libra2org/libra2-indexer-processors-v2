@@ -18,12 +18,12 @@ use crate::{
 use ahash::AHashMap;
 use aptos_indexer_processor_sdk::{
     aptos_indexer_transaction_stream::utils::time::parse_timestamp,
+    aptos_protos::transaction::v1::{
+        transaction::TxnData, write_set_change::Change as WriteSetChangeEnum, DeleteTableItem,
+        Transaction, WriteResource, WriteTableItem,
+    },
     postgres::utils::database::DbPoolConnection,
     utils::convert::{ensure_not_negative, standardize_address},
-};
-use aptos_indexer_processor_sdk::aptos_protos::transaction::v1::{
-    transaction::TxnData, write_set_change::Change as WriteSetChangeEnum, DeleteTableItem,
-    Transaction, WriteResource, WriteTableItem,
 };
 use bigdecimal::{BigDecimal, Zero};
 use field_count::FieldCount;

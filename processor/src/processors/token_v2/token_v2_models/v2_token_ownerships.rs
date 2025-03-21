@@ -26,11 +26,11 @@ use ahash::AHashMap;
 use allocative_derive::Allocative;
 use anyhow::Context;
 use aptos_indexer_processor_sdk::{
+    aptos_protos::transaction::v1::{
+        DeleteResource, DeleteTableItem, WriteResource, WriteTableItem,
+    },
     postgres::utils::database::{DbContext, DbPoolConnection},
     utils::convert::{ensure_not_negative, standardize_address},
-};
-use aptos_indexer_processor_sdk::aptos_protos::transaction::v1::{
-    DeleteResource, DeleteTableItem, WriteResource, WriteTableItem,
 };
 use bigdecimal::{BigDecimal, One, ToPrimitive, Zero};
 use diesel::prelude::*;

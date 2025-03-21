@@ -15,7 +15,7 @@ use crate::{
         },
     },
     schema,
-    utils::{table_flags::TableFlags, util::filter_data},
+    utils::table_flags::{filter_data, TableFlags},
 };
 use ahash::AHashMap;
 use anyhow::Result;
