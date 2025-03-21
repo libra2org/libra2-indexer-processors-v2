@@ -142,6 +142,7 @@ async fn get_starting_version_from_db(
 
     if let Some(backfill_config) = &indexer_processor_config.backfill_config {
         let backfill_status_option = BackfillProcessorStatusQuery::get_by_processor(
+            indexer_processor_config.processor_config.name(),
             &backfill_config.backfill_alias,
             &mut conn,
         )
