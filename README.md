@@ -71,12 +71,12 @@ If you want to index a custom contract, we recommend using the [Quickstart Guide
 
 ### Use source code for existing parsers
 
-- Use the provided `Dockerfile` and `config.yaml` (update accordingly)
-- Run `cd rust/sdk-processor && cargo run --release -- -c config.yaml`
+- Use the provided `config.yaml` (update accordingly)
+- Run `cd processor && cargo run --release -- -c config.yaml`
 
 
 ### Manually running diesel-cli
-- `cd` into the database folder you use under `rust/processor/src/db/` (e.g. `rust/processor/src/db/postgres`), then run it.
+- `cd` into the database folder you use under `processor/src/db/`, then run it.
 
 ## Processor Specific Notes
 
