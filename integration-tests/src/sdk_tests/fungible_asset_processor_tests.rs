@@ -383,10 +383,7 @@ mod sdk_fungible_asset_processor_tests {
                 }
             },
             Err(e) => {
-                panic!(
-                    "Test failed on {} due to processor error: {}",
-                    transaction_name, e
-                );
+                panic!("Test failed on {transaction_name} due to processor error: {e}");
             },
         }
     }
