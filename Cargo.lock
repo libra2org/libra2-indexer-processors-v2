@@ -198,11 +198,7 @@ dependencies = [
 [[package]]
 name = "aptos-indexer-test-transactions"
 version = "1.0.0"
-source = "git+https://github.com/aptos-labs/aptos-core.git?rev=4bb4cd9799c05099f60c3a2c3813b12cc96ea917#4bb4cd9799c05099f60c3a2c3813b12cc96ea917"
-dependencies = [
- "aptos-protos",
- "serde_json",
-]
+source = "git+https://github.com/aptos-labs/aptos-core.git?rev=150d0bdc63e9fda298edef7244bb044b1efa6e17#150d0bdc63e9fda298edef7244bb044b1efa6e17"
 
 [[package]]
 name = "aptos-indexer-transaction-stream"
@@ -3687,7 +3683,7 @@ dependencies = [
  "once_cell",
  "socket2",
  "tracing",
- "windows-sys 0.59.0",
+ "windows-sys 0.52.0",
 ]
 
 [[package]]
