@@ -24,9 +24,16 @@ use serde::{Deserialize, Serialize};
 
 lazy_static! {
     pub static ref ROTATE_AUTH_KEY_ENTRY_FUNCTIONS: Vec<&'static str> = vec![
-        "0x1::account::rotate_authentication_key_call",
         "0x1::account::rotate_authentication_key",
-        "0x1::account::rotate_authentication_key_with_rotation_capability"
+        "0x1::account::rotate_authentication_key_with_rotation_capability",
+        "0x1::account::upsert_ed25519_backup_key_on_keyless_account",
+    ];
+}
+
+lazy_static! {
+    pub static ref ROTATE_AUTH_KEY_UNVERIFIED_ENTRY_FUNCTIONS: Vec<&'static str> = vec![
+        "0x1::account::rotate_authentication_key_call",
+        "0x1::account::rotate_authentication_key_from_public_key",
     ];
 }
 
@@ -93,8 +100,32 @@ pub fn parse_account_restoration_models(
                     {
                         let auth_key = standardize_address(&account.authentication_key);
                         let account_address = standardize_address(&wr.address);
+                        if sender.as_ref() != Some(&account_address) {
+                            continue;
+                        }
 
-                        if ROTATE_AUTH_KEY_ENTRY_FUNCTIONS
+                        // If the transaction is an unverified key rotation transaction, we need to insert the auth key account address
+                        // with auth_key_used set to false.  This allows us to filter out accounts that are not actually owned by the
+                        // owner of the auth key.
+                        if ROTATE_AUTH_KEY_UNVERIFIED_ENTRY_FUNCTIONS
+                            .contains(&entry_function_id_str.as_deref().unwrap_or(""))
+                        {
+                            auth_key_account_addresses.insert(
+                                account_address.clone(),
+                                AuthKeyAccountAddress {
+                                    auth_key: auth_key.clone(),
+                                    account_address,
+                                    last_transaction_version: txn_version,
+                                    auth_key_used: false,
+                                },
+                            );
+                        }
+                        // In all other cases
+                        // - If the transaction is a verified key rotation transaction
+                        // - If the transaction is a multi-key transaction
+                        // - If the transaction is on a rotated account
+                        // we need to insert the auth key account address with auth_key_used set to true.
+                        else if ROTATE_AUTH_KEY_ENTRY_FUNCTIONS
                             .contains(&entry_function_id_str.as_deref().unwrap_or(""))
                             || auth_key != account_address
                             || multi_key_helper.is_some()
@@ -106,6 +137,7 @@ pub fn parse_account_restoration_models(
                                     auth_key: auth_key.clone(),
                                     account_address,
                                     last_transaction_version: txn_version,
+                                    auth_key_used: true,
                                 },
                             );
                         }
