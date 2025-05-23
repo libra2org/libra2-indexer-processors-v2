@@ -56,6 +56,7 @@ impl Processable for AccountRestorationStorer {
         &mut self,
         input: TransactionContext<Self::Input>,
     ) -> Result<Option<TransactionContext<Self::Output>>, ProcessorError> {
+        println!("end version: {}", input.metadata.end_version);
         let (auth_key_address, public_key_auth_key) = input.data;
 
         let per_table_chunk_sizes: AHashMap<String, usize> =
