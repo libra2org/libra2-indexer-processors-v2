@@ -1,11 +1,11 @@
-// Copyright © Aptos Foundation
+// Copyright © A-p-t-o-s Foundation
 // SPDX-License-Identifier: Apache-2.0
 
 #![allow(clippy::extra_unused_lifetimes)]
 
 use crate::parquet_processors::parquet_utils::util::{HasVersion, NamedTable};
 use allocative_derive::Allocative;
-use aptos_indexer_processor_sdk::aptos_protos::transaction::v1::WriteOpSizeInfo;
+use libra2_indexer_processor_sdk::libra2_protos::transaction::v1::WriteOpSizeInfo;
 use field_count::FieldCount;
 use parquet_derive::ParquetRecordWriter;
 use serde::{Deserialize, Serialize};

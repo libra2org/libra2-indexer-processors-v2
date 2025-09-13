@@ -1,4 +1,4 @@
-// Copyright © Aptos Foundation
+// Copyright © A-p-t-o-s Foundation
 // SPDX-License-Identifier: Apache-2.0
 
 // This is required because a diesel macro makes clippy sad
@@ -33,10 +33,10 @@ use crate::{
 };
 use ahash::AHashMap;
 use allocative_derive::Allocative;
-use aptos_indexer_processor_sdk::{
-    aptos_protos::transaction::v1::{DeleteResource, WriteResource},
+use libra2_indexer_processor_sdk::{
+   libra2_protos::transaction::v1::{DeleteResource, WriteResource},
     utils::{
-        constants::{APTOS_COIN_TYPE_STR, APT_METADATA_ADDRESS_HEX, APT_METADATA_ADDRESS_RAW},
+        constants::{LIBRA2_COIN_TYPE_STR, LBT_METADATA_ADDRESS_HEX, LBT_METADATA_ADDRESS_RAW},
         convert::{hex_to_raw_bytes, sha3_256, standardize_address},
     },
 };
@@ -88,10 +88,10 @@ pub struct CurrentUnifiedFungibleAssetBalance {
 }
 
 pub fn get_paired_metadata_address(coin_type_name: &str) -> String {
-    if coin_type_name == APTOS_COIN_TYPE_STR {
-        APT_METADATA_ADDRESS_HEX.clone()
+    if coin_type_name == LIBRA2_COIN_TYPE_STR {
+        LBT_METADATA_ADDRESS_HEX.clone()
     } else {
-        let mut preimage = APT_METADATA_ADDRESS_RAW.to_vec();
+        let mut preimage = LBT_METADATA_ADDRESS_RAW.to_vec();
         preimage.extend(coin_type_name.as_bytes());
         preimage.push(0xFE);
         format!("0x{}", hex::encode(sha3_256(&preimage)))
@@ -630,8 +630,8 @@ mod tests {
     #[test]
     fn test_paired_metadata_address() {
         assert_eq!(
-            get_paired_metadata_address("0x1::aptos_coin::AptosCoin"),
-            *APT_METADATA_ADDRESS_HEX
+            get_paired_metadata_address("0x1::libra2_coin::Libra2Coin"),
+            *LBT_METADATA_ADDRESS_HEX
         );
         assert_eq!(get_paired_metadata_address("0x66c34778730acbb120cefa57a3d98fd21e0c8b3a51e9baee530088b2e444e94c::moon_coin::MoonCoin"), "0xf772c28c069aa7e4417d85d771957eb3c5c11b5bf90b1965cda23b899ebc0384");
     }

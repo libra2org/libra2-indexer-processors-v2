@@ -5,13 +5,13 @@ resolver = "2"
 members = ["integration-tests", "processor"]
 
 [workspace.package]
-authors = ["Aptos Labs <opensource@aptoslabs.com>"]
+authors = ["Libra2 Labs <opensource@libra2.org>"]
 version = "0.1.0"
 edition = "2021"
-homepage = "https://aptoslabs.com"
+homepage = "https://libra2.org"
 license = "Apache-2.0"
 publish = false
-repository = "https://github.com/aptos-labs/aptos-indexer-processors-v2"
+repository = "https://github.com/libra2org/libra2-indexer-processors-v2"
 # This needs to match aptos-core's version to run the processors in the CLI. 
 rust-version = "1.78"
 
@@ -26,10 +26,13 @@ anyhow = "1.0.98"
 # https://github.com/aptos-labs/aptos-indexer-processors/pull/325
 # Do NOT enable the testing_framework feature here, it is conditionally enabled as a dev dependency
 # in the integration-tests/Cargo.toml file.
-aptos-indexer-processor-sdk = { git = "https://github.com/aptos-labs/aptos-indexer-processor-sdk.git", tag = "aptos-indexer-processor-sdk-v2.1.2", features = [
-    "postgres_partial",
-] }
-aptos-indexer-test-transactions = { git = "https://github.com/aptos-labs/aptos-core.git", rev = "ca8e29d1992d99a2f5f82deca4098480c7279679" }
+#libra2-indexer-processor-sdk = { git = "https://github.com/libra2org/libra2-indexer-processor-sdk.git", features = [
+#    "postgres_partial",
+#] }
+libra2-indexer-processor-sdk = { git = "https://github.com/libra2org/libra2-indexer-processor-sdk.git" }
+
+# libra2-indexer-test-transactions = { git = "https://github.com/aptos-labs/aptos-core.git", rev = "ca8e29d1992d99a2f5f82deca4098480c7279679" }
+libra2-indexer-test-transactions = { git = "https://github.com/libra2org/libra2-core.git" }
 assert-json-diff = "2.0.2"
 async-trait = "0.1.53"
 backtrace = "0.3.58"

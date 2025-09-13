@@ -1,10 +1,10 @@
-# Aptos Core Processors (SDK version)
-Processors that index data from the Aptos Transaction Stream (GRPC). These processors have been (re)-written using the new Indexer SDK.
+# Libra2 Core Processors (SDK version)
+Processors that index data from the Libra2 Transaction Stream (GRPC). These processors have been (re)-written using the new Indexer SDK.
 
 - **Note: Official releases coming soon!**
 
 ## Overview
-This tutorial shows you how to run the Aptos core processors in this repo.
+This tutorial shows you how to run the Libra2 core processors in this repo.
 
 If you want to index a custom contract, we recommend using the [Quickstart Guide](https://aptos.dev/en/build/indexer/indexer-sdk/quickstart).
 

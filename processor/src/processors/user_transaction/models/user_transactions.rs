@@ -1,4 +1,4 @@
-// Copyright © Aptos Foundation
+// Copyright © A-p-t-o-s Foundation
 
 // Copyright (c) Aptos
 // SPDX-License-Identifier: Apache-2.0
@@ -18,9 +18,9 @@ use crate::{
 };
 use allocative::Allocative;
 use anyhow::Result;
-use aptos_indexer_processor_sdk::{
-    aptos_indexer_transaction_stream::utils::time::parse_timestamp,
-    aptos_protos::{
+use libra2_indexer_processor_sdk::{
+    libra2_indexer_transaction_stream::utils::time::parse_timestamp,
+   libra2_protos::{
         transaction::v1::{
             TransactionInfo, UserTransaction as UserTransactionPB, UserTransactionRequest,
         },

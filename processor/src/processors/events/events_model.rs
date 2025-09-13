@@ -6,9 +6,9 @@ use crate::{
     utils::counters::PROCESSOR_UNKNOWN_TYPE_COUNT,
 };
 use allocative_derive::Allocative;
-use aptos_indexer_processor_sdk::{
-    aptos_indexer_transaction_stream::utils::time::parse_timestamp,
-    aptos_protos::transaction::v1::{
+use libra2_indexer_processor_sdk::{
+    libra2_indexer_transaction_stream::utils::time::parse_timestamp,
+   libra2_protos::transaction::v1::{
         transaction::TxnData, Event as EventPB, EventSizeInfo, Transaction,
     },
     utils::convert::{standardize_address, truncate_str},

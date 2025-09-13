@@ -27,13 +27,13 @@
                 "type": "MOVE_TYPES_STRUCT",
                 "struct": {
                   "address": "0x1",
-                  "module": "aptos_coin",
-                  "name": "AptosCoin"
+                  "module": "libra2_coin",
+                  "name": "Libra2Coin"
                 }
               }
             ]
           },
-          "typeStr": "0x1::coin::CoinStore<0x1::aptos_coin::AptosCoin>",
+          "typeStr": "0x1::coin::CoinStore<0x1::libra2_coin::Libra2Coin>",
           "data": "{\"coin\":{\"value\":\"1913986308\"},\"deposit_events\":{\"counter\":\"16\",\"guid\":{\"id\":{\"addr\":\"0xdd42f7a9b239c55e0e5bd0600eb6cfb03f6b162a37a7868f74317bb498ee269b\",\"creation_num\":\"2\"}}},\"frozen\":false,\"withdraw_events\":{\"counter\":\"13\",\"guid\":{\"id\":{\"addr\":\"0xdd42f7a9b239c55e0e5bd0600eb6cfb03f6b162a37a7868f74317bb498ee269b\",\"creation_num\":\"3\"}}}}"
         }
       },

@@ -6,8 +6,8 @@ use crate::processors::default::{
     },
     process_transactions,
 };
-use aptos_indexer_processor_sdk::{
-    aptos_protos::transaction::v1::Transaction,
+use libra2_indexer_processor_sdk::{
+   libra2_protos::transaction::v1::Transaction,
     traits::{async_step::AsyncRunType, AsyncStep, NamedStep, Processable},
     types::transaction_context::TransactionContext,
     utils::errors::ProcessorError,

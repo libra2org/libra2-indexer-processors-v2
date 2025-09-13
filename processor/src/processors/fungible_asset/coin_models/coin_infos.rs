@@ -1,4 +1,4 @@
-// Copyright © Aptos Foundation
+// Copyright © A-p-t-o-s Foundation
 // SPDX-License-Identifier: Apache-2.0
 
 // This is required because a diesel macro makes clippy sad
@@ -7,7 +7,7 @@
 
 use super::coin_utils::{CoinInfoType, CoinResource};
 use crate::schema::coin_infos;
-use aptos_indexer_processor_sdk::aptos_protos::transaction::v1::WriteResource;
+use libra2_indexer_processor_sdk::libra2_protos::transaction::v1::WriteResource;
 use field_count::FieldCount;
 use serde::{Deserialize, Serialize};
 

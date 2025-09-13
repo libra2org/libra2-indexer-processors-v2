@@ -1,4 +1,4 @@
-// Copyright © Aptos Foundation
+// Copyright © A-p-t-o-s Foundation
 // SPDX-License-Identifier: Apache-2.0
 
 // This is required because a diesel macro makes clippy sad
@@ -22,8 +22,8 @@ use crate::{
 };
 use allocative_derive::Allocative;
 use anyhow::Context;
-use aptos_indexer_processor_sdk::{
-    aptos_protos::transaction::v1::{WriteResource, WriteTableItem},
+use libra2_indexer_processor_sdk::{
+   libra2_protos::transaction::v1::{WriteResource, WriteTableItem},
     postgres::utils::database::{DbContext, DbPoolConnection},
     utils::convert::standardize_address,
 };
@@ -135,7 +135,7 @@ impl CollectionV2 {
                     );
                 }
 
-                // Getting collection mutability config from AptosCollection
+                // Getting collection mutability config from Libra2Collection
                 let collection = object_data.aptos_collection.as_ref();
                 if let Some(collection) = collection {
                     mutable_description = Some(collection.mutable_description);

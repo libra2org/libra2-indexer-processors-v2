@@ -1,5 +1,5 @@
 use ahash::AHashMap;
-use aptos_indexer_processor_sdk::testing_framework::sdk_test_context::SdkTestContext;
+use libra2_indexer_processor_sdk::testing_framework::sdk_test_context::SdkTestContext;
 use processor::{
     config::{
         db_config::{DbConfig, PostgresConfig},
@@ -61,10 +61,10 @@ mod sdk_token_v2_processor_tests {
             run_processor_test, setup_test_environment, validate_json, DEFAULT_OUTPUT_FOLDER,
         },
     };
-    use aptos_indexer_processor_sdk::testing_framework::{
+    use libra2_indexer_processor_sdk::testing_framework::{
         cli_parser::get_test_config, database::TestDatabase,
     };
-    use aptos_indexer_test_transactions::json_transactions::generated_transactions::{
+    use libra2_indexer_test_transactions::json_transactions::generated_transactions::{
         IMPORTED_DEVNET_TXNS_19922017_TOKEN_V1_OFFER_CLAIM,
         IMPORTED_DEVNET_TXNS_78753831_TOKEN_V1_MINT_TRANSFER_WITH_V2_EVENTS,
         IMPORTED_DEVNET_TXNS_78753832_TOKEN_V2_MINT_TRANSFER_WITH_V2_EVENTS,
@@ -89,10 +89,10 @@ mod sdk_token_v2_processor_tests {
     /**
     * This test includes processing for the following:
     * - Resources
-    *      - 0x4::aptos_token::AptosCollection
+    *      - 0x4::libra2_token::Libra2Collection
     *      - 0x4::collection::Collection
     *      - 0x4::collection::ConcurrentSupply
-    *      - 0x4::aptos_token::AptosToken
+    *      - 0x4::libra2_token::Libra2Token
     *      - 0x4::property_map::PropertyMap
     *      - 0x4::token::Token
 
@@ -148,10 +148,10 @@ mod sdk_token_v2_processor_tests {
     /**
     * This test includes processing for the following:
     * - Resources
-    *      - 0x4::aptos_token::AptosCollection
+    *      - 0x4::libra2_token::Libra2Collection
     *      - 0x4::collection::Collection
     *      - 0x4::collection::FixedSupply
-    *      - 0x4::aptos_token::AptosToken
+    *      - 0x4::libra2_token::Libra2Token
     *      - 0x4::property_map::PropertyMap
     *      - 0x4::token::Token
 
@@ -171,10 +171,10 @@ mod sdk_token_v2_processor_tests {
     /**
     * This test includes processing for the following:
     * - Resources
-    *      - 0x4::aptos_token::AptosCollection
+    *      - 0x4::libra2_token::Libra2Collection
     *      - 0x4::collection::Collection
     *      - 0x4::collection::FixedSupply
-    *      - 0x4::aptos_token::AptosToken
+    *      - 0x4::libra2_token::Libra2Token
     *      - 0x4::property_map::PropertyMap
     *      - 0x4::token::Token
 
@@ -193,7 +193,7 @@ mod sdk_token_v2_processor_tests {
     /**
     * This test includes processing for the following:
     * - Resources
-    *      - 0x4::aptos_token::AptosCollection
+    *      - 0x4::libra2_token::Libra2Collection
     *      - 0x4::collection::Collection
     *      - 0x4::collection::ConcurrentSupply
     * - Events

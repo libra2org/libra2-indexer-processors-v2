@@ -9,8 +9,8 @@ use crate::{
     schema::backfill_processor_status,
 };
 use anyhow::Result;
-use aptos_indexer_processor_sdk::{
-    aptos_indexer_transaction_stream::utils::time::parse_timestamp,
+use libra2_indexer_processor_sdk::{
+    libra2_indexer_transaction_stream::utils::time::parse_timestamp,
     common_steps::ProcessorStatusSaver,
     postgres::{
         models::processor_status::{ProcessorStatus, ProcessorStatusQuery},
@@ -344,8 +344,8 @@ mod tests {
         MIGRATIONS,
     };
     use ahash::AHashMap;
-    use aptos_indexer_processor_sdk::{
-        aptos_indexer_transaction_stream::{
+    use libra2_indexer_processor_sdk::{
+        libra2_indexer_transaction_stream::{
             utils::additional_headers::AdditionalHeaders, TransactionStreamConfig,
         },
         postgres::{

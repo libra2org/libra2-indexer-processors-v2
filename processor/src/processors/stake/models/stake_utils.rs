@@ -1,12 +1,12 @@
-// Copyright © Aptos Foundation
+// Copyright © A-p-t-o-s Foundation
 // SPDX-License-Identifier: Apache-2.0
 
 use crate::processors::{
     default::models::move_resources::MoveResource, token_v2::token_models::token_utils::Table,
 };
 use anyhow::{Context, Result};
-use aptos_indexer_processor_sdk::{
-    aptos_protos::transaction::v1::WriteResource,
+use libra2_indexer_processor_sdk::{
+   libra2_protos::transaction::v1::WriteResource,
     utils::convert::{deserialize_from_string, standardize_address},
 };
 use bigdecimal::BigDecimal;

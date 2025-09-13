@@ -1,4 +1,4 @@
-// Copyright © Aptos Foundation
+// Copyright © A-p-t-o-s Foundation
 // SPDX-License-Identifier: Apache-2.0
 
 // This is required because a diesel macro makes clippy sad
@@ -13,14 +13,14 @@ use crate::{
             FungibleAssetStore, FungibleAssetSupply,
         },
         token_v2::token_v2_models::v2_token_utils::{
-            AptosCollection, ConcurrentSupply, FixedSupply, PropertyMapModel, TokenIdentifiers,
+            Libra2Collection, ConcurrentSupply, FixedSupply, PropertyMapModel, TokenIdentifiers,
             TokenV2, TransferEvent, UnlimitedSupply,
         },
     },
 };
 use ahash::AHashMap;
-use aptos_indexer_processor_sdk::{
-    aptos_protos::transaction::v1::WriteResource,
+use libra2_indexer_processor_sdk::{
+   libra2_protos::transaction::v1::WriteResource,
     utils::convert::{deserialize_from_string, standardize_address},
 };
 use bigdecimal::BigDecimal;
@@ -49,7 +49,7 @@ pub struct ObjectAggregatedData {
     pub fungible_asset_store: Option<FungibleAssetStore>,
     pub concurrent_fungible_asset_balance: Option<ConcurrentFungibleAssetBalance>,
     // Token v2 structs
-    pub aptos_collection: Option<AptosCollection>,
+    pub aptos_collection: Option<Libra2Collection>,
     pub fixed_supply: Option<FixedSupply>,
     pub property_map: Option<PropertyMapModel>,
     pub token: Option<TokenV2>,

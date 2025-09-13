@@ -22,7 +22,7 @@ pub mod user_transaction_processor_tests;
 #[cfg(test)]
 pub mod test_helpers {
     use crate::diff_test_helper::tests::remove_transaction_timestamp;
-    use aptos_indexer_processor_sdk::{
+    use libra2_indexer_processor_sdk::{
         testing_framework::{
             database::{PostgresTestDatabase, TestDatabase},
             sdk_test_context::{remove_inserted_at, SdkTestContext},

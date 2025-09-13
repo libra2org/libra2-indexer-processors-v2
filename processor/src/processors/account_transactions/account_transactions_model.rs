@@ -1,4 +1,4 @@
-// Copyright © Aptos Foundation
+// Copyright © A-p-t-o-s Foundation
 // SPDX-License-Identifier: Apache-2.0
 
 // This is required because a diesel macro makes clippy sad
@@ -17,9 +17,9 @@ use crate::{
 };
 use ahash::AHashSet;
 use allocative_derive::Allocative;
-use aptos_indexer_processor_sdk::{
-    aptos_indexer_transaction_stream::utils::time::parse_timestamp,
-    aptos_protos::transaction::v1::{transaction::TxnData, write_set_change::Change, Transaction},
+use libra2_indexer_processor_sdk::{
+    libra2_indexer_transaction_stream::utils::time::parse_timestamp,
+   libra2_protos::transaction::v1::{transaction::TxnData, write_set_change::Change, Transaction},
     utils::convert::standardize_address,
 };
 use field_count::FieldCount;

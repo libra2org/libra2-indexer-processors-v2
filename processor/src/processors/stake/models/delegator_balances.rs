@@ -1,4 +1,4 @@
-// Copyright © Aptos Foundation
+// Copyright © A-p-t-o-s Foundation
 
 // This is required because a diesel macro makes clippy sad
 #![allow(clippy::extra_unused_lifetimes)]
@@ -15,9 +15,9 @@ use crate::{
 use ahash::AHashMap;
 use allocative::Allocative;
 use anyhow::Context;
-use aptos_indexer_processor_sdk::{
-    aptos_indexer_transaction_stream::utils::time::parse_timestamp,
-    aptos_protos::transaction::v1::{
+use libra2_indexer_processor_sdk::{
+    libra2_indexer_transaction_stream::utils::time::parse_timestamp,
+   libra2_protos::transaction::v1::{
         write_set_change::Change, DeleteTableItem, Transaction, WriteResource, WriteTableItem,
     },
     postgres::utils::database::DbPoolConnection,

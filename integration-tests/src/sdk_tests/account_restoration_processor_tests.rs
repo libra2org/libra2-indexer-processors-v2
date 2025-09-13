@@ -1,5 +1,5 @@
 use ahash::AHashMap;
-use aptos_indexer_processor_sdk::testing_framework::sdk_test_context::SdkTestContext;
+use libra2_indexer_processor_sdk::testing_framework::sdk_test_context::SdkTestContext;
 use processor::config::{
     db_config::{DbConfig, PostgresConfig},
     indexer_processor_config::IndexerProcessorConfig,
@@ -50,12 +50,12 @@ mod sdk_account_restoration_processor_tests {
         diff_test_helper::account_restoration_processor::load_data,
         sdk_tests::test_helpers::{run_processor_test, validate_json, DEFAULT_OUTPUT_FOLDER},
     };
-    use aptos_indexer_processor_sdk::testing_framework::{
+    use libra2_indexer_processor_sdk::testing_framework::{
         cli_parser::get_test_config,
         database::{PostgresTestDatabase, TestDatabase},
         sdk_test_context::SdkTestContext,
     };
-    use aptos_indexer_test_transactions::json_transactions::generated_transactions::{
+    use libra2_indexer_test_transactions::json_transactions::generated_transactions::{
         IMPORTED_MAINNET_TXNS_2200077591_ACCOUNT_RESTORATION_SINGLE_ED25519,
         IMPORTED_MAINNET_TXNS_2200077673_ACCOUNT_RESTORATION_UNVERIFIED_KEY_ROTATION_TO_MULTI_KEY_TXN,
         IMPORTED_MAINNET_TXNS_2200077800_ACCOUNT_RESTORATION_ROTATED_TO_MULTI_KEY,

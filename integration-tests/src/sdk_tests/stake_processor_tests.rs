@@ -1,5 +1,5 @@
 use ahash::AHashMap;
-use aptos_indexer_processor_sdk::testing_framework::sdk_test_context::SdkTestContext;
+use libra2_indexer_processor_sdk::testing_framework::sdk_test_context::SdkTestContext;
 use processor::{
     config::{
         db_config::{DbConfig, PostgresConfig},
@@ -61,10 +61,10 @@ mod tests {
             },
         },
     };
-    use aptos_indexer_processor_sdk::testing_framework::{
+    use libra2_indexer_processor_sdk::testing_framework::{
         cli_parser::get_test_config, database::TestDatabase,
     };
-    use aptos_indexer_test_transactions::json_transactions::generated_transactions::{
+    use libra2_indexer_test_transactions::json_transactions::generated_transactions::{
         IMPORTED_MAINNET_TXNS_118489_PROPOSAL_VOTE,
         IMPORTED_MAINNET_TXNS_121508544_STAKE_DISTRIBUTE,
         IMPORTED_MAINNET_TXNS_139449359_STAKE_REACTIVATE,

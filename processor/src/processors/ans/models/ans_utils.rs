@@ -1,4 +1,4 @@
-// Copyright © Aptos Foundation
+// Copyright © A-p-t-o-s Foundation
 // SPDX-License-Identifier: Apache-2.0
 
 // This is required because a diesel macro makes clippy sad
@@ -6,9 +6,9 @@
 
 use crate::processors::default::models::move_resources::MoveResource;
 use anyhow::Context;
-use aptos_indexer_processor_sdk::{
-    aptos_indexer_transaction_stream::utils::time::parse_timestamp_secs,
-    aptos_protos::transaction::v1::{Event, WriteResource},
+use libra2_indexer_processor_sdk::{
+    libra2_indexer_transaction_stream::utils::time::parse_timestamp_secs,
+   libra2_protos::transaction::v1::{Event, WriteResource},
     utils::convert::{
         bigdecimal_to_u64, deserialize_from_string, standardize_address, truncate_str,
     },

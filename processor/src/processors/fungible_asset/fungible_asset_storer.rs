@@ -1,4 +1,4 @@
-// Copyright © Aptos Foundation
+// Copyright © A-p-t-o-s Foundation
 // SPDX-License-Identifier: Apache-2.0
 
 use crate::{
@@ -20,7 +20,7 @@ use crate::{
 };
 use ahash::AHashMap;
 use anyhow::Result;
-use aptos_indexer_processor_sdk::{
+use libra2_indexer_processor_sdk::{
     postgres::utils::database::{execute_in_chunks, get_config_table_chunk_size, ArcDbPool},
     traits::{async_step::AsyncRunType, AsyncStep, NamedStep, Processable},
     types::transaction_context::TransactionContext,

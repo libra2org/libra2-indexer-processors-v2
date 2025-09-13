@@ -1,4 +1,4 @@
-// Copyright © Aptos Foundation
+// Copyright © A-p-t-o-s Foundation
 // SPDX-License-Identifier: Apache-2.0
 
 use super::{
@@ -31,8 +31,8 @@ use crate::{
     },
 };
 use anyhow::Result;
-use aptos_indexer_processor_sdk::{
-    aptos_indexer_transaction_stream::TransactionStreamConfig, server_framework::RunnableConfig,
+use libra2_indexer_processor_sdk::{
+    libra2_indexer_transaction_stream::TransactionStreamConfig, server_framework::RunnableConfig,
     traits::processor_trait::ProcessorTrait,
 };
 use serde::{Deserialize, Serialize};

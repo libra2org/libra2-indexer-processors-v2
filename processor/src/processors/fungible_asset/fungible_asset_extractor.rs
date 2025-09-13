@@ -15,8 +15,8 @@ use crate::processors::fungible_asset::{
 };
 use ahash::AHashMap;
 use anyhow::Result;
-use aptos_indexer_processor_sdk::{
-    aptos_protos::transaction::v1::Transaction,
+use libra2_indexer_processor_sdk::{
+   libra2_protos::transaction::v1::Transaction,
     postgres::utils::database::ArcDbPool,
     traits::{async_step::AsyncRunType, AsyncStep, NamedStep, Processable},
     types::transaction_context::TransactionContext,

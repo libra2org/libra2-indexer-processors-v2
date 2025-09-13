@@ -1,4 +1,4 @@
-// Copyright © Aptos Foundation
+// Copyright © A-p-t-o-s Foundation
 // SPDX-License-Identifier: Apache-2.0
 
 use crate::{
@@ -34,9 +34,9 @@ use crate::{
     utils::counters::PROCESSOR_UNKNOWN_TYPE_COUNT,
 };
 use ahash::{AHashMap, AHashSet};
-use aptos_indexer_processor_sdk::{
-    aptos_indexer_transaction_stream::utils::time::parse_timestamp,
-    aptos_protos::transaction::v1::{transaction::TxnData, write_set_change::Change, Transaction},
+use libra2_indexer_processor_sdk::{
+    libra2_indexer_transaction_stream::utils::time::parse_timestamp,
+   libra2_protos::transaction::v1::{transaction::TxnData, write_set_change::Change, Transaction},
     postgres::utils::database::DbContext,
     utils::{convert::standardize_address, extract::get_entry_function_from_user_request},
 };
@@ -162,7 +162,7 @@ pub async fn parse_v2_token(
                                 V2TokenResource::UnlimitedSupply(unlimited_supply) => {
                                     aggregated_data.unlimited_supply = Some(unlimited_supply);
                                 },
-                                V2TokenResource::AptosCollection(aptos_collection) => {
+                                V2TokenResource::Libra2Collection(aptos_collection) => {
                                     aggregated_data.aptos_collection = Some(aptos_collection);
                                 },
                                 V2TokenResource::PropertyMapModel(property_map) => {

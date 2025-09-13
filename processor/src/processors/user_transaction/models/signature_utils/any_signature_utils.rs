@@ -1,7 +1,7 @@
-// Copyright © Aptos Foundation
+// Copyright © A-p-t-o-s Foundation
 // SPDX-License-Identifier: Apache-2.0
 
-use aptos_indexer_processor_sdk::aptos_protos::transaction::v1::{
+use libra2_indexer_processor_sdk::libra2_protos::transaction::v1::{
     any_signature::{SignatureVariant, Type as AnySignatureTypeEnum},
     AnySignature,
 };

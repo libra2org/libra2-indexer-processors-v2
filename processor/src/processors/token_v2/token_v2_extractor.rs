@@ -10,8 +10,8 @@ use crate::processors::token_v2::{
     },
     token_v2_processor_helpers::parse_v2_token,
 };
-use aptos_indexer_processor_sdk::{
-    aptos_protos::transaction::v1::Transaction,
+use libra2_indexer_processor_sdk::{
+   libra2_protos::transaction::v1::Transaction,
     postgres::utils::database::{ArcDbPool, DbContext},
     traits::{async_step::AsyncRunType, AsyncStep, NamedStep, Processable},
     types::transaction_context::TransactionContext,

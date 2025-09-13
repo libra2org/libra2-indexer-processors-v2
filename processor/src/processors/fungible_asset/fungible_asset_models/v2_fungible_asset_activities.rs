@@ -1,4 +1,4 @@
-// Copyright © Aptos Foundation
+// Copyright © A-p-t-o-s Foundation
 // SPDX-License-Identifier: Apache-2.0
 
 // This is required because a diesel macro makes clippy sad
@@ -27,8 +27,8 @@ use crate::{
 use ahash::AHashMap;
 use allocative::Allocative;
 use anyhow::Context;
-use aptos_indexer_processor_sdk::{
-    aptos_protos::transaction::v1::{Event, TransactionInfo, UserTransactionRequest},
+use libra2_indexer_processor_sdk::{
+   libra2_protos::transaction::v1::{Event, TransactionInfo, UserTransactionRequest},
     utils::convert::{bigdecimal_to_u64, standardize_address},
 };
 use bigdecimal::{BigDecimal, Zero};
@@ -36,7 +36,7 @@ use field_count::FieldCount;
 use parquet_derive::ParquetRecordWriter;
 use serde::{Deserialize, Serialize};
 
-pub const GAS_FEE_EVENT: &str = "0x1::aptos_coin::GasFeeEvent";
+pub const GAS_FEE_EVENT: &str = "0x1::libra2_coin::GasFeeEvent";
 // We will never have a negative number on chain so this will avoid collision in postgres
 pub const BURN_GAS_EVENT_CREATION_NUM: i64 = -1;
 pub const BURN_GAS_EVENT_INDEX: i64 = -1;

@@ -4,7 +4,7 @@ description = "Indexer GRPC processor integration tests."
 version = "1.0.0"
 
 # Workspace inherited keys
-authors = ["Aptos Labs <opensource@aptoslabs.com>"]
+authors = ["A-p-t-o-s Labs <opensource@aptoslabs.com>"]
 edition = "2021"
 homepage = "https://aptoslabs.com"
 license = "Apache-2.0"
@@ -15,8 +15,8 @@ rust-version = { workspace = true }
 [dependencies]
 ahash = { workspace = true }
 anyhow = { workspace = true }
-aptos-indexer-processor-sdk = { workspace = true }
-aptos-indexer-test-transactions = { workspace = true }
+libra2-indexer-processor-sdk = { workspace = true }
+libra2-indexer-test-transactions = { workspace = true }
 assert-json-diff = { workspace = true }
 bigdecimal = { workspace = true }
 chrono = { workspace = true }
@@ -29,7 +29,7 @@ tokio = { workspace = true }
 
 [dev-dependencies]
 ahash = { workspace = true }
-aptos-indexer-processor-sdk = { workspace = true, features = [
+libra2-indexer-processor-sdk = { workspace = true, features = [
     "testing_framework",
 ] }
 futures = { workspace = true }

@@ -1,4 +1,4 @@
-// Copyright © Aptos Foundation
+// Copyright © A-p-t-o-s Foundation
 // SPDX-License-Identifier: Apache-2.0
 
 // This is required because a diesel macro makes clippy sad
@@ -14,8 +14,8 @@ use crate::{
     schema::current_token_pending_claims,
 };
 use allocative_derive::Allocative;
-use aptos_indexer_processor_sdk::{
-    aptos_protos::transaction::v1::{DeleteTableItem, WriteTableItem},
+use libra2_indexer_processor_sdk::{
+   libra2_protos::transaction::v1::{DeleteTableItem, WriteTableItem},
     utils::convert::standardize_address,
 };
 use bigdecimal::{BigDecimal, ToPrimitive, Zero};

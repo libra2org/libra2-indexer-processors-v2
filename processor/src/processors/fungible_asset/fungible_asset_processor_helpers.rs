@@ -1,4 +1,4 @@
-// Copyright © Aptos Foundation
+// Copyright © A-p-t-o-s Foundation
 // SPDX-License-Identifier: Apache-2.0
 
 use super::fungible_asset_models::v2_fungible_asset_activities::StoreAddressToDeletedFungibleAssetStoreEvent;
@@ -27,8 +27,8 @@ use crate::{
     utils::counters::PROCESSOR_UNKNOWN_TYPE_COUNT,
 };
 use ahash::AHashMap;
-use aptos_indexer_processor_sdk::{
-    aptos_protos::transaction::v1::{transaction::TxnData, write_set_change::Change, Transaction},
+use libra2_indexer_processor_sdk::{
+   libra2_protos::transaction::v1::{transaction::TxnData, write_set_change::Change, Transaction},
     utils::{convert::standardize_address, extract::get_entry_function_from_user_request},
 };
 use chrono::NaiveDateTime;

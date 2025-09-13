@@ -1,5 +1,5 @@
 use ahash::AHashMap;
-use aptos_indexer_processor_sdk::testing_framework::sdk_test_context::SdkTestContext;
+use libra2_indexer_processor_sdk::testing_framework::sdk_test_context::SdkTestContext;
 use processor::config::{
     db_config::{DbConfig, PostgresConfig},
     indexer_processor_config::IndexerProcessorConfig,
@@ -52,10 +52,10 @@ mod sdk_user_txn_processor_tests {
             run_processor_test, setup_test_environment, validate_json, DEFAULT_OUTPUT_FOLDER,
         },
     };
-    use aptos_indexer_processor_sdk::testing_framework::{
+    use libra2_indexer_processor_sdk::testing_framework::{
         cli_parser::get_test_config, database::TestDatabase,
     };
-    use aptos_indexer_test_transactions::json_transactions::generated_transactions::{
+    use libra2_indexer_test_transactions::json_transactions::generated_transactions::{
         IMPORTED_MAINNET_TXNS_103958588_MULTI_AGENTS,
         IMPORTED_MAINNET_TXNS_1803170308_USER_TXN_MULTI_KEY_KEYLESS,
         IMPORTED_MAINNET_TXNS_2175935_USER_TXN_MULTI_ED25519,

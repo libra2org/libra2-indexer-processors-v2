@@ -1,5 +1,5 @@
 use ahash::AHashMap;
-use aptos_indexer_processor_sdk::testing_framework::sdk_test_context::SdkTestContext;
+use libra2_indexer_processor_sdk::testing_framework::sdk_test_context::SdkTestContext;
 use processor::config::{
     db_config::{DbConfig, PostgresConfig},
     indexer_processor_config::IndexerProcessorConfig,
@@ -52,12 +52,12 @@ mod sdk_fungible_asset_processor_tests {
             test_helpers::{run_processor_test, validate_json, DEFAULT_OUTPUT_FOLDER},
         },
     };
-    use aptos_indexer_processor_sdk::testing_framework::{
+    use libra2_indexer_processor_sdk::testing_framework::{
         cli_parser::get_test_config,
         database::{PostgresTestDatabase, TestDatabase},
         sdk_test_context::SdkTestContext,
     };
-    use aptos_indexer_test_transactions::json_transactions::generated_transactions::{
+    use libra2_indexer_test_transactions::json_transactions::generated_transactions::{
         IMPORTED_MAINNET_TXNS_1680592683_FA_MIGRATION_COIN_INFO,
         IMPORTED_MAINNET_TXNS_1737056775_COIN_TRANSFER_BURN_EVENT,
         IMPORTED_MAINNET_TXNS_1957950162_FA_MIGRATION_V2_STORE_ONLY,
@@ -119,7 +119,7 @@ mod sdk_fungible_asset_processor_tests {
      * - Events
      *      - 0x1::coin::WithdrawEvent
      *      - 0x1::coin::DepositEvents
-     *      - 0x1::aptos_coin::GasFeeEvent
+     *      - 0x1::libra2_coin::GasFeeEvent
      *      - 0x1::fungible_asset::Deposit
      *      - 0x1::fungible_asset::Withdraw
      */

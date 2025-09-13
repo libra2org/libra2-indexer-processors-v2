@@ -53,7 +53,7 @@ use crate::{
     },
     utils::table_flags::TableFlags,
 };
-use aptos_indexer_processor_sdk::{
+use libra2_indexer_processor_sdk::{
     postgres::utils::database::{new_db_pool, ArcDbPool},
     utils::errors::ProcessorError,
 };

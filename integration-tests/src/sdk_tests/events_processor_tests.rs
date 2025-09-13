@@ -1,5 +1,5 @@
 use ahash::AHashMap;
-use aptos_indexer_processor_sdk::testing_framework::sdk_test_context::SdkTestContext;
+use libra2_indexer_processor_sdk::testing_framework::sdk_test_context::SdkTestContext;
 use processor::config::{
     db_config::{DbConfig, PostgresConfig},
     indexer_processor_config::IndexerProcessorConfig,
@@ -53,12 +53,12 @@ mod tests {
             },
         },
     };
-    use aptos_indexer_processor_sdk::{
-        aptos_protos::transaction::v1::Transaction,
+    use libra2_indexer_processor_sdk::{
+       libra2_protos::transaction::v1::Transaction,
         testing_framework::{cli_parser::get_test_config, database::TestDatabase},
         traits::processor_trait::ProcessorTrait,
     };
-    use aptos_indexer_test_transactions::json_transactions::generated_transactions::{
+    use libra2_indexer_test_transactions::json_transactions::generated_transactions::{
         IMPORTED_DEVNET_TXNS_78753831_TOKEN_V1_MINT_TRANSFER_WITH_V2_EVENTS,
         IMPORTED_DEVNET_TXNS_78753832_TOKEN_V2_MINT_TRANSFER_WITH_V2_EVENTS,
         IMPORTED_MAINNET_TXNS_554229017_EVENTS_WITH_NO_EVENT_SIZE_INFO,

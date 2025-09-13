@@ -1,10 +1,10 @@
-// Copyright © Aptos Foundation
+// Copyright © A-p-t-o-s Foundation
 // SPDX-License-Identifier: Apache-2.0
 
 // This is required because a diesel macro makes clippy sad
 #![allow(clippy::extra_unused_lifetimes)]
 
-use aptos_indexer_processor_sdk::aptos_protos::transaction::v1::{
+use libra2_indexer_processor_sdk::libra2_protos::transaction::v1::{
     transaction::TxnData, Transaction,
 };
 use hex;
